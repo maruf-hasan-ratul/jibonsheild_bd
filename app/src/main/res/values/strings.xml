@@ -1,0 +1,65 @@
+<resources>
+    <!-- App Identity -->
+    <string name="app_name">JibonShield BD</string>
+    <string name="app_tagline">Environmental Safety &amp; Disaster Preparedness</string>
+    <string name="app_subtagline">Offline-First Resilience System for Bangladesh</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_loading">Initializing offline safety database…</string>
+    <string name="splash_ready">Ready for offline emergency access</string>
+
+    <!-- Header / Status Bar -->
+    <string name="dashboard_greeting">Emergency Safety Dashboard</string>
+    <string name="dashboard_location_label">Region: Bangladesh (All Divisions)</string>
+    <string name="status_offline_mode">OFFLINE MODE ACTIVE</string>
+    <string name="status_offline_sub">Local safety records available without internet</string>
+    <string name="status_last_updated">Data baseline: Offline Seed 2026.1</string>
+
+    <!-- Quick Action / Hotline Banner -->
+    <string name="emergency_hotline_title">National Emergency Services</string>
+    <string name="emergency_hotline_desc">Toll-free emergency numbers: 999 (Emergency), 1090 (Disaster Alert)</string>
+    <string name="btn_quick_call">Emergency Hotlines</string>
+
+    <!-- Module Cards Titles -->
+    <string name="card_flood_title">Flood Warnings</string>
+    <string name="card_flood_desc">River water levels, monsoon alerts, and vulnerable zones.</string>
+
+    <string name="card_shelter_title">Nearby Shelters</string>
+    <string name="card_shelter_desc">Locate designated cyclone and flood shelters with offline coordinates.</string>
+
+    <string name="card_emergency_title">Emergency Contacts</string>
+    <string name="card_emergency_desc">Fire service, Red Crescent (BDRCS), medical teams, and local hotlines.</string>
+
+    <string name="card_water_title">Drinking Water Quality</string>
+    <string name="card_water_desc">Safe drinking water guidelines, purification steps, and arsenic alerts.</string>
+
+    <string name="card_heat_title">Heat Safety</string>
+    <string name="card_heat_desc">Heatwave precautions, hydration advice, and heatstroke prevention.</string>
+
+    <string name="card_evacuation_title">Evacuation Guidelines</string>
+    <string name="card_evacuation_desc">Step-by-step safe evacuation protocols and packing essentials.</string>
+
+    <string name="card_checklist_title">Preparedness Checklist</string>
+    <string name="card_checklist_desc">Emergency grab-bag items, family disaster kits, and survival essentials.</string>
+
+    <string name="card_settings_title">Settings &amp; Language</string>
+    <string name="card_settings_desc">Language selection (বাংলা / English), data version, and storage options.</string>
+
+    <!-- Feature Status Indicators & Badges -->
+    <string name="badge_offline_ready">Offline Ready</string>
+    <string name="badge_preview">Day 1 Preview</string>
+    <string name="badge_pending">Phase 2 Module</string>
+
+    <!-- Dialogs & Prompts -->
+    <string name="dialog_module_title">Module Information</string>
+    <string name="dialog_module_pending_message">This module is part of the Day 2–7 development roadmap. Complete offline data storage and interfaces will be unlocked in upcoming development phases.</string>
+    <string name="dialog_emergency_hotlines_title">National Emergency Hotlines</string>
+    <string name="dialog_emergency_hotlines_body">999 — National Emergency (Police, Fire, Ambulance)\n1090 — Disaster Early Warning (Toll Free)\n16263 — Shastho Batayan (Health Directorate)\n02-9357474 — Bangladesh Red Crescent Society (BDRCS)</string>
+    <string name="dialog_close">Close</string>
+
+    <!-- Accessibility Descriptions -->
+    <string name="cd_app_logo">JibonShield BD Logo</string>
+    <string name="cd_offline_icon">Offline status icon</string>
+    <string name="cd_hotline_icon">Emergency hotline telephone icon</string>
+    <string name="cd_module_icon">Module category icon</string>
+</resources>

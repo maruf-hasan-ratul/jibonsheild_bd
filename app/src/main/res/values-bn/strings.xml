@@ -1,0 +1,65 @@
+<resources>
+    <!-- App Identity -->
+    <string name="app_name">জীবনশিল্ড বিডি</string>
+    <string name="app_tagline">পরিবেশগত নিরাপত্তা ও দুর্যোগ প্রস্তুতি</string>
+    <string name="app_subtagline">বাংলাদেশের জন্য অফলাইন জরুরি প্রস্তুতি ব্যবস্থা</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_loading">অফলাইন নিরাপত্তা তথ্যভান্ডার প্রস্তুত হচ্ছে…</string>
+    <string name="splash_ready">ইন্টারনেট ছাড়াই ব্যবহারের জন্য প্রস্তুত</string>
+
+    <!-- Header / Status Bar -->
+    <string name="dashboard_greeting">জরুরি নিরাপত্তা ড্যাশবোর্ড</string>
+    <string name="dashboard_location_label">অঞ্চল: বাংলাদেশ (সকল বিভাগ)</string>
+    <string name="status_offline_mode">অফলাইন মোড সক্রিয়</string>
+    <string name="status_offline_sub">ইন্টারনেট ছাড়াই সকল জরুরি তথ্য সংরক্ষিত আছে</string>
+    <string name="status_last_updated">তথ্য সংস্করণ: অফলাইন সিড ২০২৬.১</string>
+
+    <!-- Quick Action / Hotline Banner -->
+    <string name="emergency_hotline_title">জাতীয় জরুরি সেবা নম্বরসমূহ</string>
+    <string name="emergency_hotline_desc">টোল-ফ্রি নম্বর: ৯৯৯ (জরুরি সেবা), ১০৯০ (দুর্যোগ আগাম বার্তা)</string>
+    <string name="btn_quick_call">জরুরি হটলাইন</string>
+
+    <!-- Module Cards Titles -->
+    <string name="card_flood_title">বন্যা সতর্কবার্তা</string>
+    <string name="card_flood_desc">নদীর পানির স্তর, বর্ষার পূর্বাভাস ও ঝুঁকিপূর্ণ এলাকার তথ্য।</string>
+
+    <string name="card_shelter_title">নিকটবর্তী আশ্রয়কেন্দ্র</string>
+    <string name="card_shelter_desc">অফলাইন লোকেশনসহ নিবন্ধিত ঘূর্ণিঝড় ও বন্যা আশ্রয়কেন্দ্র।</string>
+
+    <string name="card_emergency_title">জরুরি যোগাযোগ</string>
+    <string name="card_emergency_desc">ফায়ার সার্ভিস, রেড ক্রিসেন্ট (BDRCS), মেডিকেল টিম ও জরুরি নম্বর।</string>
+
+    <string name="card_water_title">খাবার পানির মান</string>
+    <string name="card_water_desc">নিরাপদ খাবার পানি নির্দেশিকা, পানি বিশুদ্ধকরণ ও আর্সেনিক তথ্য।</string>
+
+    <string name="card_heat_title">তাপদাহ ও স্বাস্থ্য সুরক্ষা</string>
+    <string name="card_heat_desc">তীব্র তাপদাহে করণীয়, পর্যাপ্ত পানি পান ও হিটস্ট্রোক প্রতিরোধ।</string>
+
+    <string name="card_evacuation_title">স্থানান্তর ও উদ্ধার নির্দেশিকা</string>
+    <string name="card_evacuation_desc">নিরাপদে স্থানান্তরের নিয়মাবলী এবং প্রয়োজনীয় সরঞ্জামের তালিকা।</string>
+
+    <string name="card_checklist_title">দুর্যোগ প্রস্তুতি তালিকা</string>
+    <string name="card_checklist_desc">জরুরি ব্যাগ, ফার্স্ট এইড ও প্রয়োজনীয় নথিপত্র প্রস্তুতের চেকলিস্ট।</string>
+
+    <string name="card_settings_title">সেটিংস ও ভাষা</string>
+    <string name="card_settings_desc">ভাষা নির্বাচন (বাংলা / English), ডেটা সংস্করণ ও স্টোরেজ তথ্য।</string>
+
+    <!-- Feature Status Indicators & Badges -->
+    <string name="badge_offline_ready">অফলাইনে প্রস্তুত</string>
+    <string name="badge_preview">দিন ১ প্রিভিউ</string>
+    <string name="badge_pending">পরবর্তী ধাপ</string>
+
+    <!-- Dialogs & Prompts -->
+    <string name="dialog_module_title">মডিউল সংক্রান্ত তথ্য</string>
+    <string name="dialog_module_pending_message">এই ফিচারটি পরবর্তী ধাপে (দিন ২–৭) সক্রিয় করা হবে। সম্পূর্ণ অফলাইন তথ্য ও বিস্তারিত ইন্টারফেস পর্যায়ক্রমে যুক্ত হবে।</string>
+    <string name="dialog_emergency_hotlines_title">জাতীয় জরুরি হটলাইনসমূহ</string>
+    <string name="dialog_emergency_hotlines_body">৯৯৯ — জাতীয় জরুরি সেবা (পুলিশ, ফায়ার সার্ভিস, অ্যাম্বুলেন্স)\n১০৯০ — দুর্যোগের আগাম বার্তা (টোল-ফ্রি)\n১৬২৬৩ — স্বাস্থ্য বাতায়ন (স্বাস্থ্য অধিদপ্তর)\n০২-৯৩৫৭৪৭৪ — বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি (BDRCS)</string>
+    <string name="dialog_close">বন্ধ করুন</string>
+
+    <!-- Accessibility Descriptions -->
+    <string name="cd_app_logo">জীবনশিল্ড বিডি লোগো</string>
+    <string name="cd_offline_icon">অফলাইন স্ট্যাটাস আইকন</string>
+    <string name="cd_hotline_icon">জরুরি ফোন আইকন</string>
+    <string name="cd_module_icon">মডিউল আইকন</string>
+</resources>
