@@ -174,11 +174,21 @@
     <string name="label_obs_notes">অতিরিক্ত মন্তব্য</string>
     <string name="hint_obs_notes">স্বাদে পরিবর্তন, বন্যার পানি দ্বারা প্লাবিত বা নিকটবর্তী ল্যাট্রিনের দূরত্ব উল্লেখ করুন।</string>
     <string name="btn_submit_observation">অফলাইনে সংরক্ষণ করুন</string>
+    <string name="btn_update_observation">পর্যবেক্ষণ আপডেট করুন</string>
     <string name="btn_view_obs_history">পর্যবেক্ষণের তালিকা দেখুন</string>
     <string name="obs_saved_success">পানির পর্যবেক্ষণ সফলভাবে অফলাইন তথ্যভান্ডারে সংরক্ষিত হয়েছে।</string>
+    <string name="obs_updated_success">পানির পর্যবেক্ষণ সফলভাবে আপডেট করা হয়েছে।</string>
+    <string name="obs_deleted_success">পর্যবেক্ষণ রেকর্ডটি তথ্যভান্ডার থেকে মুছে ফেলা হয়েছে।</string>
     <string name="obs_validation_error">অনুগ্রহ করে পানির উৎসের নাম লিখুন।</string>
     <string name="obs_empty_title">কোনো পর্যবেক্ষণ সংরক্ষিত নেই</string>
     <string name="obs_empty_desc">এখনো কোনো স্থানীয় পানির টেস্ট বা পর্যবেক্ষণ যোগ করা হয়নি। ফরম পূরণ করে তথ্য সংরক্ষণ করুন।</string>
+    <string name="dialog_obs_actions_title">পর্যবেক্ষণ সংক্রান্ত অপশন</string>
+    <string name="action_edit">সম্পাদনা করুন</string>
+    <string name="action_delete">মুছে ফেলুন</string>
+    <string name="dialog_delete_confirm">আপনি কি নিশ্চিত যে এই পানির পর্যবেক্ষণ রেকর্ডটি মুছে ফেলতে চান?</string>
+    <string name="filter_active_warnings">শুধুমাত্র সক্রিয় সতর্কবার্তা</string>
+    <string name="filter_expired_warnings">অতিক্রান্ত / পূর্ববর্তী বার্তা</string>
+    <string name="filter_all_warnings">সকল সতর্কবার্তা (সক্রিয় ও অতিক্রান্ত)</string>
 
     <!-- Heat Safety Screen -->
     <string name="title_heat_safety">তাপদাহ ও স্বাস্থ্য সুরক্ষা</string>

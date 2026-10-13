@@ -76,7 +76,12 @@ public class FloodWarningDetailActivity extends AppCompatActivity {
         tvBody.setText(body);
         tvIssued.setText(getString(R.string.label_warning_issued) + " " + warning.getIssuedAt());
         tvExpires.setText(getString(R.string.label_warning_expires) + " " + warning.getExpiresAt());
-        tvSource.setText(getString(R.string.label_warning_source) + " " + warning.getSource());
+
+        String sourceText = getString(R.string.label_warning_source) + " " + warning.getSource();
+        if (warning.getSourceReference() != null && !warning.getSourceReference().isEmpty()) {
+            sourceText += " • " + warning.getSourceReference();
+        }
+        tvSource.setText(sourceText);
 
         // Severity styling
         switch (warning.getWarningLevel().toUpperCase()) {
@@ -106,7 +111,7 @@ public class FloodWarningDetailActivity extends AppCompatActivity {
                 break;
         }
 
-        // Data status
+        // Data status & Provenance
         if (warning.isSample()) {
             tvStatus.setText(R.string.tag_sample_alert);
             tvStatus.setBackgroundResource(R.drawable.bg_severity_sample);

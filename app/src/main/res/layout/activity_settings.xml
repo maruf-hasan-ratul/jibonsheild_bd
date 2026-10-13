@@ -133,6 +133,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tv_storage_contacts"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_small"
@@ -141,6 +142,7 @@
                         android:textSize="@dimen/text_size_body_small" />
 
                     <TextView
+                        android:id="@+id/tv_storage_shelters"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xxsmall"
@@ -149,6 +151,7 @@
                         android:textSize="@dimen/text_size_body_small" />
 
                     <TextView
+                        android:id="@+id/tv_storage_database"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xxsmall"

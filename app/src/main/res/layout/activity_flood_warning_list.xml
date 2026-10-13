@@ -17,40 +17,70 @@
         app:title="@string/title_flood_warnings"
         app:subtitle="@string/subtitle_flood_warnings" />
 
-    <!-- Region Filter Bar -->
+    <!-- Status & Region Filter Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_white"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingStart="@dimen/spacing_large"
         android:paddingTop="@dimen/spacing_small"
         android:paddingEnd="@dimen/spacing_large"
         android:paddingBottom="@dimen/spacing_small">
 
-        <ImageView
-            android:layout_width="@dimen/icon_size_small"
-            android:layout_height="@dimen/icon_size_small"
-            android:contentDescription="@string/cd_filter_icon"
-            android:src="@drawable/ic_filter" />
-
-        <TextView
-            android:id="@+id/tv_flood_filter_label"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_small"
-            android:text="@string/label_warning_region"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_caption"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/spinner_flood_region"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/min_touch_target"
-            android:layout_marginStart="@dimen/spacing_small"
-            android:layout_weight="1" />
+            <ImageView
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:contentDescription="@string/cd_filter_icon"
+                android:src="@drawable/ic_filter" />
+
+            <TextView
+                android:id="@+id/tv_flood_filter_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:text="@string/label_warning_region"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_flood_region"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/min_touch_target"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xlarge"
+                android:text="Status:"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_flood_status"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/min_touch_target"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_weight="1" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <View

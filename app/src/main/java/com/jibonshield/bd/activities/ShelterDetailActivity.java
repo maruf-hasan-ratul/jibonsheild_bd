@@ -16,7 +16,8 @@ import com.jibonshield.bd.utils.PreferenceUtils;
 
 /**
  * Screen 5: Shelter Details.
- * Displays offline coordinates, capacity, verified facilities, and direct focal point dialing.
+ * Displays offline coordinates, capacity, verified facilities, accessibility notes,
+ * provenance authority, and direct focal point dialing.
  */
 public class ShelterDetailActivity extends AppCompatActivity {
 
@@ -81,10 +82,16 @@ public class ShelterDetailActivity extends AppCompatActivity {
                 : getString(R.string.badge_offline_ready));
 
         tvCoords.setText(getString(R.string.label_shelter_coordinates) + " " +
-                String.format("%.4f° N, %.4f° E", shelter.getLatitude(), shelter.getLongitude()));
+                String.format(java.util.Locale.US, "%.4f° N, %.4f° E", shelter.getLatitude(), shelter.getLongitude()));
 
         tvPhone.setText(getString(R.string.label_shelter_contact) + " " + shelter.getContactPhone());
-        tvVerified.setText(getString(R.string.label_shelter_verified) + " " + shelter.getVerifiedAt() + " • DDM / CPP");
+
+        String verifiedText = getString(R.string.label_shelter_verified) + " " + shelter.getVerifiedAt()
+                + " • " + shelter.getSource();
+        if (shelter.getAccessibilityNotes() != null && !shelter.getAccessibilityNotes().isEmpty()) {
+            verifiedText += "\n" + shelter.getAccessibilityNotes();
+        }
+        tvVerified.setText(verifiedText);
 
         btnCall.setOnClickListener(v -> {
             try {

@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,7 +25,8 @@ import java.util.List;
 
 /**
  * Screen 8: Water Observation History.
- * Shows historical field observations with parameter indicators, safety verdicts, and empty state.
+ * Shows historical field observations with parameter indicators, safety verdicts,
+ * live editing, deletion, and empty state handling.
  */
 public class WaterObservationHistoryActivity extends AppCompatActivity implements WaterObservationAdapter.OnObservationClickListener {
 
@@ -70,11 +73,11 @@ public class WaterObservationHistoryActivity extends AppCompatActivity implement
             if (btnEmptyAction != null) {
                 btnEmptyAction.setVisibility(View.VISIBLE);
                 btnEmptyAction.setText(R.string.action_add_observation);
-                btnEmptyAction.setOnClickListener(v -> openFormActivity());
+                btnEmptyAction.setOnClickListener(v -> openFormActivity(null));
             }
         }
 
-        fabAdd.setOnClickListener(v -> openFormActivity());
+        fabAdd.setOnClickListener(v -> openFormActivity(null));
         repository = new EmergencyRepository(this);
     }
 
@@ -124,13 +127,53 @@ public class WaterObservationHistoryActivity extends AppCompatActivity implement
         });
     }
 
-    private void openFormActivity() {
+    private void openFormActivity(WaterObservation obs) {
         Intent intent = new Intent(this, WaterObservationFormActivity.class);
+        if (obs != null) {
+            intent.putExtra(WaterObservationFormActivity.EXTRA_WATER_OBSERVATION, obs);
+        }
         startActivity(intent);
     }
 
     @Override
     public void onObservationClick(WaterObservation observation) {
-        // Individual item click handling
+        String[] options = new String[]{
+                getString(R.string.action_edit),
+                getString(R.string.action_delete)
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle(observation.getLocationName())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        openFormActivity(observation);
+                    } else if (which == 1) {
+                        confirmDeleteObservation(observation);
+                    }
+                })
+                .setNegativeButton(R.string.dialog_close, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void confirmDeleteObservation(WaterObservation observation) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.action_delete)
+                .setMessage(R.string.dialog_delete_confirm)
+                .setPositiveButton(R.string.action_delete, (dialog, which) -> {
+                    repository.deleteWaterObservation(observation.getId(), new EmergencyRepository.ActionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(WaterObservationHistoryActivity.this, R.string.obs_deleted_success, Toast.LENGTH_SHORT).show();
+                            loadObservations();
+                        }
+
+                        @Override
+                        public void onError(Exception error) {
+                            Toast.makeText(WaterObservationHistoryActivity.this, "Error deleting: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.dialog_close, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

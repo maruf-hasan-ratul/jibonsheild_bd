@@ -18,11 +18,17 @@ public class WaterObservation implements Serializable {
     private final String observationTime;
     private final String reportedBy;
     private final String remarks;
+    private final long createdAt;
+    private final long updatedAt;
 
+    /**
+     * Full constructor.
+     */
     public WaterObservation(long id, String locationName, String district, String sourceType,
                             String appearance, String odor, double phLevel,
                             String turbidityStatus, String safetyStatus,
-                            String observationTime, String reportedBy, String remarks) {
+                            String observationTime, String reportedBy, String remarks,
+                            long createdAt, long updatedAt) {
         this.id = id;
         this.locationName = locationName;
         this.district = district;
@@ -35,6 +41,20 @@ public class WaterObservation implements Serializable {
         this.observationTime = observationTime;
         this.reportedBy = reportedBy;
         this.remarks = remarks;
+        this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
+        this.updatedAt = updatedAt > 0 ? updatedAt : System.currentTimeMillis();
+    }
+
+    /**
+     * Backward-compatible constructor.
+     */
+    public WaterObservation(long id, String locationName, String district, String sourceType,
+                            String appearance, String odor, double phLevel,
+                            String turbidityStatus, String safetyStatus,
+                            String observationTime, String reportedBy, String remarks) {
+        this(id, locationName, district, sourceType, appearance, odor, phLevel,
+                turbidityStatus, safetyStatus, observationTime, reportedBy, remarks,
+                System.currentTimeMillis(), System.currentTimeMillis());
     }
 
     public long getId() { return id; }
@@ -49,4 +69,6 @@ public class WaterObservation implements Serializable {
     public String getObservationTime() { return observationTime; }
     public String getReportedBy() { return reportedBy; }
     public String getRemarks() { return remarks; }
+    public long getCreatedAt() { return createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
 }

@@ -23,9 +23,11 @@ import java.util.Locale;
 
 /**
  * Screen 7: Water Observation Form.
- * Allows field volunteers and citizens to record drinking water source condition, appearance, and tests offline.
+ * Allows field volunteers and citizens to record and update drinking water source condition, appearance, and tests offline.
  */
 public class WaterObservationFormActivity extends AppCompatActivity {
+
+    public static final String EXTRA_WATER_OBSERVATION = "extra_water_observation";
 
     private TextView tvDate;
     private EditText etLocation;
@@ -44,6 +46,7 @@ public class WaterObservationFormActivity extends AppCompatActivity {
 
     private EmergencyRepository repository;
     private String currentDateFormatted;
+    private WaterObservation existingObservation;
 
     private final String[] districts = new String[]{
             "Dhaka", "Sylhet", "Chandpur", "Kurigram", "Cox's Bazar", "Chittagong", "Sunamganj", "Patuakhali", "Other"
@@ -57,6 +60,7 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         initViews();
         setupToolbar();
         setupSpinners();
+        checkEditMode();
         setupListeners();
     }
 
@@ -143,15 +147,37 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         spinnerSafety.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, safeties));
     }
 
+    private void checkEditMode() {
+        if (getIntent().hasExtra(EXTRA_WATER_OBSERVATION)) {
+            existingObservation = (WaterObservation) getIntent().getSerializableExtra(EXTRA_WATER_OBSERVATION);
+            if (existingObservation != null) {
+                btnSave.setText(R.string.btn_update_observation);
+                etLocation.setText(existingObservation.getLocationName());
+                etPh.setText(String.valueOf(existingObservation.getPhLevel()));
+                etReporter.setText(existingObservation.getReportedBy());
+                etNotes.setText(existingObservation.getRemarks());
+                tvDate.setText(existingObservation.getObservationTime());
+
+                // District selection
+                for (int i = 0; i < districts.length; i++) {
+                    if (districts[i].equalsIgnoreCase(existingObservation.getDistrict())) {
+                        spinnerDistrict.setSelection(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private void setupListeners() {
-        btnSave.setOnClickListener(v -> saveObservation());
+        btnSave.setOnClickListener(v -> saveOrUpdateObservation());
         btnGotoHistory.setOnClickListener(v -> {
             Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
             startActivity(intent);
         });
     }
 
-    private void saveObservation() {
+    private void saveOrUpdateObservation() {
         String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
         if (location.isEmpty()) {
             tvLocationError.setVisibility(View.VISIBLE);
@@ -183,24 +209,50 @@ public class WaterObservationFormActivity extends AppCompatActivity {
 
         String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
 
-        WaterObservation obs = new WaterObservation(0, location, district, source, appearance, odor,
-                ph, turbidity, safety, currentDateFormatted, reporter, notes);
-
         btnSave.setEnabled(false);
-        repository.saveWaterObservation(obs, new EmergencyRepository.ActionCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(WaterObservationFormActivity.this, R.string.obs_saved_success, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
-                startActivity(intent);
-                finish();
-            }
 
-            @Override
-            public void onError(Exception error) {
-                btnSave.setEnabled(true);
-                Toast.makeText(WaterObservationFormActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (existingObservation != null) {
+            // Update existing observation
+            WaterObservation updatedObs = new WaterObservation(
+                    existingObservation.getId(),
+                    location, district, source, appearance, odor,
+                    ph, turbidity, safety, existingObservation.getObservationTime(),
+                    reporter, notes, existingObservation.getCreatedAt(), System.currentTimeMillis()
+            );
+
+            repository.updateWaterObservation(updatedObs, new EmergencyRepository.ActionCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(WaterObservationFormActivity.this, R.string.obs_updated_success, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+                @Override
+                public void onError(Exception error) {
+                    btnSave.setEnabled(true);
+                    Toast.makeText(WaterObservationFormActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Insert new observation
+            WaterObservation obs = new WaterObservation(0, location, district, source, appearance, odor,
+                    ph, turbidity, safety, currentDateFormatted, reporter, notes);
+
+            repository.saveWaterObservation(obs, new EmergencyRepository.ActionCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(WaterObservationFormActivity.this, R.string.obs_saved_success, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onError(Exception error) {
+                    btnSave.setEnabled(true);
+                    Toast.makeText(WaterObservationFormActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }

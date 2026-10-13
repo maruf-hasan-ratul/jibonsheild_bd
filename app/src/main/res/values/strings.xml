@@ -174,11 +174,21 @@
     <string name="label_obs_notes">Additional Field Remarks</string>
     <string name="hint_obs_notes">Record changes in taste, flood submersion, or nearest latrine distance.</string>
     <string name="btn_submit_observation">Save Observation to Local Log</string>
+    <string name="btn_update_observation">Update Observation Record</string>
     <string name="btn_view_obs_history">View Observation History</string>
     <string name="obs_saved_success">Water observation successfully saved to local offline database.</string>
+    <string name="obs_updated_success">Water observation updated successfully in offline database.</string>
+    <string name="obs_deleted_success">Water observation removed from local storage.</string>
     <string name="obs_validation_error">Please specify the water source location name.</string>
     <string name="obs_empty_title">No Observations Recorded</string>
     <string name="obs_empty_desc">No water quality observations recorded yet. Use the form to log tubewell and drinking point checks.</string>
+    <string name="dialog_obs_actions_title">Observation Actions</string>
+    <string name="action_edit">Edit Record</string>
+    <string name="action_delete">Delete Record</string>
+    <string name="dialog_delete_confirm">Are you sure you want to delete this water observation record?</string>
+    <string name="filter_active_warnings">Active Warnings Only</string>
+    <string name="filter_expired_warnings">Expired / Past Advisories</string>
+    <string name="filter_all_warnings">All Warnings (Active &amp; Expired)</string>
 
     <!-- Heat Safety Screen -->
     <string name="title_heat_safety">Heat Safety &amp; Hydration</string>

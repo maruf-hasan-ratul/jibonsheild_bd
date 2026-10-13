@@ -8,17 +8,26 @@ import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
+import com.jibonshield.bd.models.SyncMetadata;
+import com.jibonshield.bd.repositories.EmergencyRepository;
 import com.jibonshield.bd.utils.PreferenceUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Screen 12: Settings & Configuration.
- * Manages language selection (বাংলা / English), primary location preference, and offline database summary.
+ * Manages language selection (বাংলা / English), primary location preference,
+ * and live offline database storage summary & sync state.
  */
 public class SettingsActivity extends AppCompatActivity {
 
@@ -26,7 +35,12 @@ public class SettingsActivity extends AppCompatActivity {
     private RadioButton rbBangla;
     private RadioButton rbEnglish;
     private Spinner spinnerDistrict;
+    private TextView tvStorageContacts;
+    private TextView tvStorageShelters;
+    private TextView tvStorageDatabase;
     private MaterialButton btnAbout;
+
+    private EmergencyRepository repository;
 
     private final String[] districts = new String[]{
             "All", "Dhaka", "Sylhet", "Cox's Bazar", "Sunamganj", "Kurigram", "Patuakhali", "Chittagong"
@@ -41,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
         setupToolbar();
         setupPreferences();
         setupListeners();
+        loadDatabaseStorageInfo();
     }
 
     private void initViews() {
@@ -48,7 +63,12 @@ public class SettingsActivity extends AppCompatActivity {
         rbBangla = findViewById(R.id.rb_lang_bangla);
         rbEnglish = findViewById(R.id.rb_lang_english);
         spinnerDistrict = findViewById(R.id.spinner_settings_district);
+        tvStorageContacts = findViewById(R.id.tv_storage_contacts);
+        tvStorageShelters = findViewById(R.id.tv_storage_shelters);
+        tvStorageDatabase = findViewById(R.id.tv_storage_database);
         btnAbout = findViewById(R.id.btn_settings_about);
+
+        repository = new EmergencyRepository(this);
     }
 
     private void setupToolbar() {
@@ -105,5 +125,35 @@ public class SettingsActivity extends AppCompatActivity {
             Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void loadDatabaseStorageInfo() {
+        repository.getAllSyncMetadata(new EmergencyRepository.DataCallback<List<SyncMetadata>>() {
+            @Override
+            public void onDataLoaded(List<SyncMetadata> metadataList) {
+                if (metadataList != null && !metadataList.isEmpty()) {
+                    for (SyncMetadata meta : metadataList) {
+                        String timeStr = formatTimestamp(meta.getLastSyncTimestamp());
+                        if (meta.getTableName().contains("contact")) {
+                            tvStorageContacts.setText("Emergency Hotlines: " + meta.getRecordsCount() + " Seeded (" + meta.getSyncStatus() + ")");
+                        } else if (meta.getTableName().contains("shelter")) {
+                            tvStorageShelters.setText("Designated Shelters: " + meta.getRecordsCount() + " Verified (" + meta.getSyncStatus() + ")");
+                        }
+                    }
+                    tvStorageDatabase.setText("Local Database: SQLite v3 (Offline Cache Active)");
+                }
+            }
+
+            @Override
+            public void onError(Exception error) {
+                // Keep default baseline text
+            }
+        });
+    }
+
+    private String formatTimestamp(long timestamp) {
+        if (timestamp <= 0) return "Initial Baseline";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return sdf.format(new Date(timestamp)) + " BST";
     }
 }
