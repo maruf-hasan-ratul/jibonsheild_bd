@@ -12,7 +12,7 @@ public final class DatabaseContract {
     }
 
     public static final String DATABASE_NAME = "jibonshield.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     /**
      * Emergency Contacts Table
@@ -43,6 +43,7 @@ public final class DatabaseContract {
         public static final String COLUMN_EXPIRES_AT = "expires_at";
         public static final String COLUMN_SOURCE = "source";
         public static final String COLUMN_IS_ACTIVE = "is_active";
+        public static final String COLUMN_IS_SAMPLE = "is_sample";
     }
 
     /**
@@ -70,6 +71,9 @@ public final class DatabaseContract {
         public static final String TABLE_NAME = "water_observations";
         public static final String COLUMN_LOCATION_NAME = "location_name";
         public static final String COLUMN_DISTRICT = "district";
+        public static final String COLUMN_SOURCE_TYPE = "source_type";
+        public static final String COLUMN_APPEARANCE = "appearance";
+        public static final String COLUMN_ODOR = "odor";
         public static final String COLUMN_PH_LEVEL = "ph_level";
         public static final String COLUMN_TURBIDITY_STATUS = "turbidity_status";
         public static final String COLUMN_SAFETY_STATUS = "safety_status";

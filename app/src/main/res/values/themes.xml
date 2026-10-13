@@ -39,4 +39,28 @@
         <item name="android:focusable">true</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
+
+    <!-- Subscreen Standard Toolbar -->
+    <style name="Widget.JibonShieldBD.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:background">@color/primary</item>
+        <item name="titleTextColor">@color/surface_white</item>
+        <item name="subtitleTextColor">#CCFFFFFF</item>
+        <item name="navigationIcon">@drawable/ic_arrow_back</item>
+    </style>
+
+    <!-- Primary Action Button -->
+    <style name="Widget.JibonShieldBD.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/surface_white</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Outlined Button -->
+    <style name="Widget.JibonShieldBD.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/primary</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
 </resources>

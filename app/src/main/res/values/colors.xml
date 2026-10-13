@@ -20,6 +20,18 @@
     <color name="success_green">#2E7D32</color>
     <color name="success_green_light">#E8F5E9</color>
 
+    <!-- Severity Badges -->
+    <color name="severity_critical">#D32F2F</color>
+    <color name="severity_critical_light">#FFEBEE</color>
+    <color name="severity_warning">#E65100</color>
+    <color name="severity_warning_light">#FFF3E0</color>
+    <color name="severity_advisory">#F57F17</color>
+    <color name="severity_advisory_light">#FFFDE7</color>
+    <color name="severity_safe">#2E7D32</color>
+    <color name="severity_safe_light">#E8F5E9</color>
+    <color name="severity_sample">#546E7A</color>
+    <color name="severity_sample_light">#ECEFF1</color>
+
     <!-- Surfaces & Neutrals -->
     <color name="background_light">#F5F7FA</color>
     <color name="surface_white">#FFFFFF</color>

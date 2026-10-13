@@ -8,11 +8,30 @@
     <string name="splash_loading">Initializing offline safety database…</string>
     <string name="splash_ready">Ready for offline emergency access</string>
 
+    <!-- Common Navigation & Action Buttons -->
+    <string name="action_back">Back</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_search">Search</string>
+    <string name="action_call">Call Now</string>
+    <string name="action_save">Save Record</string>
+    <string name="action_submit">Submit Observation</string>
+    <string name="action_view_history">View History</string>
+    <string name="action_add_observation">New Observation</string>
+    <string name="action_clear_filters">Clear Filters</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_share">Share Guidance</string>
+    <string name="dialog_close">Close</string>
+
     <!-- Header / Status Bar -->
     <string name="dashboard_greeting">Emergency Safety Dashboard</string>
     <string name="dashboard_location_label">Region: Bangladesh (All Divisions)</string>
+    <string name="label_selected_location">Current Region:</string>
+    <string name="location_all_bd">All Bangladesh (National)</string>
+    <string name="dialog_select_location_title">Select Your District</string>
     <string name="status_offline_mode">OFFLINE MODE ACTIVE</string>
     <string name="status_offline_sub">Local safety records available without internet</string>
+    <string name="status_online_mode">ONLINE MODE ACTIVE</string>
+    <string name="status_online_sub">Connected. Offline database remains synced and active.</string>
     <string name="status_last_updated">Data baseline: Offline Seed 2026.1</string>
 
     <!-- Quick Action / Hotline Banner -->
@@ -31,7 +50,7 @@
     <string name="card_emergency_desc">Fire service, Red Crescent (BDRCS), medical teams, and local hotlines.</string>
 
     <string name="card_water_title">Drinking Water Quality</string>
-    <string name="card_water_desc">Safe drinking water guidelines, purification steps, and arsenic alerts.</string>
+    <string name="card_water_desc">Safe drinking water guidelines, purification steps, and test observations.</string>
 
     <string name="card_heat_title">Heat Safety</string>
     <string name="card_heat_desc">Heatwave precautions, hydration advice, and heatstroke prevention.</string>
@@ -45,21 +64,223 @@
     <string name="card_settings_title">Settings &amp; Language</string>
     <string name="card_settings_desc">Language selection (বাংলা / English), data version, and storage options.</string>
 
-    <!-- Feature Status Indicators & Badges -->
+    <!-- Badges & Status Indicators -->
     <string name="badge_offline_ready">Offline Ready</string>
-    <string name="badge_preview">Day 1 Preview</string>
-    <string name="badge_pending">Phase 2 Module</string>
+    <string name="badge_preview">Verified Seed</string>
+    <string name="badge_pending">Active Module</string>
 
-    <!-- Dialogs & Prompts -->
-    <string name="dialog_module_title">Module Information</string>
-    <string name="dialog_module_pending_message">This module is part of the Day 2–7 development roadmap. Complete offline data storage and interfaces will be unlocked in upcoming development phases.</string>
+    <!-- Empty States -->
+    <string name="empty_state_default_title">No records found</string>
+    <string name="empty_state_default_desc">No local records match the selected criteria.</string>
+    <string name="empty_state_default_action">Reset filters</string>
+
+    <!-- Flood Warnings Screen -->
+    <string name="title_flood_warnings">Flood Warnings</string>
+    <string name="subtitle_flood_warnings">River water levels &amp; localized flood alerts</string>
+    <string name="title_flood_warning_detail">Warning Details</string>
+    <string name="label_warning_level">Severity Level:</string>
+    <string name="label_warning_region">Vulnerable Region:</string>
+    <string name="label_warning_issued">Issued At:</string>
+    <string name="label_warning_expires">Valid Until:</string>
+    <string name="label_warning_source">Issuing Agency:</string>
+    <string name="label_warning_status">Data Status:</string>
+    <string name="tag_verified_alert">Verified Official Advisory</string>
+    <string name="tag_sample_alert">Development Sample Advisory</string>
+    <string name="severity_critical_label">Critical / Danger Level</string>
+    <string name="severity_warning_label">High Alert / Warning</string>
+    <string name="severity_advisory_label">Advisory / Watch</string>
+    <string name="severity_normal_label">Normal Water Level</string>
+    <string name="flood_empty_title">No Active Flood Warnings</string>
+    <string name="flood_empty_desc">No flood warnings recorded for your selected region in the offline database.</string>
+    <string name="flood_advice_heading">Immediate Safety Instructions</string>
+    <string name="flood_advice_body">1. Move to higher ground or nearest shelter immediately if water enters living areas.\n2. Do not walk or drive through flowing flood water.\n3. Keep emergency contacts and family grab bags ready.\n4. Disconnect electrical main switches before evacuating.\n5. Keep children away from standing flood water.</string>
+    <string name="flood_disclaimer">Notice: Official flood warnings are synchronized with Flood Forecasting and Warning Centre (FFWC) and Bangladesh Meteorological Department (BMD). Development samples are clearly distinguished for verification.</string>
+
+    <!-- Shelter Directory Screen -->
+    <string name="title_shelter_directory">Shelter Directory</string>
+    <string name="subtitle_shelter_directory">Designated flood &amp; cyclone shelters</string>
+    <string name="title_shelter_detail">Shelter Information</string>
+    <string name="hint_search_shelter">Search by shelter name or upazila…</string>
+    <string name="filter_all_districts">All Districts</string>
+    <string name="label_shelter_district">District:</string>
+    <string name="label_shelter_upazila">Upazila:</string>
+    <string name="label_shelter_capacity">Capacity:</string>
+    <string name="label_shelter_occupancy">Estimated Occupancy:</string>
+    <string name="label_shelter_coordinates">Offline Coordinates:</string>
+    <string name="label_shelter_contact">Focal Phone:</string>
+    <string name="label_shelter_verified">Verification Date:</string>
+    <string name="shelter_capacity_format">%1$d Persons</string>
+    <string name="shelter_occupancy_format">%1$d / %2$d Occupied</string>
+    <string name="shelter_empty_title">No Shelters Found</string>
+    <string name="shelter_empty_desc">No designated shelters matched your search query or district filter.</string>
+    <string name="shelter_facilities_heading">Emergency Facilities</string>
+    <string name="shelter_facilities_body">• Raised plinth floor for flood and surge defense\n• Separate sanitation sections for women and children\n• Tubewell drinking water point\n• Solar emergency lighting\n• Livestock refuge ramp</string>
+    <string name="btn_dial_shelter">Call Shelter Manager</string>
+    <string name="btn_view_map_offline">Coordinates View</string>
+
+    <!-- Emergency Contacts Screen -->
+    <string name="title_emergency_contacts">Emergency Contacts</string>
+    <string name="subtitle_emergency_contacts">National &amp; disaster response hotlines</string>
+    <string name="label_contact_hours">Hours: %1$s</string>
+    <string name="label_contact_toll_free">Toll-Free</string>
+    <string name="label_contact_standard">Standard Tariff</string>
+    <string name="category_national">National Emergency</string>
+    <string name="category_disaster">Disaster Response</string>
+    <string name="category_medical">Medical &amp; Health</string>
+    <string name="category_humanitarian">Humanitarian Aid</string>
+    <string name="category_flood">Flood Forecasting</string>
+    <string name="contact_source_verified">Verified Government Hotlines</string>
+    <string name="toast_dialer_opened">Opening phone dialer for %1$s</string>
+    <string name="toast_phone_copied">Phone number %1$s copied to clipboard</string>
     <string name="dialog_emergency_hotlines_title">National Emergency Hotlines</string>
     <string name="dialog_emergency_hotlines_body">999 — National Emergency (Police, Fire, Ambulance)\n1090 — Disaster Early Warning (Toll Free)\n16263 — Shastho Batayan (Health Directorate)\n02-9357474 — Bangladesh Red Crescent Society (BDRCS)</string>
-    <string name="dialog_close">Close</string>
+
+    <!-- Water Observation Screen -->
+    <string name="title_water_observation_form">Water Observation Form</string>
+    <string name="title_water_observation_history">Water Observation History</string>
+    <string name="label_obs_date">Observation Date &amp; Time</string>
+    <string name="label_obs_location">Water Source Location / Name *</string>
+    <string name="hint_obs_location">e.g., Ward 3 Primary School Tubewell, Union Ghat</string>
+    <string name="label_obs_district">District</string>
+    <string name="label_obs_source_type">Water Source Type</string>
+    <string name="source_tubewell">Deep Tube-well</string>
+    <string name="source_shallow_tubewell">Shallow Tube-well</string>
+    <string name="source_river">River / Canal Water</string>
+    <string name="source_pond">Pond / Surface Water</string>
+    <string name="source_tap">Piped Tap Water</string>
+    <string name="source_rainwater">Harvested Rainwater</string>
+    <string name="label_obs_appearance">Water Appearance / Color</string>
+    <string name="appearance_clear">Clear / Normal</string>
+    <string name="appearance_cloudy">Cloudy / Murky</string>
+    <string name="appearance_reddish">Reddish-Brown (Iron / Sediment)</string>
+    <string name="appearance_greenish">Greenish (Algae)</string>
+    <string name="label_obs_odor">Odor / Smell</string>
+    <string name="odor_none">None (Odorless)</string>
+    <string name="odor_chlorine">Chlorine / Chemical</string>
+    <string name="odor_earthy">Earthy / Muddy</string>
+    <string name="odor_sulfur">Rotten / Sulfur</string>
+    <string name="label_obs_ph">pH Level (Optional measurement: 0–14)</string>
+    <string name="hint_obs_ph">e.g., 7.2 (6.5 – 8.5 standard)</string>
+    <string name="label_obs_turbidity">Turbidity Level</string>
+    <string name="turbidity_low">Low (Clear)</string>
+    <string name="turbidity_moderate">Moderate</string>
+    <string name="turbidity_high">High (Visible particles)</string>
+    <string name="label_obs_safety">Safety Assessment Status</string>
+    <string name="safety_potable">Appears Potable / Safe</string>
+    <string name="safety_requires_boiling">Requires Boiling / Treatment</string>
+    <string name="safety_unsafe">Unsafe / Contaminated</string>
+    <string name="label_obs_reporter">Observer Name</string>
+    <string name="hint_obs_reporter">e.g., Community Health Volunteer</string>
+    <string name="label_obs_notes">Additional Field Remarks</string>
+    <string name="hint_obs_notes">Record changes in taste, flood submersion, or nearest latrine distance.</string>
+    <string name="btn_submit_observation">Save Observation to Local Log</string>
+    <string name="btn_view_obs_history">View Observation History</string>
+    <string name="obs_saved_success">Water observation successfully saved to local offline database.</string>
+    <string name="obs_validation_error">Please specify the water source location name.</string>
+    <string name="obs_empty_title">No Observations Recorded</string>
+    <string name="obs_empty_desc">No water quality observations recorded yet. Use the form to log tubewell and drinking point checks.</string>
+
+    <!-- Heat Safety Screen -->
+    <string name="title_heat_safety">Heat Safety &amp; Hydration</string>
+    <string name="subtitle_heat_safety">Heatstroke prevention &amp; urgent protocol</string>
+    <string name="heat_alert_banner_title">Extreme Heat Protocol</string>
+    <string name="heat_alert_banner_desc">When wet-bulb heat index exceeds 40°C, direct sunlight exposure causes rapid dehydration and life-threatening heat illness.</string>
+    <string name="heat_section_prevention_title">1. Hydration &amp; Exposure Prevention</string>
+    <string name="heat_prevention_body">• Drink safe water regularly (2.5–3 liters daily minimum), even before feeling thirsty.\n• Keep oral rehydration salts (ORS/স্যালাইন) accessible at home and during travel.\n• Avoid heavy outdoor manual labor during peak sunlight hours (11:00 AM – 3:30 PM).\n• Wear loose, light-colored cotton clothing and wide-brimmed umbrellas or caps.\n• Never leave children, elderly, or pets inside closed unventilated spaces.</string>
+    <string name="heat_section_symptoms_title">2. Heat Exhaustion vs Heatstroke</string>
+    <string name="heat_symptoms_body">• Heat Exhaustion: Heavy sweating, pale skin, muscle cramps, dizziness, nausea.\n• Heatstroke (EMERGENCY): Body temperature > 40°C (104°F), hot red dry or clammy skin, confusion, loss of consciousness, rapid pulse.</string>
+    <string name="heat_section_urgent_help_title">3. Urgent First Aid Actions</string>
+    <string name="heat_urgent_help_body">• Move victim immediately to shaded, well-ventilated area.\n• Cool the body: apply wet cloths, pour room-temperature water on head and neck, fan vigorously.\n• Place ice packs or cold cloths under armpits and groin.\n• If conscious and not vomiting, give cool water or ORS in small sips.\n• DIAL 999 or 16263 (Shastho Batayan) IMMEDIATELY if unconscious or unresponsive.</string>
+    <string name="btn_call_health_line">Call 16263 Health Hotline</string>
+
+    <!-- Evacuation Guidelines Screen -->
+    <string name="title_evacuation_guidelines">Evacuation Guidelines</string>
+    <string name="subtitle_evacuation_guidelines">Action steps by disaster type &amp; stage</string>
+    <string name="tab_disaster_flood">Floods</string>
+    <string name="tab_disaster_cyclone">Cyclones</string>
+    <string name="tab_disaster_earthquake">Earthquake</string>
+    <string name="tab_disaster_fire">Urban Fire</string>
+    <string name="stage_before">Stage 1: Before / Alert Phase</string>
+    <string name="stage_during">Stage 2: During / Evacuation</string>
+    <string name="stage_after">Stage 3: After / Safe Return</string>
+    <string name="evac_flood_before">• Know your local high-ground shelter and elevation route.\n• Move cattle and livestock to elevated earthen mounds (Killa).\n• Pack waterproof emergency grab bags with dry food, water, torch, and medicines.\n• Secure house roof and store grain/seeds above flood level.</string>
+    <string name="evac_flood_during">• Follow local union disaster management committee warning signals.\n• Evacuate early before water currents make paths impassable.\n• Never attempt to cross flooded streams or submerged roads on foot or bike.\n• Avoid touch with downed power lines or electric poles in water.</string>
+    <string name="evac_flood_after">• Return home only after local authorities declare water receded safely.\n• Boil drinking water or use water purification tablets (Halazone/WPT) for at least 1 minute.\n• Inspect buildings for structural damage or snake infestations before entering.</string>
+    <string name="evac_cyclone_before">• Reinforce house pillars and fasten tin roofs with rope anchors.\n• Monitor BMD cyclone warning signals (Signal 1 to 10).\n• Keep cyclone grab bags ready and identify your nearest multipurpose cyclone shelter.</string>
+    <string name="evac_cyclone_during">• Move to designated cyclone shelter when Signal 4 or higher is hoisted.\n• Assist pregnant women, elderly, children, and persons with disabilities first.\n• Stay indoors inside the reinforced shelter; do not venture out during the lull (eye of the storm).</string>
+    <string name="evac_cyclone_after">• Beware of loose electric wires, fallen trees, and ruptured gas pipes.\n• Check in with family and community volunteers at shelter.</string>
+    <string name="evac_earthquake_before">• Identify safe spots in every room: under sturdy desks, tables, or against interior walls.\n• Fasten tall shelves, gas cylinders, and heavy items securely.</string>
+    <string name="evac_earthquake_during">• DROP, COVER, and HOLD ON.\n• If outdoors, move to open grounds away from buildings, utility poles, and glass facades.\n• Do NOT use elevators during or immediately after shocks.</string>
+    <string name="evac_earthquake_after">• Check for gas leaks, fires, and structural cracks.\n• Expect aftershocks; evacuate high-rise buildings via stairwells calmly.</string>
+    <string name="evac_fire_before">• Keep fire extinguisher, water buckets, or sand buckets near kitchen.\n• Never block apartment exit doors or emergency stairs.</string>
+    <string name="evac_fire_during">• Stay low beneath smoke where air is cleaner; cover nose with wet cloth.\n• Feel door handles before opening; if hot, do not open.\n• Call 999 Fire Service immediately.</string>
+    <string name="evac_fire_after">• Wait for fire department all-clear before re-entering buildings.</string>
+
+    <!-- Preparedness Checklist Screen -->
+    <string name="title_preparedness_checklist">Disaster Checklist</string>
+    <string name="subtitle_preparedness_checklist">Family emergency pack &amp; survival kit</string>
+    <string name="checklist_progress_format">Progress: %1$d / %2$d items checked (%3$d%%)</string>
+    <string name="tag_essential">ESSENTIAL</string>
+    <string name="checklist_cat_grabbag">1. Emergency Grab-Bag (72-Hour Survival)</string>
+    <string name="checklist_cat_documents">2. Critical Documents &amp; Valuables</string>
+    <string name="checklist_cat_medical">3. First Aid &amp; Family Health</string>
+    <string name="checklist_cat_home">4. Home &amp; Livestock Protection</string>
+    <string name="item_grabbag_water">Drinking water (minimum 3 liters per person for 3 days)</string>
+    <string name="item_grabbag_food">Non-perishable dry food (Chira, Muri, Gur, biscuits)</string>
+    <string name="item_grabbag_torch">Waterproof LED torch / flashlight with spare batteries</string>
+    <string name="item_grabbag_radio">Portable radio (for FFWC/BMD meteorological broadcasts)</string>
+    <string name="item_grabbag_powerbank">Fully charged power bank and phone charging cable</string>
+    <string name="item_grabbag_whistle">Emergency whistle for signaling search and rescue</string>
+    <string name="item_doc_nid">National ID (NID), birth certificates in waterproof pouch</string>
+    <string name="item_doc_land">Land deeds, house papers, and educational certificates</string>
+    <string name="item_doc_cash">Emergency cash money in small denominations</string>
+    <string name="item_med_firstaid">First aid kit (bandages, antiseptic ointment, cotton)</string>
+    <string name="item_med_ors">Oral Rehydration Salts (ORS) packets (min 10 packets)</string>
+    <string name="item_med_purification">Water purification tablets (Alum / Halazone)</string>
+    <string name="item_med_prescriptions">Essential chronic medications (insulin, BP, asthma) for 7 days</string>
+    <string name="item_home_switch">Main electrical circuit breaker and gas cylinder valve shut-off</string>
+    <string name="item_home_livestock">Livestock untied and guided to high-elevation ground (Killa)</string>
+    <string name="btn_reset_checklist">Reset Checklist Progress</string>
+    <string name="toast_checklist_reset">Checklist progress has been reset.</string>
+
+    <!-- Settings Screen -->
+    <string name="title_settings">Settings &amp; Configuration</string>
+    <string name="subtitle_settings">Preferences, language &amp; storage</string>
+    <string name="heading_language">Language Selection / ভাষা</string>
+    <string name="label_lang_english">English (Default)</string>
+    <string name="label_lang_bangla">বাংলা (Bengali)</string>
+    <string name="heading_location">Default Region / Location</string>
+    <string name="desc_location_setting">Select your primary district for localized warnings and shelter directory.</string>
+    <string name="heading_storage">Offline Storage &amp; Database Status</string>
+    <string name="label_storage_contacts">Emergency Hotlines: Seeded (Offline Active)</string>
+    <string name="label_storage_shelters">Designated Shelters: Seeded (Offline Active)</string>
+    <string name="label_storage_database">Local Database: SQLite 2026.1</string>
+    <string name="btn_about_screen">About JibonShield BD &amp; Data Sources</string>
+
+    <!-- About Screen -->
+    <string name="title_about">About &amp; Data Sources</string>
+    <string name="subtitle_about">Architecture, standards &amp; data sources</string>
+    <string name="about_app_name">JibonShield BD</string>
+    <string name="about_version">Version 1.0.0 (Day 2 Milestone)</string>
+    <string name="about_mission_title">Mission &amp; Philosophy</string>
+    <string name="about_mission_desc">JibonShield BD is built to protect lives across Bangladesh by providing immediate, reliable disaster preparedness and environmental safety data even when telecommunication networks and power grids fail during cyclones and floods.</string>
+    <string name="about_sources_title">Official Data Sources &amp; Verification</string>
+    <string name="about_source_ffwc">• Flood Forecasting &amp; Warning Centre (FFWC) — Bangladesh Water Development Board (BWDB)</string>
+    <string name="about_source_bmd">• Bangladesh Meteorological Department (BMD) — Ministry of Defence</string>
+    <string name="about_source_ddm">• Department of Disaster Management (DDM) &amp; Cyclone Preparedness Programme (CPP)</string>
+    <string name="about_source_bdrcs">• Bangladesh Red Crescent Society (BDRCS) &amp; Disaster Emergency Logistics</string>
+    <string name="about_source_dghs">• Directorate General of Health Services (DGHS) — Health Hotline 16263</string>
+    <string name="about_disclaimer_title">Operational Disclaimer</string>
+    <string name="about_disclaimer_desc">This application provides vetted baseline guidance and verified emergency contact information. In acute life-threatening situations, prioritize instructions from local Union Parishad, Upazila Administration, and CPP volunteers.</string>
 
     <!-- Accessibility Descriptions -->
     <string name="cd_app_logo">JibonShield BD Logo</string>
     <string name="cd_offline_icon">Offline status icon</string>
     <string name="cd_hotline_icon">Emergency hotline telephone icon</string>
     <string name="cd_module_icon">Module category icon</string>
+    <string name="cd_empty_state">Empty state indicator</string>
+    <string name="cd_back_button">Navigate back</string>
+    <string name="cd_action_call">Call emergency number</string>
+    <string name="cd_search_shelter">Search shelters</string>
+    <string name="cd_filter_icon">Filter options</string>
 </resources>

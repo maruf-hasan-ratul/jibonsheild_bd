@@ -8,11 +8,30 @@
     <string name="splash_loading">অফলাইন নিরাপত্তা তথ্যভান্ডার প্রস্তুত হচ্ছে…</string>
     <string name="splash_ready">ইন্টারনেট ছাড়াই ব্যবহারের জন্য প্রস্তুত</string>
 
+    <!-- Common Navigation & Action Buttons -->
+    <string name="action_back">ফিরে যান</string>
+    <string name="action_filter">ফিল্টার</string>
+    <string name="action_search">অনুসন্ধান</string>
+    <string name="action_call">এখনই কল করুন</string>
+    <string name="action_save">তথ্য সংরক্ষণ করুন</string>
+    <string name="action_submit">পর্যবেক্ষণ জমা দিন</string>
+    <string name="action_view_history">পূর্বের ইতিহাস দেখুন</string>
+    <string name="action_add_observation">নতুন পর্যবেক্ষণ</string>
+    <string name="action_clear_filters">ফিল্টার মুছুন</string>
+    <string name="action_reset">রিসেট</string>
+    <string name="action_share">নির্দেশিকা শেয়ার করুন</string>
+    <string name="dialog_close">বন্ধ করুন</string>
+
     <!-- Header / Status Bar -->
     <string name="dashboard_greeting">জরুরি নিরাপত্তা ড্যাশবোর্ড</string>
     <string name="dashboard_location_label">অঞ্চল: বাংলাদেশ (সকল বিভাগ)</string>
+    <string name="label_selected_location">নির্বাচিত অঞ্চল:</string>
+    <string name="location_all_bd">সমগ্র বাংলাদেশ (জাতীয়)</string>
+    <string name="dialog_select_location_title">আপনার জেলা নির্বাচন করুন</string>
     <string name="status_offline_mode">অফলাইন মোড সক্রিয়</string>
     <string name="status_offline_sub">ইন্টারনেট ছাড়াই সকল জরুরি তথ্য সংরক্ষিত আছে</string>
+    <string name="status_online_mode">অনলাইন মোড সক্রিয়</string>
+    <string name="status_online_sub">নেটওয়ার্ক সংযুক্ত। অফলাইন তথ্যভান্ডার সক্রিয় রয়েছে।</string>
     <string name="status_last_updated">তথ্য সংস্করণ: অফলাইন সিড ২০২৬.১</string>
 
     <!-- Quick Action / Hotline Banner -->
@@ -31,7 +50,7 @@
     <string name="card_emergency_desc">ফায়ার সার্ভিস, রেড ক্রিসেন্ট (BDRCS), মেডিকেল টিম ও জরুরি নম্বর।</string>
 
     <string name="card_water_title">খাবার পানির মান</string>
-    <string name="card_water_desc">নিরাপদ খাবার পানি নির্দেশিকা, পানি বিশুদ্ধকরণ ও আর্সেনিক তথ্য।</string>
+    <string name="card_water_desc">নিরাপদ খাবার পানি নির্দেশিকা, পানি বিশুদ্ধকরণ ও স্থানীয় পর্যবেক্ষণ।</string>
 
     <string name="card_heat_title">তাপদাহ ও স্বাস্থ্য সুরক্ষা</string>
     <string name="card_heat_desc">তীব্র তাপদাহে করণীয়, পর্যাপ্ত পানি পান ও হিটস্ট্রোক প্রতিরোধ।</string>
@@ -45,21 +64,223 @@
     <string name="card_settings_title">সেটিংস ও ভাষা</string>
     <string name="card_settings_desc">ভাষা নির্বাচন (বাংলা / English), ডেটা সংস্করণ ও স্টোরেজ তথ্য।</string>
 
-    <!-- Feature Status Indicators & Badges -->
+    <!-- Badges & Status Indicators -->
     <string name="badge_offline_ready">অফলাইনে প্রস্তুত</string>
-    <string name="badge_preview">দিন ১ প্রিভিউ</string>
-    <string name="badge_pending">পরবর্তী ধাপ</string>
+    <string name="badge_preview">যাচাইকৃত সিড</string>
+    <string name="badge_pending">সক্রিয় মডিউল</string>
 
-    <!-- Dialogs & Prompts -->
-    <string name="dialog_module_title">মডিউল সংক্রান্ত তথ্য</string>
-    <string name="dialog_module_pending_message">এই ফিচারটি পরবর্তী ধাপে (দিন ২–৭) সক্রিয় করা হবে। সম্পূর্ণ অফলাইন তথ্য ও বিস্তারিত ইন্টারফেস পর্যায়ক্রমে যুক্ত হবে।</string>
+    <!-- Empty States -->
+    <string name="empty_state_default_title">কোনো তথ্য পাওয়া যায়নি</string>
+    <string name="empty_state_default_desc">নির্বাচিত শর্তের সাথে মিল রেখে কোনো অফলাইন তথ্য পাওয়া যায়নি।</string>
+    <string name="empty_state_default_action">ফিল্টার রিসেট করুন</string>
+
+    <!-- Flood Warnings Screen -->
+    <string name="title_flood_warnings">বন্যা সতর্কবার্তা</string>
+    <string name="subtitle_flood_warnings">নদীর পানির উচ্চতা ও সতর্কীকরণ পূর্বাভাস</string>
+    <string name="title_flood_warning_detail">সতর্কবার্তার বিস্তারিত</string>
+    <string name="label_warning_level">ঝুঁকির মাত্রা:</string>
+    <string name="label_warning_region">ঝুঁকিপূর্ণ অঞ্চল:</string>
+    <string name="label_warning_issued">জারির সময়:</string>
+    <string name="label_warning_expires">মেয়াদকাল:</string>
+    <string name="label_warning_source">উৎস সংস্থা:</string>
+    <string name="label_warning_status">তথ্যের অবস্থা:</string>
+    <string name="tag_verified_alert">সরকারি অনুমোদিত বুলেটিন</string>
+    <string name="tag_sample_alert">ডেভেলপমেন্ট টেস্ট রেকর্ড</string>
+    <string name="severity_critical_label">বিপদসীমা অতিক্রম / জরুরি</string>
+    <string name="severity_warning_label">উচ্চ সতর্কতা / সতর্কবার্তা</string>
+    <string name="severity_advisory_label">সতর্ক সংকেত / পর্যবেক্ষণ</string>
+    <string name="severity_normal_label">স্বাভাবিক পানির স্তর</string>
+    <string name="flood_empty_title">কোনো সক্রিয় বন্যা সতর্কতা নেই</string>
+    <string name="flood_empty_desc">অফলাইন ডেটাবেজে আপনার অঞ্চলের জন্য এই মুহূর্তে কোনো বন্যা সতর্কবার্তা নেই।</string>
+    <string name="flood_advice_heading">জরুরি নিরাপত্তা নির্দেশনা</string>
+    <string name="flood_advice_body">১. বসতভিটায় পানি প্রবেশের সম্ভাবনা দেখা দিলে দ্রুত নিকটস্থ উঁচু আশ্রয়কেন্দ্রে যান।\n২. প্রবল স্রোতের পানির মধ্যে দিয়ে হেঁটে বা কোনো যান নিয়ে পারাপার হবেন না।\n৩. জরুরি যোগাযোগের নম্বর ও পারিবারিক ইমার্জেন্সি ব্যাগ প্রস্তুত রাখুন।\n৪. বাড়ি ছাড়ার আগে বিদ্যুতের মেইন সুইচ এবং গ্যাসের লাইন বন্ধ করুন।\n৫. শিশুদের জমে থাকা বন্যার পানির কাছে যেতে দেবেন না।</string>
+    <string name="flood_disclaimer">বিজ্ঞপ্তি: সরকারি বন্যা সতর্কবার্তা বন্যা পূর্বাভাস ও সতর্কীকরণ কেন্দ্র (FFWC) এবং আবহাওয়া অধিদপ্তর (BMD) থেকে সমন্বিত। টেস্টিং রেকর্ডসমূহ স্পষ্টভাবে চিহ্নিত।</string>
+
+    <!-- Shelter Directory Screen -->
+    <string name="title_shelter_directory">আশ্রয়কেন্দ্র তালিকা</string>
+    <string name="subtitle_shelter_directory">নির্ধারিত সাইক্লোন ও বন্যা আশ্রয়কেন্দ্র</string>
+    <string name="title_shelter_detail">আশ্রয়কেন্দ্রের তথ্য</string>
+    <string name="hint_search_shelter">আশ্রয়কেন্দ্র বা উপজেলার নাম লিখুন…</string>
+    <string name="filter_all_districts">সকল জেলা</string>
+    <string name="label_shelter_district">জেলা:</string>
+    <string name="label_shelter_upazila">উপজেলা:</string>
+    <string name="label_shelter_capacity">ধারণক্ষমতা:</string>
+    <string name="label_shelter_occupancy">বর্তমান অবস্থান:</string>
+    <string name="label_shelter_coordinates">অফলাইন স্থানাঙ্ক:</string>
+    <string name="label_shelter_contact">দায়িত্বপ্রাপ্ত কর্মকর্তার নম্বর:</string>
+    <string name="label_shelter_verified">যাচাইকরণের তারিখ:</string>
+    <string name="shelter_capacity_format">%1$d জন</string>
+    <string name="shelter_occupancy_format">%1$d / %2$d জন উপস্থিত</string>
+    <string name="shelter_empty_title">কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি</string>
+    <string name="shelter_empty_desc">অনুসন্ধান বা ফিল্টারের শর্ত অনুযায়ী কোনো আশ্রয়কেন্দ্র মেলেনি।</string>
+    <string name="shelter_facilities_heading">জরুরি সুবিধাসমূহ</string>
+    <string name="shelter_facilities_body">• জলোচ্ছ্বাস ও বন্যা সহনশীল উঁচু প্ল্যাটফর্ম\n• নারী ও শিশুদের জন্য পৃথক স্যানিটেশন ব্যবস্থা\n• গভীর নলকূপ ও নিরাপদ খাবার পানির সুবিধা\n• সোলার জরুরি বিদ্যুৎ ব্যবস্থা\n• গবাদিপশু রাখার জন্য মাটির কিল্লা ব্যবস্থা</string>
+    <string name="btn_dial_shelter">দায়িত্বপ্রাপ্ত কর্মকর্তাকে কল করুন</string>
+    <string name="btn_view_map_offline">স্থানাঙ্ক দেখুন</string>
+
+    <!-- Emergency Contacts Screen -->
+    <string name="title_emergency_contacts">জরুরি যোগাযোগ</string>
+    <string name="subtitle_emergency_contacts">জাতীয় ও দুর্যোগ প্রতিরোধ হটলাইন</string>
+    <string name="label_contact_hours">সেবার সময়: %1$s</string>
+    <string name="label_contact_toll_free">টোল-ফ্রি (বিনামূল্যে)</string>
+    <string name="label_contact_standard">সাধারণ কল রেট</string>
+    <string name="category_national">জাতীয় জরুরি সেবা</string>
+    <string name="category_disaster">দুর্যোগ বার্তা</string>
+    <string name="category_medical">স্বাস্থ্য ও চিকিৎসা</string>
+    <string name="category_humanitarian">মানবিক সহায়তা</string>
+    <string name="category_flood">বন্যা পূর্বাভাস</string>
+    <string name="contact_source_verified">সরকারি অনুমোদিত হটলাইন</string>
+    <string name="toast_dialer_opened">%1$s নম্বরে কল ডায়াল করা হচ্ছে</string>
+    <string name="toast_phone_copied">%1$s নম্বরটি ক্লিপবোর্ডে কপি করা হয়েছে</string>
     <string name="dialog_emergency_hotlines_title">জাতীয় জরুরি হটলাইনসমূহ</string>
     <string name="dialog_emergency_hotlines_body">৯৯৯ — জাতীয় জরুরি সেবা (পুলিশ, ফায়ার সার্ভিস, অ্যাম্বুলেন্স)\n১০৯০ — দুর্যোগের আগাম বার্তা (টোল-ফ্রি)\n১৬২৬৩ — স্বাস্থ্য বাতায়ন (স্বাস্থ্য অধিদপ্তর)\n০২-৯৩৫৭৪৭৪ — বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি (BDRCS)</string>
-    <string name="dialog_close">বন্ধ করুন</string>
+
+    <!-- Water Observation Screen -->
+    <string name="title_water_observation_form">পানির মান পর্যবেক্ষণ ফরম</string>
+    <string name="title_water_observation_history">পানির পর্যবেক্ষণ ইতিহাস</string>
+    <string name="label_obs_date">পর্যবেক্ষণের তারিখ ও সময়</string>
+    <string name="label_obs_location">পানির উৎসের নাম / স্থান *</string>
+    <string name="hint_obs_location">যেমন: ৩নং ওয়ার্ড প্রাথমিক বিদ্যালয় নলকূপ, ইউনিয়ন ঘাট</string>
+    <string name="label_obs_district">জেলা</string>
+    <string name="label_obs_source_type">পানির উৎসের ধরন</string>
+    <string name="source_tubewell">গভীর নলকূপ</string>
+    <string name="source_shallow_tubewell">অগভীর নলকূপ</string>
+    <string name="source_river">নদী / খালের পানি</string>
+    <string name="source_pond">পুকুর / উন্মুক্ত জলাশয়</string>
+    <string name="source_tap">সরবরাহকৃত পাইপলাইন ট্যাপ</string>
+    <string name="source_rainwater">সংরক্ষিত বৃষ্টির পানি</string>
+    <string name="label_obs_appearance">পানির বর্ণ ও অবস্থা</string>
+    <string name="appearance_clear">স্বচ্ছ / স্বাভাবিক</string>
+    <string name="appearance_cloudy">ঘোলাটে</string>
+    <string name="appearance_reddish">লালচে-বাদামি (আয়রন / পলি)</string>
+    <string name="appearance_greenish">সবুজাভ (শ্যাওলাযুক্ত)</string>
+    <string name="label_obs_odor">পানির গন্ধ</string>
+    <string name="odor_none">কোনো গন্ধ নেই (স্বাভাবিক)</string>
+    <string name="odor_chlorine">ব্লিচিং / রাসায়নিক গন্ধ</string>
+    <string name="odor_earthy">মাটিযুক্ত গন্ধ</string>
+    <string name="odor_sulfur">পচা ডিমের মতো বা সালফার গন্ধ</string>
+    <string name="label_obs_ph">পিএইচ (pH) মাত্রা (ঐচ্ছিক: ০–১৪)</string>
+    <string name="hint_obs_ph">যেমন: ৭.২ (স্বাভাবিক ৬.৫ – ৮.৫)</string>
+    <string name="label_obs_turbidity">ঘোলাটাত্বের মাত্রা</string>
+    <string name="turbidity_low">স্বল্প (পরিষ্কার)</string>
+    <string name="turbidity_moderate">মাঝারি</string>
+    <string name="turbidity_high">অতিরিক্ত (ভাসমান কণা দৃশ্যমান)</string>
+    <string name="label_obs_safety">নিরাপত্তা অবস্থা</string>
+    <string name="safety_potable">পানযোগ্য ও নিরাপদ মনে হয়</string>
+    <string name="safety_requires_boiling">ফোটানো বা বিশুদ্ধকরণ প্রয়োজন</string>
+    <string name="safety_unsafe">অনিরাপদ / দূষিত</string>
+    <string name="label_obs_reporter">পর্যবেক্ষকের নাম</string>
+    <string name="hint_obs_reporter">যেমন: স্থানীয় স্বাস্থ্য সহকারী / স্বেচ্ছাসেবী</string>
+    <string name="label_obs_notes">অতিরিক্ত মন্তব্য</string>
+    <string name="hint_obs_notes">স্বাদে পরিবর্তন, বন্যার পানি দ্বারা প্লাবিত বা নিকটবর্তী ল্যাট্রিনের দূরত্ব উল্লেখ করুন।</string>
+    <string name="btn_submit_observation">অফলাইনে সংরক্ষণ করুন</string>
+    <string name="btn_view_obs_history">পর্যবেক্ষণের তালিকা দেখুন</string>
+    <string name="obs_saved_success">পানির পর্যবেক্ষণ সফলভাবে অফলাইন তথ্যভান্ডারে সংরক্ষিত হয়েছে।</string>
+    <string name="obs_validation_error">অনুগ্রহ করে পানির উৎসের নাম লিখুন।</string>
+    <string name="obs_empty_title">কোনো পর্যবেক্ষণ সংরক্ষিত নেই</string>
+    <string name="obs_empty_desc">এখনো কোনো স্থানীয় পানির টেস্ট বা পর্যবেক্ষণ যোগ করা হয়নি। ফরম পূরণ করে তথ্য সংরক্ষণ করুন।</string>
+
+    <!-- Heat Safety Screen -->
+    <string name="title_heat_safety">তাপদাহ ও স্বাস্থ্য সুরক্ষা</string>
+    <string name="subtitle_heat_safety">হিটস্ট্রোক প্রতিরোধ ও জরুরি প্রাথমিক চিকিৎসা</string>
+    <string name="heat_alert_banner_title">তীব্র তাপদাহ সতর্কতা</string>
+    <string name="heat_alert_banner_desc">ওয়েট-বাল্ব হিট ইনডেক্স ৪০°C ছাড়িয়ে গেলে সরাসরি রোদে কাজ করলে দ্রুত পানিশূন্যতা ও জীবনঘাতী হিটস্ট্রোক হতে পারে।</string>
+    <string name="heat_section_prevention_title">১. পানিশূন্যতা ও রোদ থেকে সুরক্ষার উপায়</string>
+    <string name="heat_prevention_body">• পিপাসা না পেলেও নিয়মিত নিরাপদ পানি (দৈনিক কমপক্ষে ২.৫–৩ লিটার) পান করুন।\n• ঘরে ও যাত্রাপথে খাবার স্যালাইন (ORS) সাথে রাখুন।\n• প্রখর রোদের সময় (সকাল ১১টা থেকে বিকাল ৩:৩০টা) ভারী কায়িক পরিশ্রম এড়িয়ে চলুন।\n• হালকা রঙের ঢিলেঢালা সুতি পোশাক পরিধান করুন এবং ছাতা বা টুপি ব্যবহার করুন।\n• বদ্ধ ও বাতাসহীন স্থানে শিশু, বয়োবৃদ্ধ বা পোষা প্রাণীকে কখনোই একা রাখবেন না।</string>
+    <string name="heat_section_symptoms_title">২. হিট এক্সহশন ও হিটস্ট্রোকের লক্ষণ</string>
+    <string name="heat_symptoms_body">• হিট এক্সহশন: অতিরিক্ত ঘাম, ফ্যাকাসে ত্বক, মাংসপেশিতে টান, মাথা ঘোরা ও বমি বমি ভাব।\n• হিটস্ট্রোক (জীবনঘাতী জরুরি অবস্থা): শরীরের তাপমাত্রা ১০৪°F (৪০°C)-এর বেশি, লালচে শুষ্ক বা ভেজা ত্বক, বিভ্রান্তি, জ্ঞান হারানো, দ্রুত নাড়ির স্পন্দন।</string>
+    <string name="heat_section_urgent_help_title">৩. জরুরি প্রাথমিক চিকিৎসা</string>
+    <string name="heat_urgent_help_body">• আক্রান্ত ব্যক্তিকে অবিলম্বে ছায়াযুক্ত ও বাতাসযুক্ত শীতল স্থানে সরিয়ে নিন।\n• ভেজা কাপড় দিয়ে শরীর মুছুন, মাথায় ও ঘাড়ে স্বাভাবিক তাপমাত্রার পানি ঢালুন এবং বাতাস করুন।\n• বগল ও কুঁচকিতে বরফ বা ঠান্ডা ভেজা কাপড় রাখুন।\n• রোগী সজ্ঞান থাকলে এবং বমি না করলে অল্প অল্প করে ঠান্ডা পানি বা স্যালাইন পান করান।\n• রোগী অচেতন হয়ে পড়লে কালবিলম্ব না করে ৯৯৯ অথবা ১৬২৬৩ (স্বাস্থ্য বাতায়ন)-এ কল দিন।</string>
+    <string name="btn_call_health_line">১৬২৬৩ স্বাস্থ্য বাতায়নে কল দিন</string>
+
+    <!-- Evacuation Guidelines Screen -->
+    <string name="title_evacuation_guidelines">স্থানান্তর ও উদ্ধার নির্দেশিকা</string>
+    <string name="subtitle_evacuation_guidelines">দুর্যোগের ধরন ও ধাপ অনুযায়ী করণীয়</string>
+    <string name="tab_disaster_flood">বন্যা</string>
+    <string name="tab_disaster_cyclone">ঘূর্ণিঝড়</string>
+    <string name="tab_disaster_earthquake">ভূমিকম্প</string>
+    <string name="tab_disaster_fire">অগ্নিকাণ্ড</string>
+    <string name="stage_before">ধাপ ১: দুর্যোগের পূর্বে / সতর্কাবস্থা</string>
+    <string name="stage_during">ধাপ ২: দুর্যোগ চলাকালীন / স্থানান্তর</string>
+    <string name="stage_after">ধাপ ৩: দুর্যোগের পরে / নিরাপদে প্রত্যাবর্তন</string>
+    <string name="evac_flood_before">• আপনার এলাকার উঁচু নিরাপদ স্থান ও যাওয়ার রাস্তা চিনে রাখুন।\n• গবাদিপশুকে আগে থেকেই মাটির উঁচু কিল্লায় বা নিরাপদ বাঁধে নিয়ে রাখুন।\n• শুকনো খাবার, পানি, টর্চ ও ওষুধ ওয়াটারপ্রুফ ব্যাগে গুছিয়ে রাখুন।\n• ঘরের চাল মজবুত করুন এবং খাদ্যশস্য মাচার ওপরে সংরক্ষণ করুন।</string>
+    <string name="evac_flood_during">• স্থানীয় ইউনিয়ন দুর্যোগ ব্যবস্থাপনা কমিটির সংকেত মেনে চলুন।\n• রাস্তাঘাট সম্পূর্ণ তলিয়ে যাওয়ার আগেই দ্রুত পরিবারসহ নিরাপদ আশ্রয়ে যান।\n• বন্যার তীব্র স্রোতের মধ্যে কখনো হেঁটে বা যান নিয়ে পার হওয়ার চেষ্টা করবেন না।\n• পানিতে ছিঁড়ে পড়া বৈদ্যুতিক তার বা খুঁটি এড়িয়ে চলুন।</string>
+    <string name="evac_flood_after">• পানি পুরোপুরি নেমে যাওয়ার এবং সরকারি ঘোষণা ছাড়া ঘরে ফিরবেন না।\n• খাবার পানি অবশ্যই ১ মিনিট ফুটিয়ে বা পানি বিশুদ্ধকরণ ট্যাবলেট দিয়ে খান।\n• ঘরে ঢোকার আগে সাপের উপস্থিতি ও কাঠামোগত ফাটল সাবধানে পরীক্ষা করুন।</string>
+    <string name="evac_cyclone_before">• ঘরের খুঁটি মজবুত করুন এবং টিনের চাল শক্ত রশি দিয়ে মাটির সাথে বেঁধে রাখুন।\n• আবহাওয়া অধিদপ্তরের ঘূর্ণিঝড় সতর্ক সংকেত (১ থেকে ১০ নম্বর) লক্ষ্য রাখুন।\n• জরুরি ইমার্জেন্সি ব্যাগ তৈরি রাখুন এবং নিকটস্থ সাইক্লোন শেল্টার চিহ্নিত করুন।</string>
+    <string name="evac_cyclone_during">• ৪ নম্বর সংকেত বা তার বেশি হলে কালবিলম্ব না করে আশ্রয়কেন্দ্রে যান।\n• গর্ভবতী নারী, শিশু, বয়োবৃদ্ধ ও প্রতিবন্ধীদের সবার আগে আশ্রয়ে নিয়ে যান।\n• ঝড়ের চোখ বা সাময়িক বিরতির সময় ভুলেও আশ্রয়কেন্দ্র থেকে বাইরে বের হবেন না।</string>
+    <string name="evac_cyclone_after">• রাস্তায় পড়ে থাকা বৈদ্যুতিক তার, ভাঙা গাছপালা ও গ্যাস পাইপ সম্পর্কে সতর্ক থাকুন।\n• আশ্রয়কেন্দ্রে থাকা স্বেচ্ছাসেবকদের সহায়তায় নিরাপদে বাড়ি ফিরুন।</string>
+    <string name="evac_earthquake_before">• প্রতিটি ঘরে নিরাপদ জায়গা চিহ্নিত করুন: শক্ত টেবিলের নিচে বা ভেতরের মজবুত দেয়ালের পাশে।\n• ভারী আলমারি, গ্যাসের সিলিন্ডার ও ঝুলন্ত জিনিস শক্ত করে বেঁধে রাখুন।</string>
+    <string name="evac_earthquake_during">• ড্রপ, কভার এবং হোল্ড অন (বসে পড়ুন, ঢাকুন এবং ধরে থাকুন)।\n• বাইরে থাকলে ভবন, বিদ্যুতের খুঁটি ও কাচের দেয়াল থেকে দূরে খোলা মাঠে যান।\n• কম্পন চলাকালীন কখনোই লিফট ব্যবহার করবেন না।</string>
+    <string name="evac_earthquake_after">• গ্যাস ও বিদ্যুতের লাইন পরীক্ষা করুন।\n• আফটারশকের জন্য প্রস্তুত থাকুন; সিঁড়ি দিয়ে শান্তভাবে নিচে নামুন।</string>
+    <string name="evac_fire_before">• রান্নাঘরের কাছে অগ্নি নির্বাপক যন্ত্র, পানির বালতি বা বালির বালতি রাখুন।\n• ফ্ল্যাট বা বাড়ির জরুরি নির্গমন পথ সবসময় উন্মুক্ত রাখুন।</string>
+    <string name="evac_fire_during">• ধোঁয়ার নিচে হামাগুড়ি দিয়ে চলুন; ভেজা কাপড় দিয়ে নাক-মুখ ঢাকুন।\n• দরজার হাতল গরম থাকলে সেই দরজা খুলবেন না।\n• দ্রুত ৯৯৯ ফায়ার সার্ভিসে কল করুন।</string>
+    <string name="evac_fire_after">• ফায়ার সার্ভিসের সবুজ সংকেত না পাওয়া পর্যন্ত ভবনে প্রবেশ করবেন না।</string>
+
+    <!-- Preparedness Checklist Screen -->
+    <string name="title_preparedness_checklist">দুর্যোগ প্রস্তুতি তালিকা</string>
+    <string name="subtitle_preparedness_checklist">জরুরি সারভাইভাল ব্যাগ ও গৃহস্থালি কিট</string>
+    <string name="checklist_progress_format">অগ্রগতি: %1$d / %2$d টি সম্পন্ন (%3$d%%)</string>
+    <string name="tag_essential">অপরিহার্য</string>
+    <string name="checklist_cat_grabbag">১. জরুরি সারভাইভাল ব্যাগ (৭২ ঘণ্টার জন্য)</string>
+    <string name="checklist_cat_documents">২. প্রয়োজনীয় নথিপত্র ও নগদ অর্থ</string>
+    <string name="checklist_cat_medical">৩. ফার্স্ট এইড ও পারিবারিক ওষুধ</string>
+    <string name="checklist_cat_home">৪. ঘরবাড়ি ও গবাদিপশু সুরক্ষা</string>
+    <string name="item_grabbag_water">নিরাপদ খাবার পানি (জনপ্রতি প্রতিদিন ৩ লিটার করে ৩ দিনের জন্য)</string>
+    <string name="item_grabbag_food">শুকনো খাবার (চিঁড়া, মুড়ি, গুড়, বিস্কুট)</string>
+    <string name="item_grabbag_torch">ওয়াটারপ্রুফ এলইডি টর্চলাইট ও অতিরিক্ত ব্যাটারি</string>
+    <string name="item_grabbag_radio">ছোট পোর্টেবল রেডিও (বন্যা ও আবহাওয়া পূর্বাভাসের জন্য)</string>
+    <string name="item_grabbag_powerbank">চার্জড পাওয়ার ব্যাংক ও মোবাইল চার্জিং ক্যাবল</string>
+    <string name="item_grabbag_whistle">উদ্ধারকারীদের সংকেত দেওয়ার জন্য বাঁশি (Whistle)</string>
+    <string name="item_doc_nid">জাতীয় পরিচয়পত্র (NID) ও জন্মনিবন্ধন পলিথিন ব্যাগে মোড়ানো</string>
+    <string name="item_doc_land">জমির দলিল, বাড়ির কাগজ ও প্রয়োজনীয় সনদপত্র</string>
+    <string name="item_doc_cash">জরুরি নগদ টাকা (ভাঙতি নোট)</string>
+    <string name="item_med_firstaid">ফার্স্ট এইড কিট (ব্যান্ডেজ, অ্যান্টিসেপটিক, তুলা)</string>
+    <string name="item_med_ors">খাবার স্যালাইন (কমপক্ষে ১০ প্যাকেট)</string>
+    <string name="item_med_purification">পানি বিশুদ্ধকরণ ট্যাবলেট (হ্যালোজেন / ফিটকিরি)</string>
+    <string name="item_med_prescriptions">নিয়মিত খাওয়ার জরুরি ওষুধ (প্রেসার, ডায়াবেটিস, ইনসুলিন, ইনহেলার)</string>
+    <string name="item_home_switch">ঘরের বিদ্যুৎ মেইন সুইচ ও গ্যাস সিলিন্ডার রেগুলেটর বন্ধ করা</string>
+    <string name="item_home_livestock">গবাদিপশুর দড়ি খুলে উঁচু মাটির কিল্লা বা বাঁধে নিয়ে রাখা</string>
+    <string name="btn_reset_checklist">চেকলিস্টের অগ্রগতি রিসেট করুন</string>
+    <string name="toast_checklist_reset">চেকলিস্ট অগ্রগতি রিসেট করা হয়েছে।</string>
+
+    <!-- Settings Screen -->
+    <string name="title_settings">সেটিংস ও কনফিগারেশন</string>
+    <string name="subtitle_settings">পছন্দসমূহ, ভাষা ও ডেটা স্টোরেজ</string>
+    <string name="heading_language">ভাষা নির্বাচন / Language</string>
+    <string name="label_lang_english">English (ইংরেজি)</string>
+    <string name="label_lang_bangla">বাংলা (ডিফল্ট)</string>
+    <string name="heading_location">ডিফল্ট অঞ্চল / জেলা</string>
+    <string name="desc_location_setting">আশ্রয়কেন্দ্র ও স্থানীয় সতর্কবার্তা দ্রুত পাওয়ার জন্য জেলা নির্বাচন করুন।</string>
+    <string name="heading_storage">অফলাইন স্টোরেজ ও তথ্যভান্ডার</string>
+    <string name="label_storage_contacts">জরুরি হটলাইন: সিডেড (অফলাইনে সক্রিয়)</string>
+    <string name="label_storage_shelters">নির্ধারিত আশ্রয়কেন্দ্র: সিডেড (অফলাইনে সক্রিয়)</string>
+    <string name="label_storage_database">স্থানীয় ডেটাবেজ: SQLite ২০২৬.১</string>
+    <string name="btn_about_screen">জীবনশিল্ড বিডি ও তথ্যের উৎস সম্পর্কে</string>
+
+    <!-- About Screen -->
+    <string name="title_about">জীবনশিল্ড সম্পর্কে</string>
+    <string name="subtitle_about">কাঠামো, মানদণ্ড ও তথ্যের উৎস</string>
+    <string name="about_app_name">জীবনশিল্ড বিডি</string>
+    <string name="about_version">সংস্করণ ১.০.০ (দিন ২ মাইলফলক)</string>
+    <string name="about_mission_title">আমাদের লক্ষ্য ও দর্শন</string>
+    <string name="about_mission_desc">ঘূর্ণিঝড়, বন্যা ও তীব্র দুর্যোগে যখন মোবাইল নেটওয়ার্ক এবং বিদ্যুৎ সংযোগ বিচ্ছিন্ন হয়ে পড়ে, তখনো মানুষের জীবন রক্ষার্থে জরুরি প্রস্তুতি ও সঠিক দিকনির্দেশনা পৌঁছে দেওয়াই জীবনশিল্ড বিডির মূল লক্ষ্য।</string>
+    <string name="about_sources_title">সরকারি ও অনুমোদিত তথ্যসূত্র</string>
+    <string name="about_source_ffwc">• বন্যা পূর্বাভাস ও সতর্কীকরণ কেন্দ্র (FFWC) — বাংলাদেশ পানি উন্নয়ন বোর্ড</string>
+    <string name="about_source_bmd">• বাংলাদেশ আবহাওয়া অধিদপ্তর (BMD) — প্রতিরক্ষা মন্ত্রণালয়</string>
+    <string name="about_source_ddm">• দুর্যোগ ব্যবস্থাপনা অধিদপ্তর (DDM) ও ঘূর্ণিঝড় প্রস্তুতি কর্মসূচি (CPP)</string>
+    <string name="about_source_bdrcs">• বাংলাদেশ রেড ক্রিসেন্ট সোসাইটি (BDRCS) ও জরুরি লজিস্টিকস</string>
+    <string name="about_source_dghs">• স্বাস্থ্য অধিদপ্তর (DGHS) — স্বাস্থ্য বাতায়ন হটলাইন ১৬২৬৩</string>
+    <string name="about_disclaimer_title">সতর্কীকরণ ও দায়িত্বমুক্তি</string>
+    <string name="about_disclaimer_desc">এই অ্যাপটিতে সংরক্ষিত তথ্য দুর্যোগ মোকাবিলার প্রাথমিক নির্দেশিকা হিসেবে সংকলিত। যেকোনো জীবনঘাতী জরুরি পরিস্থিতিতে স্থানীয় প্রশাসন, ইউনিয়ন পরিষদ ও সিপিপি (CPP) স্বেচ্ছাসেবকদের তাৎক্ষণিক নির্দেশনা অনুসরণ করুন।</string>
 
     <!-- Accessibility Descriptions -->
     <string name="cd_app_logo">জীবনশিল্ড বিডি লোগো</string>
     <string name="cd_offline_icon">অফলাইন স্ট্যাটাস আইকন</string>
     <string name="cd_hotline_icon">জরুরি ফোন আইকন</string>
     <string name="cd_module_icon">মডিউল আইকন</string>
+    <string name="cd_empty_state">খালি তথ্যের নির্দেশক</string>
+    <string name="cd_back_button">পূর্ববর্তী স্ক্রিনে ফিরে যান</string>
+    <string name="cd_action_call">জরুরি নম্বরে কল করুন</string>
+    <string name="cd_search_shelter">আশ্রয়কেন্দ্র অনুসন্ধান</string>
+    <string name="cd_filter_icon">ফিল্টার বিকল্প</string>
 </resources>

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
-    <!-- Top App Bar with Branding -->
+    <!-- Top App Bar with Branding and Location Indicator -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -18,7 +18,8 @@
             android:id="@+id/toolbar_main"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:contentInsetStart="@dimen/spacing_large">
+            app:contentInsetStart="@dimen/spacing_large"
+            app:contentInsetEnd="@dimen/spacing_large">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -48,12 +49,25 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tv_dashboard_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_location_label"
                         android:textColor="#CCFFFFFF"
                         android:textSize="@dimen/text_size_caption" />
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btn_main_settings"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/card_settings_title"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/surface_white" />
 
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
@@ -73,7 +87,7 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/spacing_xlarge">
 
-            <!-- Offline Mode Status Banner -->
+            <!-- Connectivity Status Banner -->
             <LinearLayout
                 android:id="@+id/banner_offline_status"
                 android:layout_width="match_parent"
@@ -88,6 +102,7 @@
                 android:padding="@dimen/spacing_medium">
 
                 <ImageView
+                    android:id="@+id/iv_connectivity_icon"
                     android:layout_width="@dimen/icon_size_medium"
                     android:layout_height="@dimen/icon_size_medium"
                     android:contentDescription="@string/cd_offline_icon"
