@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_shelter_root"
+    style="@style/Widget.JibonShieldBD.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/spacing_large"
+    android:layout_marginTop="@dimen/spacing_small"
+    android:layout_marginEnd="@dimen/spacing_large"
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:minHeight="@dimen/min_touch_target">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_shelter_district_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold"
+                tools:text="Cox's Bazar" />
+
+            <TextView
+                android:id="@+id/tv_shelter_upazila_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:background="@drawable/bg_badge"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold"
+                tools:text="Kutubdia" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_shelter_capacity_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_severity_safe"
+                android:textColor="@color/success_green"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold"
+                tools:text="1,200 Persons" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_shelter_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_subhead"
+            android:textStyle="bold"
+            tools:text="Kutubdia Model High School Cyclone Shelter" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:contentDescription="@string/label_shelter_coordinates"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:id="@+id/tv_shelter_coords"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xsmall"
+                android:layout_weight="1"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_size_caption"
+                tools:text="21.8155° N, 91.8542° E" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_shelter_call"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minHeight="@dimen/min_touch_target"
+                android:text="@string/action_call"
+                android:textColor="@color/emergency_red"
+                android:textSize="@dimen/text_size_caption"
+                app:icon="@drawable/ic_phone"
+                app:iconSize="@dimen/icon_size_small"
+                app:iconTint="@color/emergency_red" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

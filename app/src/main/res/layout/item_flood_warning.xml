@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_flood_root"
+    style="@style/Widget.JibonShieldBD.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/spacing_large"
+    android:layout_marginTop="@dimen/spacing_small"
+    android:layout_marginEnd="@dimen/spacing_large"
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:minHeight="@dimen/min_touch_target">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
+
+        <!-- Top Row: Severity & Verified/Sample Tag -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_warning_severity_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_severity_warning"
+                android:text="@string/severity_warning_label"
+                android:textColor="@color/severity_warning"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_warning_status_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_severity_sample"
+                android:text="@string/tag_verified_alert"
+                android:textColor="@color/severity_sample"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Warning Title -->
+        <TextView
+            android:id="@+id/tv_warning_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_subhead"
+            android:textStyle="bold"
+            tools:text="Surma-Kushiyara Basin High Water Level Warning" />
+
+        <!-- Region & Agency -->
+        <TextView
+            android:id="@+id/tv_warning_region"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xxsmall"
+            android:textColor="@color/secondary"
+            android:textSize="@dimen/text_size_body_small"
+            android:textStyle="bold"
+            tools:text="Region: Sylhet &amp; Sunamganj" />
+
+        <!-- Details Snippet -->
+        <TextView
+            android:id="@+id/tv_warning_details_snippet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xsmall"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_body_small"
+            tools:text="River water levels near danger mark due to heavy rainfall in Meghalaya." />
+
+        <!-- Footer: Issued Time -->
+        <TextView
+            android:id="@+id/tv_warning_issued_at"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/text_size_caption"
+            tools:text="Issued: 2026-10-12 08:00 BST • Source: FFWC (BWDB)" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_shelter_detail_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_shelter_detail"
+        style="@style/Widget.JibonShieldBD.Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/title_shelter_detail" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_large">
+
+            <!-- Main Shelter Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.JibonShieldBD.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_large">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_shelter_detail_district"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_badge"
+                            android:textColor="@color/primary"
+                            android:textSize="@dimen/text_size_caption"
+                            android:textStyle="bold"
+                            tools:text="Cox's Bazar" />
+
+                        <TextView
+                            android:id="@+id/tv_shelter_detail_upazila"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_small"
+                            android:background="@drawable/bg_badge"
+                            android:textColor="@color/secondary"
+                            android:textSize="@dimen/text_size_caption"
+                            android:textStyle="bold"
+                            tools:text="Kutubdia" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_size_title"
+                        android:textStyle="bold"
+                        tools:text="Kutubdia Model High School Cyclone Shelter" />
+
+                    <!-- Capacity & Occupancy Status -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_shelter_capacity"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="@dimen/text_size_caption" />
+
+                            <TextView
+                                android:id="@+id/tv_shelter_detail_capacity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xxsmall"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_size_subhead"
+                                android:textStyle="bold"
+                                tools:text="1,200 Persons" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_shelter_occupancy"
+                                android:textColor="@color/text_tertiary"
+                                android:textSize="@dimen/text_size_caption" />
+
+                            <TextView
+                                android:id="@+id/tv_shelter_detail_occupancy"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xxsmall"
+                                android:textColor="@color/success_green"
+                                android:textSize="@dimen/text_size_subhead"
+                                android:textStyle="bold"
+                                tools:text="Available" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:layout_marginBottom="@dimen/spacing_medium"
+                        android:background="@color/divider_color" />
+
+                    <!-- Coordinates -->
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_coords"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_location"
+                        android:drawablePadding="@dimen/spacing_small"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_body_small"
+                        tools:text="Offline Coordinates: 21.8155° N, 91.8542° E" />
+
+                    <!-- Phone and Call Action -->
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:drawableStart="@drawable/ic_phone"
+                        android:drawablePadding="@dimen/spacing_small"
+                        android:textColor="@color/emergency_red"
+                        android:textSize="@dimen/text_size_subhead"
+                        android:textStyle="bold"
+                        tools:text="Focal Phone: 01711-000001" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_shelter_detail_call"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_large"
+                        android:backgroundTint="@color/emergency_red"
+                        android:minHeight="@dimen/min_touch_target"
+                        android:text="@string/btn_dial_shelter"
+                        android:textColor="@color/surface_white"
+                        android:textSize="@dimen/text_size_body"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_call_emergency"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/surface_white" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Facilities Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.JibonShieldBD.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_large">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/shelter_facilities_heading"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/text_size_subhead"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:lineSpacingExtra="4dp"
+                        android:text="@string/shelter_facilities_body"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_body_small" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Verification Metadata -->
+            <TextView
+                android:id="@+id/tv_shelter_detail_verified"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_large"
+                android:gravity="center"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_size_caption"
+                tools:text="Verified: 2026-01-15 • Authority: DDM / CPP" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
