@@ -117,11 +117,33 @@ public class EmergencyContactsActivity extends AppCompatActivity implements Emer
     }
 
     private void dialPhoneNumber(String phone) {
+        if (phone == null || phone.trim().isEmpty() || phone.trim().length() < 3) {
+            Toast.makeText(this, "Invalid emergency phone number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone));
-            startActivity(intent);
+            intent.setData(Uri.parse("tel:" + phone.trim()));
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                copyPhoneToClipboard(phone);
+            }
         } catch (Exception e) {
+            copyPhoneToClipboard(phone);
+        }
+    }
+
+    private void copyPhoneToClipboard(String phone) {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard != null) {
+                ClipData clip = ClipData.newPlainText("Emergency Phone", phone);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception ignored) {
             Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
         }
     }

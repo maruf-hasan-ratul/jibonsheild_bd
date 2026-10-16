@@ -85,8 +85,12 @@ public class FloodWarningAdapter extends RecyclerView.Adapter<FloodWarningAdapte
                 break;
         }
 
-        // Data status: Verified vs Sample
-        if (item.isSample()) {
+        // Data status: Expired vs Sample vs Verified
+        if (item.isExpired()) {
+            holder.tvStatus.setText(R.string.warning_status_expired);
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_severity_critical);
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.severity_critical));
+        } else if (item.isSample()) {
             holder.tvStatus.setText(R.string.tag_sample_alert);
             holder.tvStatus.setBackgroundResource(R.drawable.bg_severity_sample);
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.severity_sample));

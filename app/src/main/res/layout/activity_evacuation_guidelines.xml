@@ -34,19 +34,54 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip_disaster_flood"
+                android:id="@+id/chip_disaster_flood_prep"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/tab_disaster_flood" />
+                android:text="@string/tab_evac_flood_prep" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_disaster_flood_evac"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_evac_flood_evac" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_disaster_cyclone"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tab_disaster_cyclone" />
+                android:text="@string/tab_evac_cyclone" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_disaster_rain_waterlog"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_evac_rain_waterlog" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_disaster_family_comm"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_evac_family_comm" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_disaster_docs"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_evac_docs" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_disaster_supplies"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_evac_supplies" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_disaster_earthquake"
@@ -81,6 +116,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/spacing_large">
+
+            <!-- Educational Disclaimer Banner -->
+            <TextView
+                android:id="@+id/tv_evac_disclaimer_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                android:background="@drawable/bg_status_banner"
+                android:drawableStart="@drawable/ic_shield_logo"
+                android:drawablePadding="@dimen/spacing_small"
+                android:lineSpacingExtra="2dp"
+                android:padding="@dimen/spacing_medium"
+                android:text="@string/evac_disclaimer_banner"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption" />
 
             <!-- Stage 1: Before -->
             <com.google.android.material.card.MaterialCardView

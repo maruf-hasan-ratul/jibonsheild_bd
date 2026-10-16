@@ -64,6 +64,21 @@
                             android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             tools:text="Kutubdia" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/tv_shelter_detail_status_tag"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_severity_safe"
+                            android:text="@string/shelter_status_listed"
+                            android:textColor="@color/success_green"
+                            android:textSize="@dimen/text_size_caption"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <TextView
@@ -75,6 +90,29 @@
                         android:textSize="@dimen/text_size_title"
                         android:textStyle="bold"
                         tools:text="Kutubdia Model High School Cyclone Shelter" />
+
+                    <!-- Descriptive Address -->
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xxsmall"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_body_small"
+                        tools:text="Boroghop Union, Kutubdia Island, Cox's Bazar" />
+
+                    <!-- Operational Status Disclaimer Banner -->
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_operational_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:background="@drawable/bg_status_banner"
+                        android:lineSpacingExtra="2dp"
+                        android:padding="@dimen/spacing_small"
+                        android:text="@string/shelter_status_operational_unconfirmed"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_caption" />
 
                     <!-- Capacity & Occupancy Status -->
                     <LinearLayout
@@ -125,10 +163,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/spacing_xxsmall"
-                                android:textColor="@color/success_green"
+                                android:textColor="@color/warning_amber"
                                 android:textSize="@dimen/text_size_subhead"
                                 android:textStyle="bold"
-                                tools:text="Available" />
+                                tools:text="Not tracked offline" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -178,6 +216,39 @@
                         app:iconGravity="textStart"
                         app:iconTint="@color/surface_white" />
 
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Written Directions Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.JibonShieldBD.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_large">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_shelter_directions"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/text_size_subhead"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_shelter_detail_directions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_body_small"
+                        tools:text="Reinforced concrete cyclone shelter. Elevated wheelchair ramp, livestock ground floor refuge. Accessible from main union road." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

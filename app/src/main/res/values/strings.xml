@@ -292,5 +292,73 @@
     <string name="cd_back_button">Navigate back</string>
     <string name="cd_action_call">Call emergency number</string>
     <string name="cd_search_shelter">Search shelters</string>
-    <string name="cd_filter_icon">Filter options</string>
+    <string name="cd_filter_icon">Filter options icon</string>
+    <!-- Day 4 Safety & Shelter Strings -->
+    <string name="shelter_status_listed">Listed Shelter Record</string>
+    <string name="shelter_status_operational_unconfirmed">Notice: This is a verified static directory record. Current operational status (vacancy, gate access, and on-site emergency supplies) is NOT confirmed in real time. Contact local Union Parishad or CPP volunteers before proceeding.</string>
+    <string name="shelter_coords_missing">GPS coordinates not available in offline registry. Refer to written directions below.</string>
+    <string name="shelter_phone_missing">No verified direct telephone number recorded. Contact Union Parishad.</string>
+    <string name="label_shelter_address">Descriptive Address:</string>
+    <string name="label_shelter_directions">Offline Written Directions &amp; Access Notes:</string>
+    <string name="shelter_capacity_unspecified">Design capacity not recorded</string>
+    <string name="shelter_occupancy_unverified">Live occupancy not tracked offline</string>
+
+    <!-- Warning Safety Rules -->
+    <string name="warning_safety_caveat_title">Important Flood Safety Notice</string>
+    <string name="warning_safety_caveat_body">Absence of an active warning in local records does NOT confirm that an area is safe. Live river conditions change rapidly. Always observe water levels, obey Union Parishad alerts, and never enter flowing floodwaters.</string>
+    <string name="warning_status_current">Current Official Alert</string>
+    <string name="warning_status_cached">Offline Cached Record</string>
+    <string name="warning_status_expired">EXPIRED BULLETIN (Past)</string>
+    <string name="warning_expired_banner">⚠️ WARNING EXPIRED: This bulletin has passed its validity period. Preserved for reference only; do NOT rely on it as current.</string>
+    <string name="action_view_guidelines">View Safety Guidelines</string>
+
+    <!-- 7 Evacuation & Preparedness Educational Guidance Topics -->
+    <string name="tab_evac_flood_prep">Flood Prep</string>
+    <string name="tab_evac_flood_evac">Flood Evacuation</string>
+    <string name="tab_evac_cyclone">Cyclone Prep</string>
+    <string name="tab_evac_rain_waterlog">Rain &amp; Waterlogging</string>
+    <string name="tab_evac_family_comm">Family Plan</string>
+    <string name="tab_evac_docs">Document Shield</string>
+    <string name="tab_evac_supplies">Emergency Supplies</string>
+
+    <string name="evac_flood_prep_before">• Know your local high-ground shelter and elevation route.\n• Move cattle and livestock to elevated earthen mounds (Killa).\n• Pack waterproof emergency grab bags with dry food, water, torch, and medicines.\n• Secure house roof and store grain/seeds above flood level.</string>
+    <string name="evac_flood_prep_during">• Disconnect electrical main switch and turn off household gas valves before water enters.\n• Move family members and essential grab-bags to highest interior floor or plinth.\n• Unfasten domestic animals so they are not trapped if water levels rise suddenly.</string>
+    <string name="evac_flood_prep_after">• Clear mud and flood silt safely wearing boots and gloves.\n• Clean and disinfect tubewell plinth with bleaching powder before resuming use.\n• Inspect buildings for structural foundation damage before full reoccupation.</string>
+
+    <string name="evac_flood_evac_before">• Monitor official FFWC bulletins and local Union Parishad loudspeaker alerts closely.\n• Prepare elderly, pregnant women, children, and persons with disabilities for early departure before access roads are submerged.\n• Select verified high-elevation routes to your nearest designated flood shelter.</string>
+    <string name="evac_flood_evac_during">• Follow official evacuation orders immediately without delay.\n• NEVER attempt to walk, swim, drive, or cycle through moving floodwaters (just 15 cm of moving water can knock down an adult).\n• Avoid touching downed power lines, transformers, or electric poles standing in floodwater.\n• Move exclusively along high embankments or board authorized volunteer rescue boats.</string>
+    <string name="evac_flood_evac_after">• Return home ONLY after Upazila administration and Union disaster committee declare it safe.\n• Beware of snakes, scorpions, and hazardous debris hiding inside submerged homes.\n• Boil drinking water for at least 1 minute or use Halazone/WPT water purification tablets.</string>
+
+    <string name="evac_rain_waterlog_before">• Clean local home and union drainage gutters before monsoon downpours.\n• Raise doorway plinths with sandbags if situated in low-lying depression areas.\n• Store 3 days of safe drinking water and dry foods on elevated shelves.</string>
+    <string name="evac_rain_waterlog_during">• Avoid wading through waterlogged streets; hidden open manholes and drain covers pose fatal hazards.\n• Never touch submerged street lamp posts, transformers, or outdoor electric cables.\n• Stay indoors and disconnect sensitive appliances during severe thunderstorm and lightning activity.</string>
+    <string name="evac_rain_waterlog_after">• Disinfect stagnant waterlogged yard areas with bleaching powder once water drains.\n• Empty puddles in open tires and pots to eliminate Aedes mosquito breeding sites.\n• Wash exposed skin thoroughly with soap and safe water.</string>
+
+    <string name="evac_family_comm_before">• Memorize and write down 2 essential family contact numbers on waterproof paper.\n• Nominate an out-of-district relative or focal person as the designated family check-in contact.\n• Agree on a pre-planned high-ground meeting point in case family members are separated during sudden evacuation.</string>
+    <string name="evac_family_comm_during">• Keep mobile phones on battery saver mode; avoid gaming, videos, and unnecessary calls.\n• Use SMS text messages instead of voice calls to communicate when cellular networks are congested.\n• Inform your designated family focal person of your destination shelter before departing.</string>
+    <string name="evac_family_comm_after">• Send confirmation SMS as soon as you arrive at a safe designated shelter.\n• Register family names with the Union Parishad or Red Crescent shelter volunteer desk.</string>
+
+    <string name="evac_docs_before">• Gather national IDs (NID), birth registration certificates, land ownership deeds (দলিল), and bank books.\n• Place all original certificates and vaccination cards inside double-layer waterproof ziplock bags.\n• Store a photocopy and waterproof flash drive backup in your household grab-bag.</string>
+    <string name="evac_docs_during">• Keep the waterproof document pouch inside your personal backpack or strapped to your upper body above waist height.\n• Never leave critical land and identification records behind in low ground.</string>
+    <string name="evac_docs_after">• Keep documents sealed until you reach a dry, secure shelter environment.\n• Report any lost identity records to the local Upazila disaster assistance camp.</string>
+
+    <string name="evac_supplies_before">• Pack a 72-hour survival kit: 3 liters drinking water per person/day, non-perishable dry food (Chira, Muri, Gur).\n• Waterproof LED torch, spare batteries, fully charged power bank, and safety whistle.\n• First aid kit, antiseptic ointment, and a 7-day supply of essential chronic family prescriptions (BP, Insulin, Asthma).</string>
+    <string name="evac_supplies_during">• Carry the emergency kit on your back, leaving both hands free for balance and assisting children.\n• Keep oral rehydration salts (ORS) and water purification tablets within immediate reach.</string>
+    <string name="evac_supplies_after">• Replenish consumed food and water stocks as soon as emergency relief reaches the shelter.\n• Safely store survival gear for subsequent seasonal flood and monsoon cycles.</string>
+
+    <string name="evac_disclaimer_banner">Educational Guidance Only: General disaster resilience instructions. NOT a substitute for current official emergency instructions, flood bulletins, or evacuation orders from local authorities and FFWC/BMD/CPP.</string>
+
+    <!-- Dashboard Summary Strings -->
+    <string name="dashboard_warning_status_title">Flood Warning Status</string>
+    <string name="dashboard_active_warnings_count">%1$d Active Warning(s) Stored Locally</string>
+    <string name="dashboard_no_active_warning">No Active Warnings in Local Records</string>
+    <string name="dashboard_no_warning_caveat">Absence of local warning does not confirm safety. Obey official FFWC broadcasts.</string>
+    <string name="dashboard_checklist_progress">Family Checklist: %1$d / %2$d items packed (%3$d%%)</string>
+    <string name="dashboard_shelters_count">%1$d Designated Shelters Offline</string>
+    <string name="dashboard_contacts_count">%1$d Emergency Helplines</string>
+
+    <!-- Dashboard Summary Tile Labels -->
+    <string name="dashboard_tile_active_alerts">Active Alerts</string>
+    <string name="dashboard_tile_shelters">Shelters</string>
+    <string name="dashboard_tile_hotlines">Hotlines</string>
+    <string name="dashboard_tile_kit">Kit Ready</string>
 </resources>

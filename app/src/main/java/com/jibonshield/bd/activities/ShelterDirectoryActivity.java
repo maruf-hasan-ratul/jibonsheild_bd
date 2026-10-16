@@ -36,6 +36,7 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
 
     private EditText etSearch;
     private Spinner spinnerDistrict;
+    private Spinner spinnerUpazila;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private View emptyStateLayout;
@@ -49,9 +50,12 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
     private final String[] districts = new String[]{
             "All Districts", "Cox's Bazar", "Sunamganj", "Sylhet", "Kurigram", "Patuakhali", "Chittagong"
     };
+    private final List<String> upazilaList = new ArrayList<>();
+    private ArrayAdapter<String> upazilaAdapter;
 
     private String currentQuery = "";
     private String currentDistrict = "All Districts";
+    private String currentUpazila = "All";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +64,17 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
 
         initViews();
         setupToolbar();
-        setupSpinner();
+        setupSpinners();
         setupSearch();
         setupRecyclerView();
+        loadUpazilas(currentDistrict);
         loadShelters();
     }
 
     private void initViews() {
         etSearch = findViewById(R.id.et_search_shelter);
         spinnerDistrict = findViewById(R.id.spinner_shelter_district);
+        spinnerUpazila = findViewById(R.id.spinner_shelter_upazila);
         recyclerView = findViewById(R.id.recycler_shelters);
         progressBar = findViewById(R.id.progress_shelters);
         emptyStateLayout = findViewById(R.id.empty_state_shelter);
@@ -85,6 +91,9 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
                 btnEmptyAction.setOnClickListener(v -> {
                     etSearch.setText("");
                     spinnerDistrict.setSelection(0);
+                    if (spinnerUpazila != null && upazilaList.size() > 0) {
+                        spinnerUpazila.setSelection(0);
+                    }
                 });
             }
         }
@@ -102,18 +111,57 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void setupSpinner() {
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts);
-        spinnerDistrict.setAdapter(spinnerAdapter);
+    private void setupSpinners() {
+        // 1. District Spinner
+        ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts);
+        spinnerDistrict.setAdapter(districtAdapter);
         spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentDistrict = districts[position];
+                loadUpazilas(currentDistrict);
                 loadShelters();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // 2. Upazila Spinner
+        upazilaList.clear();
+        upazilaList.add("All");
+        upazilaAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, upazilaList);
+        spinnerUpazila.setAdapter(upazilaAdapter);
+        spinnerUpazila.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position >= 0 && position < upazilaList.size()) {
+                    currentUpazila = upazilaList.get(position);
+                    loadShelters();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void loadUpazilas(String district) {
+        repository.getUpazilasForDistrict(district, new EmergencyRepository.DataCallback<List<String>>() {
+            @Override
+            public void onDataLoaded(List<String> data) {
+                upazilaList.clear();
+                upazilaList.add("All");
+                if (data != null) {
+                    upazilaList.addAll(data);
+                }
+                upazilaAdapter.notifyDataSetChanged();
+                currentUpazila = "All";
+                spinnerUpazila.setSelection(0);
+            }
+
+            @Override
+            public void onError(Exception error) {}
         });
     }
 
@@ -141,7 +189,7 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
 
     private void loadShelters() {
         progressBar.setVisibility(View.VISIBLE);
-        repository.getShelters(currentQuery, currentDistrict, new EmergencyRepository.DataCallback<List<Shelter>>() {
+        repository.searchShelters(currentQuery, currentDistrict, currentUpazila, new EmergencyRepository.DataCallback<List<Shelter>>() {
             @Override
             public void onDataLoaded(List<Shelter> data) {
                 progressBar.setVisibility(View.GONE);
@@ -182,11 +230,33 @@ public class ShelterDirectoryActivity extends AppCompatActivity implements Shelt
     }
 
     private void dialPhoneNumber(String phone) {
+        if (phone == null || phone.trim().isEmpty() || phone.trim().length() < 3) {
+            Toast.makeText(this, "No valid contact telephone available for this shelter", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone));
-            startActivity(intent);
+            intent.setData(Uri.parse("tel:" + phone.trim()));
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                copyPhoneToClipboard(phone);
+            }
         } catch (Exception e) {
+            copyPhoneToClipboard(phone);
+        }
+    }
+
+    private void copyPhoneToClipboard(String phone) {
+        try {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (clipboard != null) {
+                android.content.ClipData clip = android.content.ClipData.newPlainText("Shelter Phone", phone);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception ignored) {
             Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
         }
     }

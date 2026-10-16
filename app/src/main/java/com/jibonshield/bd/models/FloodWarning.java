@@ -73,22 +73,87 @@ public class FloodWarning implements Serializable {
     public long getLastSyncedAt() { return lastSyncedAt; }
 
     /**
-     * Helper to verify if the warning has expired by date/time or active flag.
+     * Documented Timestamp Policy:
+     * Standard timestamp format: "yyyy-MM-dd HH:mm [BST]" or ISO-8601 "yyyy-MM-dd'T'HH:mm:ss".
+     * Expiry Rule:
+     * A warning is considered expired if:
+     * 1. isActive flag is false.
+     * 2. expiresAt is null, empty, or whitespace ("Do not treat missing expiry information as proof that a warning remains valid").
+     * 3. Current time is after the parsed expiresAt timestamp.
+     * 4. Date format cannot be validated or parsed (unverifiable timestamps cannot be treated as valid).
      */
     public boolean isExpired() {
         if (!isActive) return true;
-        try {
-            // Attempt standard parse (e.g. "2026-10-14 18:00 BST")
-            String cleanDate = expiresAt;
-            if (cleanDate.endsWith(" BST")) {
-                cleanDate = cleanDate.replace(" BST", "");
+        if (expiresAt == null || expiresAt.trim().isEmpty()) {
+            // Missing expiry information must never be treated as proof of validity
+            return true;
+        }
+
+        String cleanDate = expiresAt.trim();
+        if (cleanDate.endsWith(" BST")) {
+            cleanDate = cleanDate.substring(0, cleanDate.length() - 4).trim();
+        }
+
+        String[] formats = new String[]{
+                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd HH:mm",
+                "yyyy-MM-dd'T'HH:mm:ss",
+                "yyyy-MM-dd"
+        };
+
+        for (String format : formats) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+                sdf.setLenient(false);
+                Date expiry = sdf.parse(cleanDate);
+                if (expiry != null) {
+                    return expiry.before(new Date());
+                }
+            } catch (Exception ignored) {
             }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
-            Date expiry = sdf.parse(cleanDate);
-            if (expiry != null && expiry.before(new Date())) {
-                return true;
-            }
-        } catch (Exception ignored) {}
-        return false;
+        }
+
+        // If unparseable, we cannot verify validity; treat as expired
+        return true;
+    }
+
+    public enum WarningStatus {
+        CURRENT,
+        CACHED,
+        EXPIRED,
+        UNAVAILABLE
+    }
+
+    public enum VerificationStatus {
+        OFFICIAL_VERIFIED,
+        DEVELOPMENT_SAMPLE,
+        UNVERIFIED
+    }
+
+    public WarningStatus getWarningStatus() {
+        if (isExpired()) {
+            return WarningStatus.EXPIRED;
+        }
+        if (isSample) {
+            return WarningStatus.CACHED;
+        }
+        // If synced within the last 24 hours
+        long now = System.currentTimeMillis();
+        if (now - lastSyncedAt <= 24 * 60 * 60 * 1000L) {
+            return WarningStatus.CURRENT;
+        } else {
+            return WarningStatus.CACHED;
+        }
+    }
+
+    public VerificationStatus getVerificationStatus() {
+        if (isSample) {
+            return VerificationStatus.DEVELOPMENT_SAMPLE;
+        }
+        if (source != null && !source.trim().isEmpty() &&
+                (source.contains("FFWC") || source.contains("BWDB") || source.contains("BMD") || source.contains("MoDMR") || source.contains("Government"))) {
+            return VerificationStatus.OFFICIAL_VERIFIED;
+        }
+        return VerificationStatus.UNVERIFIED;
     }
 }

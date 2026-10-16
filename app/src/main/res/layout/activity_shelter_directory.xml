@@ -56,32 +56,60 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- District Filter Spinner Bar -->
+    <!-- District & Upazila Filter Spinner Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_white"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingStart="@dimen/spacing_large"
         android:paddingTop="@dimen/spacing_xxsmall"
         android:paddingEnd="@dimen/spacing_large"
         android:paddingBottom="@dimen/spacing_xxsmall">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_shelter_district"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_caption"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/spinner_shelter_district"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/min_touch_target"
-            android:layout_marginStart="@dimen/spacing_small"
-            android:layout_weight="1" />
+            <TextView
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="@string/label_shelter_district"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_shelter_district"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/min_touch_target"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="@string/label_shelter_upazila"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_shelter_upazila"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/min_touch_target"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_weight="1" />
+        </LinearLayout>
     </LinearLayout>
 
     <View

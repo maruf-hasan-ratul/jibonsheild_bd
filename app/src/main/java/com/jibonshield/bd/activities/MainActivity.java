@@ -18,6 +18,11 @@ import com.jibonshield.bd.adapters.DashboardAdapter;
 import com.jibonshield.bd.models.DashboardCardItem;
 import com.jibonshield.bd.utils.NetworkUtils;
 import com.jibonshield.bd.utils.PreferenceUtils;
+import com.jibonshield.bd.models.ChecklistItem;
+import com.jibonshield.bd.models.EmergencyContact;
+import com.jibonshield.bd.models.FloodWarning;
+import com.jibonshield.bd.models.Shelter;
+import com.jibonshield.bd.repositories.EmergencyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,14 @@ public class MainActivity extends AppCompatActivity implements DashboardAdapter.
     private MaterialButton btnEmergencyHotlines;
     private ImageView btnMainSettings;
 
+    // Day 4: Live dashboard summary tile views
+    private TextView tvSummaryWarnings;
+    private TextView tvSummaryShelters;
+    private TextView tvSummaryContacts;
+    private TextView tvSummaryChecklist;
+    private TextView tvSummaryCaveat;
+    private EmergencyRepository repository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements DashboardAdapter.
         super.onResume();
         updateConnectivityState();
         updateSelectedLocation();
+        loadDashboardSummary();
     }
 
     private void initViews() {
@@ -66,6 +80,14 @@ public class MainActivity extends AppCompatActivity implements DashboardAdapter.
         tvDashboardLocation = findViewById(R.id.tv_dashboard_location);
         btnEmergencyHotlines = findViewById(R.id.btn_emergency_hotlines);
         btnMainSettings = findViewById(R.id.btn_main_settings);
+
+        // Day 4: Live summary stat tiles
+        tvSummaryWarnings = findViewById(R.id.tv_summary_warnings_count);
+        tvSummaryShelters = findViewById(R.id.tv_summary_shelters_count);
+        tvSummaryContacts = findViewById(R.id.tv_summary_contacts_count);
+        tvSummaryChecklist = findViewById(R.id.tv_summary_checklist_count);
+        tvSummaryCaveat   = findViewById(R.id.tv_summary_safety_caveat);
+        repository = new EmergencyRepository(this);
     }
 
     private void setupToolbar() {
@@ -102,6 +124,79 @@ public class MainActivity extends AppCompatActivity implements DashboardAdapter.
         } else {
             tvDashboardLocation.setText(getString(R.string.label_selected_location) + " " + district);
         }
+    }
+
+    /**
+     * Loads live counts from SQLite into the four dashboard summary tiles.
+     * Each query runs on a background thread; results are posted to the main thread.
+     * Called on every onResume so the summary reflects checklist toggles made in sub-screens.
+     */
+    private void loadDashboardSummary() {
+        // Tile 1: Active flood warnings (uses isActive flag + isExpired() model check)
+        repository.getActiveFloodWarnings("All", new EmergencyRepository.DataCallback<List<FloodWarning>>() {
+            @Override
+            public void onDataLoaded(List<FloodWarning> data) {
+                if (tvSummaryWarnings == null) return;
+                int count = data != null ? data.size() : 0;
+                tvSummaryWarnings.setText(String.valueOf(count));
+                tvSummaryWarnings.setTextColor(ContextCompat.getColor(MainActivity.this,
+                        count > 0 ? R.color.emergency_red : R.color.success_green));
+                if (tvSummaryCaveat != null) {
+                    tvSummaryCaveat.setVisibility(android.view.View.VISIBLE);
+                }
+            }
+            @Override
+            public void onError(Exception error) {
+                if (tvSummaryWarnings != null) tvSummaryWarnings.setText("—");
+            }
+        });
+
+        // Tile 2: Designated shelters stored offline
+        repository.getShelters("", "All", new EmergencyRepository.DataCallback<List<Shelter>>() {
+            @Override
+            public void onDataLoaded(List<Shelter> data) {
+                if (tvSummaryShelters != null) {
+                    tvSummaryShelters.setText(data != null ? String.valueOf(data.size()) : "—");
+                }
+            }
+            @Override
+            public void onError(Exception error) {
+                if (tvSummaryShelters != null) tvSummaryShelters.setText("—");
+            }
+        });
+
+        // Tile 3: Emergency contacts / hotlines
+        repository.getEmergencyContacts(new EmergencyRepository.DataCallback<List<EmergencyContact>>() {
+            @Override
+            public void onDataLoaded(List<EmergencyContact> data) {
+                if (tvSummaryContacts != null) {
+                    tvSummaryContacts.setText(data != null ? String.valueOf(data.size()) : "—");
+                }
+            }
+            @Override
+            public void onError(Exception error) {
+                if (tvSummaryContacts != null) tvSummaryContacts.setText("—");
+            }
+        });
+
+        // Tile 4: Preparedness checklist completion percentage
+        repository.getChecklistItems(new EmergencyRepository.DataCallback<List<ChecklistItem>>() {
+            @Override
+            public void onDataLoaded(List<ChecklistItem> data) {
+                if (tvSummaryChecklist == null || data == null) return;
+                int total = data.size();
+                int done = 0;
+                for (ChecklistItem item : data) {
+                    if (item.isCompleted()) done++;
+                }
+                int pct = total > 0 ? (done * 100) / total : 0;
+                tvSummaryChecklist.setText(pct + "%");
+            }
+            @Override
+            public void onError(Exception error) {
+                if (tvSummaryChecklist != null) tvSummaryChecklist.setText("—");
+            }
+        });
     }
 
     private void setupModules() {

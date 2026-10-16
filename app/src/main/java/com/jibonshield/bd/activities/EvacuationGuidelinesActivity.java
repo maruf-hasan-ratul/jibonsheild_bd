@@ -29,7 +29,7 @@ public class EvacuationGuidelinesActivity extends AppCompatActivity {
         setupToolbar();
         initViews();
         setupListeners();
-        showDisasterGuidance(R.id.chip_disaster_flood);
+        showDisasterGuidance(R.id.chip_disaster_flood_prep);
     }
 
     private void setupToolbar() {
@@ -58,10 +58,30 @@ public class EvacuationGuidelinesActivity extends AppCompatActivity {
     }
 
     private void showDisasterGuidance(int chipId) {
-        if (chipId == R.id.chip_disaster_cyclone) {
+        if (chipId == R.id.chip_disaster_flood_evac) {
+            tvStageBeforeBody.setText(R.string.evac_flood_evac_before);
+            tvStageDuringBody.setText(R.string.evac_flood_evac_during);
+            tvStageAfterBody.setText(R.string.evac_flood_evac_after);
+        } else if (chipId == R.id.chip_disaster_cyclone) {
             tvStageBeforeBody.setText(R.string.evac_cyclone_before);
             tvStageDuringBody.setText(R.string.evac_cyclone_during);
             tvStageAfterBody.setText(R.string.evac_cyclone_after);
+        } else if (chipId == R.id.chip_disaster_rain_waterlog) {
+            tvStageBeforeBody.setText(R.string.evac_rain_waterlog_before);
+            tvStageDuringBody.setText(R.string.evac_rain_waterlog_during);
+            tvStageAfterBody.setText(R.string.evac_rain_waterlog_after);
+        } else if (chipId == R.id.chip_disaster_family_comm) {
+            tvStageBeforeBody.setText(R.string.evac_family_comm_before);
+            tvStageDuringBody.setText(R.string.evac_family_comm_during);
+            tvStageAfterBody.setText(R.string.evac_family_comm_after);
+        } else if (chipId == R.id.chip_disaster_docs) {
+            tvStageBeforeBody.setText(R.string.evac_docs_before);
+            tvStageDuringBody.setText(R.string.evac_docs_during);
+            tvStageAfterBody.setText(R.string.evac_docs_after);
+        } else if (chipId == R.id.chip_disaster_supplies) {
+            tvStageBeforeBody.setText(R.string.evac_supplies_before);
+            tvStageDuringBody.setText(R.string.evac_supplies_during);
+            tvStageAfterBody.setText(R.string.evac_supplies_after);
         } else if (chipId == R.id.chip_disaster_earthquake) {
             tvStageBeforeBody.setText(R.string.evac_earthquake_before);
             tvStageDuringBody.setText(R.string.evac_earthquake_during);
@@ -71,10 +91,10 @@ public class EvacuationGuidelinesActivity extends AppCompatActivity {
             tvStageDuringBody.setText(R.string.evac_fire_during);
             tvStageAfterBody.setText(R.string.evac_fire_after);
         } else {
-            // Default: Flood
-            tvStageBeforeBody.setText(R.string.evac_flood_before);
-            tvStageDuringBody.setText(R.string.evac_flood_during);
-            tvStageAfterBody.setText(R.string.evac_flood_after);
+            // Default: Flood Preparation
+            tvStageBeforeBody.setText(R.string.evac_flood_prep_before);
+            tvStageDuringBody.setText(R.string.evac_flood_prep_during);
+            tvStageAfterBody.setText(R.string.evac_flood_prep_after);
         }
     }
 }

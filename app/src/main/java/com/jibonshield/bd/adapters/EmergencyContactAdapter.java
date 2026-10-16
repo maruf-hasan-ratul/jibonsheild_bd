@@ -51,7 +51,19 @@ public class EmergencyContactAdapter extends RecyclerView.Adapter<EmergencyConta
         EmergencyContact item = contactList.get(position);
 
         String name = isBangla ? item.getServiceNameBn() : item.getServiceNameEn();
+        String desc = isBangla ? item.getServiceDescriptionBn() : item.getServiceDescriptionEn();
+
         holder.tvName.setText(name);
+        if (desc != null && !desc.trim().isEmpty()) {
+            holder.tvDescription.setText(desc);
+            holder.tvDescription.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvDescription.setVisibility(View.GONE);
+        }
+
+        String meta = "Source: " + item.getSource() + " • Verified: " + item.getVerificationDate();
+        holder.tvMeta.setText(meta);
+
         holder.tvPhone.setText(item.getPhoneNumber());
         holder.tvCategory.setText(item.getCategory());
         holder.tvHours.setText(String.format(context.getString(R.string.label_contact_hours), item.getAvailableHours()));
@@ -88,6 +100,8 @@ public class EmergencyContactAdapter extends RecyclerView.Adapter<EmergencyConta
         final TextView tvTollFree;
         final TextView tvHours;
         final TextView tvName;
+        final TextView tvDescription;
+        final TextView tvMeta;
         final TextView tvPhone;
         final MaterialButton btnCall;
 
@@ -98,6 +112,8 @@ public class EmergencyContactAdapter extends RecyclerView.Adapter<EmergencyConta
             tvTollFree = itemView.findViewById(R.id.tv_contact_tollfree);
             tvHours = itemView.findViewById(R.id.tv_contact_hours);
             tvName = itemView.findViewById(R.id.tv_contact_name);
+            tvDescription = itemView.findViewById(R.id.tv_contact_description);
+            tvMeta = itemView.findViewById(R.id.tv_contact_meta);
             tvPhone = itemView.findViewById(R.id.tv_contact_phone);
             btnCall = itemView.findViewById(R.id.btn_contact_call);
         }

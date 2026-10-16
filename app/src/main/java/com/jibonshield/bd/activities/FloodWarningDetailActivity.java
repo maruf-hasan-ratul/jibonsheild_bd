@@ -111,8 +111,23 @@ public class FloodWarningDetailActivity extends AppCompatActivity {
                 break;
         }
 
-        // Data status & Provenance
-        if (warning.isSample()) {
+        // Expiry Status Banner & Verification
+        TextView tvDisclaimer = findViewById(R.id.tv_detail_disclaimer);
+        if (tvDisclaimer != null) {
+            tvDisclaimer.setText(getString(R.string.flood_disclaimer) + "\n\n" + getString(R.string.warning_safety_caveat_body));
+        }
+
+        if (warning.isExpired()) {
+            tvStatus.setText(R.string.warning_status_expired);
+            tvStatus.setBackgroundResource(R.drawable.bg_severity_critical);
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.severity_critical));
+
+            // Display warning banner at top of advice body
+            TextView tvAdviceBody = findViewById(R.id.tv_detail_advice_body);
+            if (tvAdviceBody != null) {
+                tvAdviceBody.setText(getString(R.string.warning_expired_banner) + "\n\n" + getString(R.string.flood_advice_body));
+            }
+        } else if (warning.isSample()) {
             tvStatus.setText(R.string.tag_sample_alert);
             tvStatus.setBackgroundResource(R.drawable.bg_severity_sample);
             tvStatus.setTextColor(ContextCompat.getColor(this, R.color.severity_sample));

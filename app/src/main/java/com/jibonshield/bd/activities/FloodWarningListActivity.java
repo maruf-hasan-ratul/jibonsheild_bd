@@ -152,7 +152,20 @@ public class FloodWarningListActivity extends AppCompatActivity implements Flood
                 adapter.notifyDataSetChanged();
 
                 if (warningList.isEmpty()) {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
+                    if (emptyStateLayout != null) {
+                        emptyStateLayout.setVisibility(View.VISIBLE);
+                        if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.flood_empty_title);
+                        if (tvEmptyDesc != null) {
+                            tvEmptyDesc.setText(getString(R.string.flood_empty_desc) + "\n\n" + getString(R.string.warning_safety_caveat_body));
+                        }
+                        if (btnEmptyAction != null) {
+                            btnEmptyAction.setVisibility(View.VISIBLE);
+                            btnEmptyAction.setText(R.string.action_view_guidelines);
+                            btnEmptyAction.setOnClickListener(v -> {
+                                startActivity(new Intent(FloodWarningListActivity.this, EvacuationGuidelinesActivity.class));
+                            });
+                        }
+                    }
                     recyclerView.setVisibility(View.GONE);
                 } else {
                     if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
@@ -163,7 +176,12 @@ public class FloodWarningListActivity extends AppCompatActivity implements Flood
             @Override
             public void onError(Exception error) {
                 progressBar.setVisibility(View.GONE);
-                if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
+                if (emptyStateLayout != null) {
+                    emptyStateLayout.setVisibility(View.VISIBLE);
+                    if (tvEmptyDesc != null) {
+                        tvEmptyDesc.setText(getString(R.string.flood_empty_desc) + "\n\n" + getString(R.string.warning_safety_caveat_body));
+                    }
+                }
                 recyclerView.setVisibility(View.GONE);
             }
         };

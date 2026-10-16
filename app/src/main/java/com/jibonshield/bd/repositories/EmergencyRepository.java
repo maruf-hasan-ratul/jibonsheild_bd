@@ -199,12 +199,6 @@ public class EmergencyRepository {
                     args.add("%" + regionFilter + "%");
                 }
 
-                if (activeFilter != null) {
-                    if (where.length() > 0) where.append(" AND ");
-                    where.append(DatabaseContract.FloodWarningEntry.COLUMN_IS_ACTIVE).append(" = ?");
-                    args.add(activeFilter ? "1" : "0");
-                }
-
                 String selection = where.length() > 0 ? where.toString() : null;
                 String[] selectionArgs = args.isEmpty() ? null : args.toArray(new String[0]);
 
@@ -215,7 +209,16 @@ public class EmergencyRepository {
                 );
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
-                        list.add(cursorToFloodWarning(cursor));
+                        FloodWarning warning = cursorToFloodWarning(cursor);
+                        if (activeFilter != null) {
+                            if (activeFilter && !warning.isExpired()) {
+                                list.add(warning);
+                            } else if (!activeFilter && warning.isExpired()) {
+                                list.add(warning);
+                            }
+                        } else {
+                            list.add(warning);
+                        }
                     }
                 }
                 mainHandler.post(() -> callback.onDataLoaded(list));
@@ -326,6 +329,39 @@ public class EmergencyRepository {
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
                         list.add(cursorToShelter(cursor));
+                    }
+                }
+                mainHandler.post(() -> callback.onDataLoaded(list));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e));
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        });
+    }
+
+    public void getUpazilasForDistrict(String district, DataCallback<List<String>> callback) {
+        executorService.execute(() -> {
+            List<String> list = new ArrayList<>();
+            Cursor cursor = null;
+            try {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                String selection = (district != null && !district.isEmpty() && !district.equalsIgnoreCase("All") && !district.equalsIgnoreCase("All Districts"))
+                        ? DatabaseContract.ShelterEntry.COLUMN_DISTRICT + " = ?" : null;
+                String[] selectionArgs = selection != null ? new String[]{district} : null;
+                cursor = db.query(
+                        true,
+                        DatabaseContract.ShelterEntry.TABLE_NAME,
+                        new String[]{DatabaseContract.ShelterEntry.COLUMN_UPAZILA},
+                        selection, selectionArgs, null, null,
+                        DatabaseContract.ShelterEntry.COLUMN_UPAZILA + " ASC", null
+                );
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        String upazila = cursor.getString(0);
+                        if (upazila != null && !upazila.trim().isEmpty() && !list.contains(upazila)) {
+                            list.add(upazila);
+                        }
                     }
                 }
                 mainHandler.post(() -> callback.onDataLoaded(list));
