@@ -25,7 +25,7 @@ import java.util.List;
  * Screen 11: Preparedness Checklist.
  * Allows users to track household grab bags, critical documents, and emergency kits offline.
  */
-public class PreparednessChecklistActivity extends AppCompatActivity implements ChecklistAdapter.OnChecklistStatusChangeListener {
+public class PreparednessChecklistActivity extends BaseActivity implements ChecklistAdapter.OnChecklistStatusChangeListener {
 
     private TextView tvProgressLabel;
     private ProgressBar progressBarTracker;

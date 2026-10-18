@@ -1,5 +1,7 @@
 package com.jibonshield.bd.activities;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,7 +11,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.button.MaterialButton;
@@ -18,18 +20,23 @@ import com.jibonshield.bd.models.WaterObservation;
 import com.jibonshield.bd.repositories.EmergencyRepository;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 /**
- * Screen 7: Water Observation Form.
- * Allows field volunteers and citizens to record and update drinking water source condition, appearance, and tests offline.
+ * Screen 7: Water Observation Form Activity.
+ * Allows field observers and citizens to record offline water quality observations.
+ * Adheres strictly to water safety integrity: records are observational, NOT lab certifications.
  */
-public class WaterObservationFormActivity extends AppCompatActivity {
+public class WaterObservationFormActivity extends BaseActivity {
 
     public static final String EXTRA_WATER_OBSERVATION = "extra_water_observation";
+    private static final String STATE_SELECTED_TIME = "state_selected_time";
 
     private TextView tvDate;
+    private MaterialButton btnChangeDateTime;
+    private TextView tvDateError;
     private EditText etLocation;
     private TextView tvLocationError;
     private Spinner spinnerDistrict;
@@ -37,16 +44,20 @@ public class WaterObservationFormActivity extends AppCompatActivity {
     private Spinner spinnerAppearance;
     private Spinner spinnerOdor;
     private EditText etPh;
+    private TextView tvPhError;
     private Spinner spinnerTurbidity;
     private Spinner spinnerSafety;
     private EditText etReporter;
     private EditText etNotes;
+    private TextView tvNotesError;
     private MaterialButton btnSave;
     private MaterialButton btnGotoHistory;
 
     private EmergencyRepository repository;
     private String currentDateFormatted;
     private WaterObservation existingObservation;
+    private Calendar selectedCalendar;
+    private boolean isSubmitting = false;
 
     private final String[] districts = new String[]{
             "Dhaka", "Sylhet", "Chandpur", "Kurigram", "Cox's Bazar", "Chittagong", "Sunamganj", "Patuakhali", "Other"
@@ -57,15 +68,29 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_water_observation_form);
 
+        selectedCalendar = Calendar.getInstance();
         initViews();
         setupToolbar();
         setupSpinners();
         checkEditMode();
         setupListeners();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_SELECTED_TIME)) {
+            currentDateFormatted = savedInstanceState.getString(STATE_SELECTED_TIME);
+            tvDate.setText(currentDateFormatted);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(STATE_SELECTED_TIME, currentDateFormatted);
     }
 
     private void initViews() {
         tvDate = findViewById(R.id.tv_obs_form_date);
+        btnChangeDateTime = findViewById(R.id.btn_change_datetime);
+        tvDateError = findViewById(R.id.tv_obs_date_error);
         etLocation = findViewById(R.id.et_obs_location);
         tvLocationError = findViewById(R.id.tv_obs_location_error);
         spinnerDistrict = findViewById(R.id.spinner_obs_district);
@@ -73,17 +98,23 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         spinnerAppearance = findViewById(R.id.spinner_obs_appearance);
         spinnerOdor = findViewById(R.id.spinner_obs_odor);
         etPh = findViewById(R.id.et_obs_ph);
+        tvPhError = findViewById(R.id.tv_obs_ph_error);
         spinnerTurbidity = findViewById(R.id.spinner_obs_turbidity);
         spinnerSafety = findViewById(R.id.spinner_obs_safety);
         etReporter = findViewById(R.id.et_obs_reporter);
         etNotes = findViewById(R.id.et_obs_notes);
+        tvNotesError = findViewById(R.id.tv_obs_notes_error);
         btnSave = findViewById(R.id.btn_save_observation);
         btnGotoHistory = findViewById(R.id.btn_goto_history);
 
         repository = new EmergencyRepository(this);
 
+        updateDateDisplay();
+    }
+
+    private void updateDateDisplay() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        currentDateFormatted = sdf.format(new Date()) + " BST";
+        currentDateFormatted = sdf.format(selectedCalendar.getTime()) + " BST";
         tvDate.setText(currentDateFormatted);
     }
 
@@ -98,10 +129,8 @@ public class WaterObservationFormActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        // District
         spinnerDistrict.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts));
 
-        // Source Types
         String[] sources = new String[]{
                 getString(R.string.source_tubewell),
                 getString(R.string.source_shallow_tubewell),
@@ -112,7 +141,6 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         };
         spinnerSourceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sources));
 
-        // Appearance
         String[] appearances = new String[]{
                 getString(R.string.appearance_clear),
                 getString(R.string.appearance_cloudy),
@@ -121,7 +149,6 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         };
         spinnerAppearance.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, appearances));
 
-        // Odor
         String[] odors = new String[]{
                 getString(R.string.odor_none),
                 getString(R.string.odor_chlorine),
@@ -130,7 +157,6 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         };
         spinnerOdor.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, odors));
 
-        // Turbidity
         String[] turbidities = new String[]{
                 getString(R.string.turbidity_low),
                 getString(R.string.turbidity_moderate),
@@ -138,7 +164,6 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         };
         spinnerTurbidity.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, turbidities));
 
-        // Safety Assessment
         String[] safeties = new String[]{
                 getString(R.string.safety_potable),
                 getString(R.string.safety_requires_boiling),
@@ -153,12 +178,16 @@ public class WaterObservationFormActivity extends AppCompatActivity {
             if (existingObservation != null) {
                 btnSave.setText(R.string.btn_update_observation);
                 etLocation.setText(existingObservation.getLocationName());
-                etPh.setText(String.valueOf(existingObservation.getPhLevel()));
+                if (existingObservation.isPhMeasured()) {
+                    etPh.setText(String.valueOf(existingObservation.getPhLevel()));
+                } else {
+                    etPh.setText("");
+                }
                 etReporter.setText(existingObservation.getReportedBy());
                 etNotes.setText(existingObservation.getRemarks());
-                tvDate.setText(existingObservation.getObservationTime());
+                currentDateFormatted = existingObservation.getObservationTime();
+                tvDate.setText(currentDateFormatted);
 
-                // District selection
                 for (int i = 0; i < districts.length; i++) {
                     if (districts[i].equalsIgnoreCase(existingObservation.getDistrict())) {
                         spinnerDistrict.setSelection(i);
@@ -170,6 +199,9 @@ public class WaterObservationFormActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
+        btnChangeDateTime.setOnClickListener(v -> showDateTimePicker());
+        tvDate.setOnClickListener(v -> showDateTimePicker());
+
         btnSave.setOnClickListener(v -> saveOrUpdateObservation());
         btnGotoHistory.setOnClickListener(v -> {
             Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
@@ -177,15 +209,87 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         });
     }
 
+    private void showDateTimePicker() {
+        final Calendar now = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedCalendar.set(Calendar.YEAR, year);
+                    selectedCalendar.set(Calendar.MONTH, month);
+                    selectedCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                            (tView, hourOfDay, minute) -> {
+                                selectedCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                selectedCalendar.set(Calendar.MINUTE, minute);
+
+                                if (selectedCalendar.after(now)) {
+                                    tvDateError.setVisibility(View.VISIBLE);
+                                    tvDateError.setText(R.string.obs_error_future_date);
+                                    selectedCalendar = Calendar.getInstance();
+                                } else {
+                                    tvDateError.setVisibility(View.GONE);
+                                }
+                                updateDateDisplay();
+                            },
+                            now.get(Calendar.HOUR_OF_DAY),
+                            now.get(Calendar.MINUTE),
+                            true);
+                    timePickerDialog.show();
+                },
+                selectedCalendar.get(Calendar.YEAR),
+                selectedCalendar.get(Calendar.MONTH),
+                selectedCalendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        datePickerDialog.show();
+    }
+
     private void saveOrUpdateObservation() {
+        if (isSubmitting) {
+            return;
+        }
+
+        // 1. Validate Location
         String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
-        if (location.isEmpty()) {
+        if (!WaterObservation.isValidLocation(location)) {
             tvLocationError.setVisibility(View.VISIBLE);
-            tvLocationError.setText(R.string.obs_validation_error);
+            tvLocationError.setText(R.string.obs_error_location_required);
             etLocation.requestFocus();
             return;
         } else {
             tvLocationError.setVisibility(View.GONE);
+        }
+
+        // 2. Validate Optional pH
+        double ph = WaterObservation.UNMEASURED_PH;
+        String phStr = etPh.getText() != null ? etPh.getText().toString().trim() : "";
+        if (!phStr.isEmpty()) {
+            if (!WaterObservation.isValidPhString(phStr)) {
+                tvPhError.setVisibility(View.VISIBLE);
+                tvPhError.setText(R.string.obs_error_ph_range);
+                etPh.requestFocus();
+                return;
+            } else {
+                try {
+                    ph = Double.parseDouble(phStr);
+                } catch (NumberFormatException e) {
+                    tvPhError.setVisibility(View.VISIBLE);
+                    tvPhError.setText(R.string.obs_error_ph_range);
+                    etPh.requestFocus();
+                    return;
+                }
+            }
+        }
+        tvPhError.setVisibility(View.GONE);
+
+        // 3. Validate Notes Length
+        String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
+        if (!WaterObservation.isValidNotes(notes)) {
+            tvNotesError.setVisibility(View.VISIBLE);
+            tvNotesError.setText(R.string.obs_error_notes_too_long);
+            etNotes.requestFocus();
+            return;
+        } else {
+            tvNotesError.setVisibility(View.GONE);
         }
 
         String district = districts[spinnerDistrict.getSelectedItemPosition()];
@@ -195,20 +299,11 @@ public class WaterObservationFormActivity extends AppCompatActivity {
         String turbidity = spinnerTurbidity.getSelectedItem().toString();
         String safety = spinnerSafety.getSelectedItem().toString();
 
-        double ph = 7.0;
-        String phStr = etPh.getText() != null ? etPh.getText().toString().trim() : "";
-        if (!phStr.isEmpty()) {
-            try {
-                ph = Double.parseDouble(phStr);
-            } catch (NumberFormatException ignored) {}
-        }
-
         String reporter = etReporter.getText() != null && !etReporter.getText().toString().trim().isEmpty()
                 ? etReporter.getText().toString().trim()
-                : "Community Observer";
+                : getString(R.string.hint_obs_reporter);
 
-        String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
-
+        isSubmitting = true;
         btnSave.setEnabled(false);
 
         if (existingObservation != null) {
@@ -216,21 +311,27 @@ public class WaterObservationFormActivity extends AppCompatActivity {
             WaterObservation updatedObs = new WaterObservation(
                     existingObservation.getId(),
                     location, district, source, appearance, odor,
-                    ph, turbidity, safety, existingObservation.getObservationTime(),
+                    ph, turbidity, safety, currentDateFormatted,
                     reporter, notes, existingObservation.getCreatedAt(), System.currentTimeMillis()
             );
 
             repository.updateWaterObservation(updatedObs, new EmergencyRepository.ActionCallback() {
                 @Override
                 public void onSuccess() {
+                    if (isFinishing() || isDestroyed()) return;
+                    isSubmitting = false;
+                    btnSave.setEnabled(true);
                     Toast.makeText(WaterObservationFormActivity.this, R.string.obs_updated_success, Toast.LENGTH_SHORT).show();
                     finish();
                 }
 
                 @Override
                 public void onError(Exception error) {
+                    if (isFinishing() || isDestroyed()) return;
+                    isSubmitting = false;
                     btnSave.setEnabled(true);
-                    Toast.makeText(WaterObservationFormActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    String msg = error != null ? error.getMessage() : "Unknown";
+                    Toast.makeText(WaterObservationFormActivity.this, getString(R.string.obs_error_update_failed, msg), Toast.LENGTH_LONG).show();
                 }
             });
         } else {
@@ -241,6 +342,9 @@ public class WaterObservationFormActivity extends AppCompatActivity {
             repository.saveWaterObservation(obs, new EmergencyRepository.ActionCallback() {
                 @Override
                 public void onSuccess() {
+                    if (isFinishing() || isDestroyed()) return;
+                    isSubmitting = false;
+                    btnSave.setEnabled(true);
                     Toast.makeText(WaterObservationFormActivity.this, R.string.obs_saved_success, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
                     startActivity(intent);
@@ -249,8 +353,11 @@ public class WaterObservationFormActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception error) {
+                    if (isFinishing() || isDestroyed()) return;
+                    isSubmitting = false;
                     btnSave.setEnabled(true);
-                    Toast.makeText(WaterObservationFormActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    String msg = error != null ? error.getMessage() : "Unknown";
+                    Toast.makeText(WaterObservationFormActivity.this, getString(R.string.obs_error_save_failed, msg), Toast.LENGTH_LONG).show();
                 }
             });
         }

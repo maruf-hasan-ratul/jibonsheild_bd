@@ -17,6 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.models.SyncMetadata;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.utils.LocaleHelper;
 import com.jibonshield.bd.utils.PreferenceUtils;
 
 import java.text.SimpleDateFormat;
@@ -25,11 +26,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Screen 12: Settings & Configuration.
+ * Screen 12: Settings &amp; Configuration.
  * Manages language selection (বাংলা / English), primary location preference,
- * and live offline database storage summary & sync state.
+ * and live offline database storage summary &amp; sync state.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private RadioGroup rgLanguage;
     private RadioButton rbBangla;
@@ -104,10 +105,18 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupListeners() {
         rgLanguage.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rb_lang_english) {
-                PreferenceUtils.setLanguage(this, PreferenceUtils.LANG_EN);
-            } else {
-                PreferenceUtils.setLanguage(this, PreferenceUtils.LANG_BN);
+            String newLang = (checkedId == R.id.rb_lang_english) ? PreferenceUtils.LANG_EN : PreferenceUtils.LANG_BN;
+            String currentLang = PreferenceUtils.getLanguage(this);
+            if (!newLang.equalsIgnoreCase(currentLang)) {
+                PreferenceUtils.setLanguage(this, newLang);
+                LocaleHelper.setLocale(this, newLang);
+                int toastRes = newLang.equalsIgnoreCase(PreferenceUtils.LANG_EN) ? R.string.toast_lang_changed_en : R.string.toast_lang_changed_bn;
+                android.widget.Toast.makeText(this, toastRes, android.widget.Toast.LENGTH_SHORT).show();
+
+                Intent restartIntent = new Intent(this, MainActivity.class);
+                restartIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(restartIntent);
+                finish();
             }
         });
 

@@ -32,7 +32,7 @@ import java.util.List;
  * Screen 4: Shelter Directory.
  * Provides search query and district filtering interface for designated emergency shelters.
  */
-public class ShelterDirectoryActivity extends AppCompatActivity implements ShelterAdapter.OnShelterClickListener {
+public class ShelterDirectoryActivity extends BaseActivity implements ShelterAdapter.OnShelterClickListener {
 
     private EditText etSearch;
     private Spinner spinnerDistrict;

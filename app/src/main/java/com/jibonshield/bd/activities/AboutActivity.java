@@ -11,7 +11,7 @@ import com.jibonshield.bd.R;
  * Screen 13: About & Data Sources.
  * Documents system architecture, official verification sources (FFWC, BMD, DDM, BDRCS, DGHS), and disclaimer.
  */
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

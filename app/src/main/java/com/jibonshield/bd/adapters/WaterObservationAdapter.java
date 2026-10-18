@@ -63,7 +63,8 @@ public class WaterObservationAdapter extends RecyclerView.Adapter<WaterObservati
             holder.tvSafetyStatus.setTextColor(ContextCompat.getColor(context, R.color.emergency_red));
         }
 
-        String measurements = "pH: " + (item.getPhLevel() > 0 ? String.valueOf(item.getPhLevel()) : "N/A")
+        String phDisplay = item.isPhMeasured() ? String.format(java.util.Locale.US, "%.1f", item.getPhLevel()) : "N/A";
+        String measurements = "pH: " + phDisplay
                 + " • Turbidity: " + item.getTurbidityStatus()
                 + " • Appearance: " + item.getAppearance()
                 + " • Odor: " + item.getOdor();

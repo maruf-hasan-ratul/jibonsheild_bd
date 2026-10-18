@@ -16,7 +16,7 @@ import com.jibonshield.bd.utils.PreferenceUtils;
  * Screen 3: Flood Warning Details.
  * Shows the full advisory text, vulnerable areas, validity timeline, and official advice.
  */
-public class FloodWarningDetailActivity extends AppCompatActivity {
+public class FloodWarningDetailActivity extends BaseActivity {
 
     private MaterialCardView cardMain;
     private TextView tvSeverity;

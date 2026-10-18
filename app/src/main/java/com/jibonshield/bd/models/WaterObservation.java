@@ -4,8 +4,16 @@ import java.io.Serializable;
 
 /**
  * Model representing a drinking water quality field test observation.
+ * Follows strict environmental safety integrity: community field records
+ * must NOT be treated as certified laboratory test results or absolute safety certification.
  */
 public class WaterObservation implements Serializable {
+
+    public static final double MIN_PH = 0.0;
+    public static final double MAX_PH = 14.0;
+    public static final int MAX_NOTES_LENGTH = 500;
+    public static final double UNMEASURED_PH = -1.0;
+
     private final long id;
     private final String locationName;
     private final String district;
@@ -71,4 +79,36 @@ public class WaterObservation implements Serializable {
     public String getRemarks() { return remarks; }
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
+
+    public boolean isPhMeasured() {
+        return phLevel >= MIN_PH && phLevel <= MAX_PH;
+    }
+
+    // =========================================================================
+    // FIELD VALIDATION RULES (Tested in Unit Tests)
+    // =========================================================================
+
+    public static boolean isValidLocation(String location) {
+        return location != null && !location.trim().isEmpty();
+    }
+
+    public static boolean isValidNotes(String notes) {
+        return notes == null || notes.trim().length() <= MAX_NOTES_LENGTH;
+    }
+
+    public static boolean isValidPhString(String phStr) {
+        if (phStr == null || phStr.trim().isEmpty()) {
+            return true; // Optional measurement
+        }
+        try {
+            double val = Double.parseDouble(phStr.trim());
+            return val >= MIN_PH && val <= MAX_PH;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isValidPhValue(double ph) {
+        return (ph >= MIN_PH && ph <= MAX_PH) || ph == UNMEASURED_PH;
+    }
 }

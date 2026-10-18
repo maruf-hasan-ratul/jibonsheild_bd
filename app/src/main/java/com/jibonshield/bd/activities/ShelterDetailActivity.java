@@ -20,7 +20,7 @@ import com.jibonshield.bd.utils.PreferenceUtils;
  * Displays offline coordinates, capacity, verified facilities, accessibility notes,
  * provenance authority, and direct focal point dialing.
  */
-public class ShelterDetailActivity extends AppCompatActivity {
+public class ShelterDetailActivity extends BaseActivity {
 
     private TextView tvDistrict;
     private TextView tvUpazila;

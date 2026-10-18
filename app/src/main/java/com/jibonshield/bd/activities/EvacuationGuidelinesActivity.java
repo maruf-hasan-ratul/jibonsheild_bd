@@ -14,7 +14,7 @@ import com.jibonshield.bd.R;
  * Displays disaster response instructions categorized by disaster type (Flood, Cyclone, Earthquake, Fire)
  * and preparation stage (Before, During, After).
  */
-public class EvacuationGuidelinesActivity extends AppCompatActivity {
+public class EvacuationGuidelinesActivity extends BaseActivity {
 
     private ChipGroup chipGroupDisasters;
     private TextView tvStageBeforeBody;

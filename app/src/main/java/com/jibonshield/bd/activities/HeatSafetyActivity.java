@@ -5,19 +5,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 
 /**
- * Screen 9: Heat Safety.
- * Displays heatwave protocol, hydration advice, heatstroke symptom distinction, and instant emergency calls.
+ * Screen 9: Heat Safety Activity.
+ * Complete offline educational guide on extreme heatwave preparation,
+ * hydration, outdoor worker guidance, heat illness differentiation, and emergency hotlines.
  */
-public class HeatSafetyActivity extends AppCompatActivity {
+public class HeatSafetyActivity extends BaseActivity {
 
     private MaterialButton btnCall16263;
+    private MaterialButton btnCall999;
+    private MaterialButton btnCall1090;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,12 @@ public class HeatSafetyActivity extends AppCompatActivity {
 
     private void initViews() {
         btnCall16263 = findViewById(R.id.btn_heat_call_16263);
+        btnCall999 = findViewById(R.id.btn_heat_call_999);
+        btnCall1090 = findViewById(R.id.btn_heat_call_1090);
+
         btnCall16263.setOnClickListener(v -> dialHotline("16263"));
+        btnCall999.setOnClickListener(v -> dialHotline("999"));
+        btnCall1090.setOnClickListener(v -> dialHotline("1090"));
     }
 
     private void dialHotline(String phone) {

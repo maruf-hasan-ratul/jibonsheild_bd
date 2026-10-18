@@ -27,7 +27,7 @@ import java.util.List;
  * Screen 6: Emergency Contacts.
  * Lists national emergency response hotlines stored in the offline database with direct dialing.
  */
-public class EmergencyContactsActivity extends AppCompatActivity implements EmergencyContactAdapter.OnContactActionListener {
+public class EmergencyContactsActivity extends BaseActivity implements EmergencyContactAdapter.OnContactActionListener {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;

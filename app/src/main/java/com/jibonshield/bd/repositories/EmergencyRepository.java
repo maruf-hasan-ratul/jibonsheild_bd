@@ -575,6 +575,66 @@ public class EmergencyRepository {
         });
     }
 
+    public void filterWaterObservations(String query, String district, DataCallback<List<WaterObservation>> callback) {
+        executorService.execute(() -> {
+            List<WaterObservation> list = new ArrayList<>();
+            Cursor cursor = null;
+            try {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                StringBuilder selection = new StringBuilder();
+                List<String> selectionArgs = new ArrayList<>();
+
+                if (district != null && !district.trim().isEmpty()
+                        && !"All".equalsIgnoreCase(district.trim())
+                        && !"All Districts".equalsIgnoreCase(district.trim())
+                        && !"সকল জেলা".equalsIgnoreCase(district.trim())
+                        && !"সব".equalsIgnoreCase(district.trim())) {
+                    selection.append(DatabaseContract.WaterObservationEntry.COLUMN_DISTRICT).append(" = ?");
+                    selectionArgs.add(district.trim());
+                }
+
+                if (query != null && !query.trim().isEmpty()) {
+                    if (selection.length() > 0) {
+                        selection.append(" AND ");
+                    }
+                    selection.append("(")
+                            .append(DatabaseContract.WaterObservationEntry.COLUMN_LOCATION_NAME).append(" LIKE ? OR ")
+                            .append(DatabaseContract.WaterObservationEntry.COLUMN_SOURCE_TYPE).append(" LIKE ? OR ")
+                            .append(DatabaseContract.WaterObservationEntry.COLUMN_DISTRICT).append(" LIKE ? OR ")
+                            .append(DatabaseContract.WaterObservationEntry.COLUMN_OBSERVATION_TIME).append(" LIKE ? OR ")
+                            .append(DatabaseContract.WaterObservationEntry.COLUMN_REMARKS).append(" LIKE ?")
+                            .append(")");
+                    String wild = "%" + query.trim() + "%";
+                    selectionArgs.add(wild);
+                    selectionArgs.add(wild);
+                    selectionArgs.add(wild);
+                    selectionArgs.add(wild);
+                    selectionArgs.add(wild);
+                }
+
+                String where = selection.length() > 0 ? selection.toString() : null;
+                String[] args = selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]);
+
+                cursor = db.query(
+                        DatabaseContract.WaterObservationEntry.TABLE_NAME,
+                        null, where, args, null, null,
+                        DatabaseContract.WaterObservationEntry._ID + " DESC"
+                );
+
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        list.add(cursorToWaterObservation(cursor));
+                    }
+                }
+                mainHandler.post(() -> callback.onDataLoaded(list));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e));
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        });
+    }
+
     private WaterObservation cursorToWaterObservation(Cursor cursor) {
         long id = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.WaterObservationEntry._ID));
         String loc = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.WaterObservationEntry.COLUMN_LOCATION_NAME));

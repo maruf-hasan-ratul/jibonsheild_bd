@@ -15,6 +15,103 @@
         android:layout_height="?attr/actionBarSize"
         app:title="@string/title_water_observation_history" />
 
+    <!-- Filter & Search Bar Card -->
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.JibonShieldBD.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_large"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginBottom="@dimen/spacing_small">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_medium">
+
+            <!-- Search Field Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/min_touch_target"
+                android:background="@drawable/bg_badge"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_medium"
+                android:paddingEnd="@dimen/spacing_small">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/action_search"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/text_secondary" />
+
+                <EditText
+                    android:id="@+id/et_search_water_obs"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/obs_filter_hint"
+                    android:importantForAccessibility="yes"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_muted"
+                    android:textSize="@dimen/text_size_body_small" />
+
+                <ImageView
+                    android:id="@+id/btn_clear_obs_filter"
+                    android:layout_width="@dimen/min_touch_target"
+                    android:layout_height="@dimen/min_touch_target"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/obs_filter_reset"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_clear"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- District Filter Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_obs_district"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_size_caption"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spinner_filter_district"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/min_touch_target"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <!-- Filter Result Count -->
+            <TextView
+                android:id="@+id/tv_obs_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxsmall"
+                android:textColor="@color/primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="Showing 5 observations" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -36,8 +133,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingTop="@dimen/spacing_small"
-            android:paddingBottom="80dp"
+            android:paddingTop="@dimen/spacing_xxsmall"
+            android:paddingBottom="88dp"
             tools:listitem="@layout/item_water_observation" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -47,6 +144,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/spacing_large"
             android:backgroundTint="@color/primary"
+            android:contentDescription="@string/action_add_observation"
             android:text="@string/action_add_observation"
             android:textColor="@color/surface_white"
             app:icon="@drawable/ic_add"

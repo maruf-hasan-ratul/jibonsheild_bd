@@ -28,7 +28,7 @@ import java.util.List;
  * Displays active flood advisories and simulated offline warning drills with region
  * and active/expired status filtering. Expired warnings are strictly isolated.
  */
-public class FloodWarningListActivity extends AppCompatActivity implements FloodWarningAdapter.OnWarningClickListener {
+public class FloodWarningListActivity extends BaseActivity implements FloodWarningAdapter.OnWarningClickListener {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;

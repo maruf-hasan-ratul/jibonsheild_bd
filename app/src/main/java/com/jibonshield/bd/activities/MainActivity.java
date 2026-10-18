@@ -31,7 +31,7 @@ import java.util.List;
  * Main Dashboard Activity for JibonShield BD.
  * Provides offline-first entry points to all disaster preparedness and environmental safety modules.
  */
-public class MainActivity extends AppCompatActivity implements DashboardAdapter.OnModuleClickListener {
+public class MainActivity extends BaseActivity implements DashboardAdapter.OnModuleClickListener {
 
     private RecyclerView recyclerModules;
     private DashboardAdapter adapter;

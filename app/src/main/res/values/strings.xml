@@ -361,4 +361,54 @@
     <string name="dashboard_tile_shelters">Shelters</string>
     <string name="dashboard_tile_hotlines">Hotlines</string>
     <string name="dashboard_tile_kit">Kit Ready</string>
+
+    <!-- Day 5 Drinking Water Observation Strings -->
+    <string name="obs_select_datetime_title">Select Date &amp; Time</string>
+    <string name="btn_change_datetime">Change Date / Time</string>
+    <string name="obs_error_location_required">Please specify the water source location name.</string>
+    <string name="obs_error_ph_range">pH must be a valid number between 0.0 and 14.0.</string>
+    <string name="obs_error_notes_too_long">Field remarks cannot exceed 500 characters.</string>
+    <string name="obs_error_future_date">Observation date cannot be in the future.</string>
+    <string name="obs_error_save_failed">Failed to save observation to local database: %1$s</string>
+    <string name="obs_error_update_failed">Failed to update observation: %1$s</string>
+    <string name="obs_error_delete_failed">Failed to delete observation: %1$s</string>
+    <string name="obs_disclaimer_title">Water Safety &amp; Integrity Notice</string>
+    <string name="obs_disclaimer_body">Field Record Notice: Visual clarity, lack of odor, or normal pH does NOT certify drinking water as safe. Microorganisms, bacteria, and invisible heavy metals (like Arsenic) can only be confirmed by certified laboratory testing. For suspected contamination, contact the Department of Public Health Engineering (DPHE) or local health authorities.</string>
+    <string name="obs_safe_water_guidance_title">General Safe Water &amp; Purification Rules</string>
+    <string name="obs_safe_water_guidance_body">• Boiling: Boil water vigorously for at least 1 to 3 minutes to eliminate microbial pathogens.\n• Purification Tablets: Use Halazone or chlorine tablets (1 tablet per 20 liters of water; wait 30 minutes before drinking).\n• Safe Storage: Store drinking water in clean, narrow-mouthed, covered vessels to prevent re-contamination.\n• Arsenic Awareness: Clear tubewell water in Bangladesh may contain high arsenic. Verify green (safe) vs red (unsafe) DPHE markings.</string>
+    <string name="obs_action_view_details">View Full Details</string>
+    <string name="obs_details_title">Water Observation Details</string>
+    <string name="obs_measurement_ph_format">pH Level: %1$.2f (Instrument / Test Strip)</string>
+    <string name="obs_measurement_ph_unmeasured">pH Level: Not measured (Optional)</string>
+    <string name="obs_field_assessment_label">Observer Field Judgment:</string>
+    <string name="obs_filter_hint">Filter by location, district, source, or date…</string>
+    <string name="obs_filter_count_format">Showing %1$d observation(s)</string>
+    <string name="obs_filter_reset">Clear Filter</string>
+    <string name="obs_dialog_close">Close</string>
+
+    <!-- Day 5 Comprehensive Heat Safety Strings -->
+    <string name="heat_prep_title">Preparing for Hot Weather</string>
+    <string name="heat_prep_body">• Monitor seasonal heat advisories from BMD.\n• Increase indoor airflow using shaded cross-ventilation, wet blinds, or fans.\n• Wear loose-fitting, light-colored, lightweight cotton clothing.\n• Schedule strenuous activities for cooler mornings or late evenings.</string>
+    <string name="heat_hydration_title">Hydration &amp; Rest Guidance</string>
+    <string name="heat_hydration_body">• Drink safe, potable water regularly throughout the day before feeling thirsty.\n• Keep Oral Rehydration Salts (ORS / স্যালাইন) or coconut water accessible if sweating heavily.\n• Avoid alcoholic, highly caffeinated, or excessively sugary drinks, which accelerate dehydration.\n• Rest periodically in shaded or naturally ventilated resting spots.</string>
+    <string name="heat_exposure_title">Reducing Heat Exposure</string>
+    <string name="heat_exposure_body">• Stay out of direct sunlight during peak solar radiation (11:00 AM – 3:30 PM).\n• Use wide-brimmed umbrellas, caps, or damp scarves when walking outdoors.\n• Splash clean cool water on the face, neck, and wrists to lower core temperature.\n• Avoid leaving vehicles or unventilated tin-roof enclosures exposed to midday sun.</string>
+    <string name="heat_workers_title">Advice for Outdoor Workers</string>
+    <string name="heat_workers_body">• Mandatory shaded rest breaks of 10–15 minutes every 45 minutes of heavy outdoor labor.\n• Day laborers, rickshaw pullers, and farmers should drink 500 ml of potable water every hour.\n• Adopt a \"buddy system\" to watch colleagues for confusion, sluggishness, or slurred speech.\n• Shift heavy physical hauling to early morning hours whenever possible.</string>
+    <string name="heat_vulnerable_title">Precautions for Children, Elderly &amp; Vulnerable</string>
+    <string name="heat_vulnerable_body">• Never leave children or infants in locked vehicles, even for a few minutes.\n• Older adults and people with chronic cardiovascular or renal conditions must stay in cool rooms.\n• Pregnant women should increase daily fluid intake and rest frequently.\n• Check regularly on bedridden relatives and ensure they are adequately hydrated.</string>
+    <string name="heat_illness_types_title">Recognizing Heat-Related Illness</string>
+    <string name="heat_illness_types_body">• Heat Rash: Clusters of red pimples or small blisters on neck, chest, or groin.\n• Heat Cramps: Painful muscle spasms in legs, abdomen, or arms during or after sweating.\n• Heat Exhaustion: Heavy sweating, cold pale clammy skin, fast weak pulse, dizziness, nausea.\n• Heatstroke (LIFE THREATENING): Core temperature > 40°C (104°F), hot red dry or soaked skin, confusion, seizures, unconsciousness.</string>
+    <string name="heat_urgent_title">Urgent Response for Suspected Heatstroke</string>
+    <string name="heat_urgent_body">1. Move the person to a cool, shaded, or air-conditioned area immediately.\n2. Rapid cooling: pour cool (not freezing) water over body, fan vigorously, apply damp towels.\n3. Place cold packs or wet cloths under armpits, on neck, and groin.\n4. DO NOT give oral fluids to an unconscious or vomiting person.\n5. Call emergency services (999 or 16263) IMMEDIATELY for urgent medical transport.</string>
+    <string name="heat_medical_title">When to Seek Medical Assistance</string>
+    <string name="heat_medical_body">• Symptoms worsen or do not improve after 30 minutes of cooling and rest.\n• Persistent vomiting and inability to keep fluids down.\n• Confusion, disorientation, hallucinations, or seizures.\n• Loss of consciousness or fainting.</string>
+    <string name="heat_disclaimer_title">Educational Medical Notice</string>
+    <string name="heat_disclaimer_body">Notice: This module provides general educational guidance based on WHO and DGHS environmental safety standards. It does not provide individualized medical diagnosis. No live automated microclimate sensors are integrated; refer to official BMD advisories.</string>
+    <string name="btn_heat_call_999">Call 999 National Emergency</string>
+    <string name="btn_heat_call_1090">Call 1090 Disaster Warning</string>
+
+    <!-- Language Switching Feedback -->
+    <string name="toast_lang_changed_en">Language set to English</string>
+    <string name="toast_lang_changed_bn">ভাষা বাংলায় পরিবর্তন করা হয়েছে</string>
 </resources>
