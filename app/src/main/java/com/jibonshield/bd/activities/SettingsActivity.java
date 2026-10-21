@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -38,7 +39,10 @@ public class SettingsActivity extends BaseActivity {
     private Spinner spinnerDistrict;
     private TextView tvStorageContacts;
     private TextView tvStorageShelters;
+    private TextView tvStorageWarnings;
     private TextView tvStorageDatabase;
+    private ProgressBar progressSync;
+    private MaterialButton btnSync;
     private MaterialButton btnAbout;
 
     private EmergencyRepository repository;
@@ -66,7 +70,10 @@ public class SettingsActivity extends BaseActivity {
         spinnerDistrict = findViewById(R.id.spinner_settings_district);
         tvStorageContacts = findViewById(R.id.tv_storage_contacts);
         tvStorageShelters = findViewById(R.id.tv_storage_shelters);
+        tvStorageWarnings = findViewById(R.id.tv_storage_warnings);
         tvStorageDatabase = findViewById(R.id.tv_storage_database);
+        progressSync = findViewById(R.id.progress_sync_settings);
+        btnSync = findViewById(R.id.btn_settings_sync);
         btnAbout = findViewById(R.id.btn_settings_about);
 
         repository = new EmergencyRepository(this);
@@ -134,6 +141,34 @@ public class SettingsActivity extends BaseActivity {
             Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
             startActivity(intent);
         });
+
+        if (btnSync != null) {
+            btnSync.setOnClickListener(v -> {
+                if (progressSync != null) progressSync.setVisibility(View.VISIBLE);
+                btnSync.setEnabled(false);
+                android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+
+                com.jibonshield.bd.sync.SyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+                    @Override
+                    public void onSyncStarted(String entityName) {}
+
+                    @Override
+                    public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+                        if (progressSync != null) progressSync.setVisibility(View.GONE);
+                        btnSync.setEnabled(true);
+                        loadDatabaseStorageInfo();
+
+                        if (result.isOffline()) {
+                            android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
+                        } else if (result.isSuccess()) {
+                            android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
+                        } else {
+                            android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            });
+        }
     }
 
     private void loadDatabaseStorageInfo() {
@@ -144,12 +179,14 @@ public class SettingsActivity extends BaseActivity {
                     for (SyncMetadata meta : metadataList) {
                         String timeStr = formatTimestamp(meta.getLastSyncTimestamp());
                         if (meta.getTableName().contains("contact")) {
-                            tvStorageContacts.setText("Emergency Hotlines: " + meta.getRecordsCount() + " Seeded (" + meta.getSyncStatus() + ")");
+                            tvStorageContacts.setText("Emergency Hotlines: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
                         } else if (meta.getTableName().contains("shelter")) {
-                            tvStorageShelters.setText("Designated Shelters: " + meta.getRecordsCount() + " Verified (" + meta.getSyncStatus() + ")");
+                            tvStorageShelters.setText("Designated Shelters: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
+                        } else if (meta.getTableName().contains("flood") || meta.getTableName().contains("warning")) {
+                            tvStorageWarnings.setText("Flood Warnings: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
                         }
                     }
-                    tvStorageDatabase.setText("Local Database: SQLite v3 (Offline Cache Active)");
+                    tvStorageDatabase.setText("Local Database: SQLite v3 (Verified Offline Baseline)");
                 }
             }
 

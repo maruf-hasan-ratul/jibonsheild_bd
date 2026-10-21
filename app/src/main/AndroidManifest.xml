@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jibonshield.bd">
 
-    <!-- Only necessary permission for offline/online network detection -->
+    <!-- Necessary permissions for network verification and optional online synchronization -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".JibonShieldApp"

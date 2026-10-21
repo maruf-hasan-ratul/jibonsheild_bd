@@ -411,4 +411,27 @@
     <!-- Language Switching Feedback -->
     <string name="toast_lang_changed_en">Language set to English</string>
     <string name="toast_lang_changed_bn">ভাষা বাংলায় পরিবর্তন করা হয়েছে</string>
+
+    <!-- Day 6: Synchronization, Network Reliability & Verification Badges -->
+    <string name="action_sync_now">Synchronize Now</string>
+    <string name="action_refresh_feed">Refresh Feed</string>
+    <string name="heading_sync">Data Synchronization &amp; Verification</string>
+    <string name="desc_sync_settings">Trigger optional online synchronization to refresh flood advisories, shelter registries, and hotlines. Offline database is always preserved.</string>
+    <string name="sync_in_progress">Synchronizing with verified emergency feeds…</string>
+    <string name="sync_complete_toast">Synchronization complete: %s</string>
+    <string name="sync_offline_toast">Device is offline. Local database remains active and verified.</string>
+    <string name="sync_error_toast">Sync failed: %s. Local records preserved.</string>
+    <string name="sync_pending_api_desc">Official direct REST API integration is pending release by FFWC/BMD. Offline baseline database remains fully functional and protected against data loss.</string>
+    <string name="sync_warnings_status">Flood Warnings: %s</string>
+    <string name="sync_shelters_status">Shelters: %s</string>
+    <string name="sync_contacts_status">Hotlines: %s</string>
+    <string name="sync_database_status">Sync Metadata: %s</string>
+    <string name="status_verified_current">Verified Current</string>
+    <string name="status_cached">Offline Cache</string>
+    <string name="status_expired">Expired Notice</string>
+    <string name="status_unverified">Unverified Source</string>
+    <string name="status_sample">Drill Scenario</string>
+    <string name="status_unavailable">Source Unavailable</string>
+    <string name="sync_last_synced_format">Last Synced: %s</string>
+    <string name="sync_records_format">%d records</string>
 </resources>

@@ -260,4 +260,41 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
             Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if (item.getItemId() == R.id.action_sync_refresh) {
+            triggerSync();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void triggerSync() {
+        progressBar.setVisibility(View.VISIBLE);
+        android.widget.Toast.makeText(this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+
+        com.jibonshield.bd.sync.SyncManager.getInstance(this).syncShelters(null, new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+            @Override
+            public void onSyncStarted(String entityName) {}
+
+            @Override
+            public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+                loadShelters();
+                if (result.isOffline()) {
+                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
+                } else if (result.isSuccess()) {
+                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
+                } else {
+                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
 }

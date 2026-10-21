@@ -298,6 +298,32 @@ public class MainActivity extends BaseActivity implements DashboardAdapter.OnMod
                 startActivity(intent);
             });
         }
+
+        if (bannerOffline != null) {
+            bannerOffline.setOnClickListener(v -> {
+                boolean isConnected = NetworkUtils.isInternetAvailable(MainActivity.this);
+                if (!isConnected) {
+                    android.widget.Toast.makeText(MainActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_SHORT).show();
+                } else {
+                    android.widget.Toast.makeText(MainActivity.this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+                    com.jibonshield.bd.sync.SyncManager.getInstance(MainActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+                        @Override
+                        public void onSyncStarted(String entityName) {}
+
+                        @Override
+                        public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+                            loadDashboardSummary();
+                            updateConnectivityState();
+                            if (result.isSuccess()) {
+                                android.widget.Toast.makeText(MainActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
+                            } else {
+                                android.widget.Toast.makeText(MainActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            });
+        }
     }
 
     @Override

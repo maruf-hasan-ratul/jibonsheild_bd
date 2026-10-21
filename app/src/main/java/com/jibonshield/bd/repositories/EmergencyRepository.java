@@ -45,6 +45,11 @@ public class EmergencyRepository {
         void onError(Exception error);
     }
 
+    public interface SyncCallback {
+        void onSyncComplete(int inserted, int updated);
+        void onSyncError(Exception error);
+    }
+
     private final DatabaseHelper dbHelper;
     private final ExecutorService executorService;
     private final Handler mainHandler;
@@ -169,6 +174,85 @@ public class EmergencyRepository {
         return cv;
     }
 
+    public void syncEmergencyContactsTransactional(List<EmergencyContact> contacts, String sourceName, SyncCallback callback) {
+        executorService.execute(() -> {
+            SQLiteDatabase db = null;
+            try {
+                if (contacts == null) {
+                    throw new IllegalArgumentException("Contacts list cannot be null");
+                }
+                db = dbHelper.getWritableDatabase();
+                db.beginTransaction();
+                int inserted = 0;
+                int updated = 0;
+
+                for (EmergencyContact contact : contacts) {
+                    Cursor cursor = null;
+                    long existingId = -1;
+                    try {
+                        cursor = db.query(DatabaseContract.EmergencyContactEntry.TABLE_NAME,
+                                new String[]{DatabaseContract.EmergencyContactEntry._ID},
+                                DatabaseContract.EmergencyContactEntry.COLUMN_PHONE_NUMBER + " = ?",
+                                new String[]{contact.getPhoneNumber()},
+                                null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            existingId = cursor.getLong(0);
+                        }
+                    } finally {
+                        if (cursor != null) cursor.close();
+                    }
+
+                    ContentValues cv = emergencyContactToContentValues(contact);
+                    if (existingId > 0) {
+                        db.update(DatabaseContract.EmergencyContactEntry.TABLE_NAME, cv,
+                                DatabaseContract.EmergencyContactEntry._ID + " = ?",
+                                new String[]{String.valueOf(existingId)});
+                        updated++;
+                    } else {
+                        db.insertOrThrow(DatabaseContract.EmergencyContactEntry.TABLE_NAME, null, cv);
+                        inserted++;
+                    }
+                }
+
+                // Update sync metadata within the same atomic transaction
+                long now = System.currentTimeMillis();
+                Cursor countCursor = db.rawQuery("SELECT COUNT(*) FROM " + DatabaseContract.EmergencyContactEntry.TABLE_NAME, null);
+                int totalCount = 0;
+                if (countCursor != null) {
+                    if (countCursor.moveToFirst()) {
+                        totalCount = countCursor.getInt(0);
+                    }
+                    countCursor.close();
+                }
+
+                ContentValues metaCv = new ContentValues();
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_TABLE_NAME, DatabaseContract.EmergencyContactEntry.TABLE_NAME);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SOURCE_NAME, sourceName != null ? sourceName : "BTRC / MoDMR");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_LAST_SYNC_TIMESTAMP, now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_RECORDS_COUNT, totalCount);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_STATUS, "SUCCESS");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_HASH, "hash-contacts-" + now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_VERSION_TAG, "2026.ONLINE");
+                db.insertWithOnConflict(DatabaseContract.SyncMetadataEntry.TABLE_NAME, null, metaCv, SQLiteDatabase.CONFLICT_REPLACE);
+
+                db.setTransactionSuccessful();
+                final int finalIns = inserted;
+                final int finalUpd = updated;
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncComplete(finalIns, finalUpd));
+                }
+            } catch (Exception e) {
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncError(e));
+                }
+            } finally {
+                if (db != null && db.inTransaction()) {
+                    db.endTransaction();
+                }
+            }
+        });
+    }
+
     // =========================================================================
     // 3. FLOOD WARNINGS REPOSITORY
     // =========================================================================
@@ -273,6 +357,132 @@ public class EmergencyRepository {
         long lastSynced = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.FloodWarningEntry.COLUMN_LAST_SYNC_TIMESTAMP));
 
         return new FloodWarning(id, level, titleEn, titleBn, region, detailsEn, detailsBn, issued, expires, source, sourceRef, isActive, isSample, lastSynced);
+    }
+
+    public void insertFloodWarning(FloodWarning warning, ActionCallback callback) {
+        executorService.execute(() -> {
+            try {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                ContentValues cv = floodWarningToContentValues(warning);
+                db.insertOrThrow(DatabaseContract.FloodWarningEntry.TABLE_NAME, null, cv);
+                if (callback != null) mainHandler.post(callback::onSuccess);
+            } catch (Exception e) {
+                if (callback != null) mainHandler.post(() -> callback.onError(e));
+            }
+        });
+    }
+
+    private ContentValues floodWarningToContentValues(FloodWarning w) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_WARNING_LEVEL, w.getWarningLevel());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_EN, w.getTitleEn());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_BN, w.getTitleBn());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_REGION, w.getRegion());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_EN, w.getDetailsEn());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_BN, w.getDetailsBn());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_ISSUED_AT, w.getIssuedAt());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_EXPIRES_AT, w.getExpiresAt());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_SOURCE, w.getSource());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_SOURCE_REFERENCE, w.getSourceReference());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_IS_ACTIVE, w.isActive() ? 1 : 0);
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_IS_SAMPLE, w.isSample() ? 1 : 0);
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_LAST_SYNCED_AT, w.getLastSyncedAt());
+        cv.put(DatabaseContract.FloodWarningEntry.COLUMN_LAST_SYNC_TIMESTAMP, w.getLastSyncedAt());
+        return cv;
+    }
+
+    public void syncFloodWarningsTransactional(List<FloodWarning> warnings, String sourceName, SyncCallback callback) {
+        executorService.execute(() -> {
+            SQLiteDatabase db = null;
+            try {
+                if (warnings == null) {
+                    throw new IllegalArgumentException("Warnings list cannot be null");
+                }
+                db = dbHelper.getWritableDatabase();
+                db.beginTransaction();
+                int inserted = 0;
+                int updated = 0;
+
+                for (FloodWarning warning : warnings) {
+                    Cursor cursor = null;
+                    long existingId = -1;
+                    try {
+                        if (warning.getSourceReference() != null && !warning.getSourceReference().isEmpty()) {
+                            cursor = db.query(DatabaseContract.FloodWarningEntry.TABLE_NAME,
+                                    new String[]{DatabaseContract.FloodWarningEntry._ID},
+                                    DatabaseContract.FloodWarningEntry.COLUMN_SOURCE_REFERENCE + " = ?",
+                                    new String[]{warning.getSourceReference()},
+                                    null, null, null);
+                            if (cursor != null && cursor.moveToFirst()) {
+                                existingId = cursor.getLong(0);
+                            }
+                        }
+                        if (existingId == -1) {
+                            if (cursor != null) cursor.close();
+                            cursor = db.query(DatabaseContract.FloodWarningEntry.TABLE_NAME,
+                                    new String[]{DatabaseContract.FloodWarningEntry._ID},
+                                    DatabaseContract.FloodWarningEntry.COLUMN_TITLE_EN + " = ? AND " +
+                                            DatabaseContract.FloodWarningEntry.COLUMN_REGION + " = ? AND " +
+                                            DatabaseContract.FloodWarningEntry.COLUMN_ISSUED_AT + " = ?",
+                                    new String[]{warning.getTitleEn(), warning.getRegion(), warning.getIssuedAt()},
+                                    null, null, null);
+                            if (cursor != null && cursor.moveToFirst()) {
+                                existingId = cursor.getLong(0);
+                            }
+                        }
+                    } finally {
+                        if (cursor != null) cursor.close();
+                    }
+
+                    ContentValues cv = floodWarningToContentValues(warning);
+                    if (existingId > 0) {
+                        db.update(DatabaseContract.FloodWarningEntry.TABLE_NAME, cv,
+                                DatabaseContract.FloodWarningEntry._ID + " = ?",
+                                new String[]{String.valueOf(existingId)});
+                        updated++;
+                    } else {
+                        db.insertOrThrow(DatabaseContract.FloodWarningEntry.TABLE_NAME, null, cv);
+                        inserted++;
+                    }
+                }
+
+                // Update sync metadata within the same atomic transaction
+                long now = System.currentTimeMillis();
+                Cursor countCursor = db.rawQuery("SELECT COUNT(*) FROM " + DatabaseContract.FloodWarningEntry.TABLE_NAME, null);
+                int totalCount = 0;
+                if (countCursor != null) {
+                    if (countCursor.moveToFirst()) {
+                        totalCount = countCursor.getInt(0);
+                    }
+                    countCursor.close();
+                }
+
+                ContentValues metaCv = new ContentValues();
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_TABLE_NAME, DatabaseContract.FloodWarningEntry.TABLE_NAME);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SOURCE_NAME, sourceName != null ? sourceName : "FFWC (BWDB)");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_LAST_SYNC_TIMESTAMP, now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_RECORDS_COUNT, totalCount);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_STATUS, "SUCCESS");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_HASH, "hash-warnings-" + now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_VERSION_TAG, "2026.ONLINE");
+                db.insertWithOnConflict(DatabaseContract.SyncMetadataEntry.TABLE_NAME, null, metaCv, SQLiteDatabase.CONFLICT_REPLACE);
+
+                db.setTransactionSuccessful();
+                final int finalIns = inserted;
+                final int finalUpd = updated;
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncComplete(finalIns, finalUpd));
+                }
+            } catch (Exception e) {
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncError(e));
+                }
+            } finally {
+                if (db != null && db.inTransaction()) {
+                    db.endTransaction();
+                }
+            }
+        });
     }
 
     // =========================================================================
@@ -455,6 +665,87 @@ public class EmergencyRepository {
         cv.put(DatabaseContract.ShelterEntry.COLUMN_CREATED_AT, s.getCreatedAt());
         cv.put(DatabaseContract.ShelterEntry.COLUMN_UPDATED_AT, s.getUpdatedAt());
         return cv;
+    }
+
+    public void syncSheltersTransactional(List<Shelter> shelters, String sourceName, SyncCallback callback) {
+        executorService.execute(() -> {
+            SQLiteDatabase db = null;
+            try {
+                if (shelters == null) {
+                    throw new IllegalArgumentException("Shelters list cannot be null");
+                }
+                db = dbHelper.getWritableDatabase();
+                db.beginTransaction();
+                int inserted = 0;
+                int updated = 0;
+
+                for (Shelter shelter : shelters) {
+                    Cursor cursor = null;
+                    long existingId = -1;
+                    try {
+                        cursor = db.query(DatabaseContract.ShelterEntry.TABLE_NAME,
+                                new String[]{DatabaseContract.ShelterEntry._ID},
+                                DatabaseContract.ShelterEntry.COLUMN_DISTRICT + " = ? AND " +
+                                        DatabaseContract.ShelterEntry.COLUMN_UPAZILA + " = ? AND " +
+                                        DatabaseContract.ShelterEntry.COLUMN_NAME_EN + " = ?",
+                                new String[]{shelter.getDistrict(), shelter.getUpazila(), shelter.getNameEn()},
+                                null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            existingId = cursor.getLong(0);
+                        }
+                    } finally {
+                        if (cursor != null) cursor.close();
+                    }
+
+                    ContentValues cv = shelterToContentValues(shelter);
+                    if (existingId > 0) {
+                        db.update(DatabaseContract.ShelterEntry.TABLE_NAME, cv,
+                                DatabaseContract.ShelterEntry._ID + " = ?",
+                                new String[]{String.valueOf(existingId)});
+                        updated++;
+                    } else {
+                        db.insertOrThrow(DatabaseContract.ShelterEntry.TABLE_NAME, null, cv);
+                        inserted++;
+                    }
+                }
+
+                // Update sync metadata within the same atomic transaction
+                long now = System.currentTimeMillis();
+                Cursor countCursor = db.rawQuery("SELECT COUNT(*) FROM " + DatabaseContract.ShelterEntry.TABLE_NAME, null);
+                int totalCount = 0;
+                if (countCursor != null) {
+                    if (countCursor.moveToFirst()) {
+                        totalCount = countCursor.getInt(0);
+                    }
+                    countCursor.close();
+                }
+
+                ContentValues metaCv = new ContentValues();
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_TABLE_NAME, DatabaseContract.ShelterEntry.TABLE_NAME);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SOURCE_NAME, sourceName != null ? sourceName : "MoDMR / CPP");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_LAST_SYNC_TIMESTAMP, now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_RECORDS_COUNT, totalCount);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_STATUS, "SUCCESS");
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_HASH, "hash-shelters-" + now);
+                metaCv.put(DatabaseContract.SyncMetadataEntry.COLUMN_VERSION_TAG, "2026.ONLINE");
+                db.insertWithOnConflict(DatabaseContract.SyncMetadataEntry.TABLE_NAME, null, metaCv, SQLiteDatabase.CONFLICT_REPLACE);
+
+                db.setTransactionSuccessful();
+                final int finalIns = inserted;
+                final int finalUpd = updated;
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncComplete(finalIns, finalUpd));
+                }
+            } catch (Exception e) {
+                if (callback != null) {
+                    mainHandler.post(() -> callback.onSyncError(e));
+                }
+            } finally {
+                if (db != null && db.inTransaction()) {
+                    db.endTransaction();
+                }
+            }
+        });
     }
 
     // =========================================================================
@@ -876,6 +1167,39 @@ public class EmergencyRepository {
                 if (callback != null) mainHandler.post(callback::onSuccess);
             } catch (Exception e) {
                 if (callback != null) mainHandler.post(() -> callback.onError(e));
+            }
+        });
+    }
+
+    public void getSyncMetadataByTable(String tableName, DataCallback<SyncMetadata> callback) {
+        executorService.execute(() -> {
+            Cursor cursor = null;
+            try {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                cursor = db.query(
+                        DatabaseContract.SyncMetadataEntry.TABLE_NAME,
+                        null,
+                        DatabaseContract.SyncMetadataEntry.COLUMN_TABLE_NAME + " = ?",
+                        new String[]{tableName},
+                        null, null, null
+                );
+                SyncMetadata meta = null;
+                if (cursor != null && cursor.moveToFirst()) {
+                    String table = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_TABLE_NAME));
+                    String src = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_SOURCE_NAME));
+                    long time = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_LAST_SYNC_TIMESTAMP));
+                    int count = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_RECORDS_COUNT));
+                    String status = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_STATUS));
+                    String hash = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_SYNC_HASH));
+                    String tag = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SyncMetadataEntry.COLUMN_VERSION_TAG));
+                    meta = new SyncMetadata(table, src, time, count, status, hash, tag);
+                }
+                final SyncMetadata result = meta;
+                mainHandler.post(() -> callback.onDataLoaded(result));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e));
+            } finally {
+                if (cursor != null) cursor.close();
             }
         });
     }
