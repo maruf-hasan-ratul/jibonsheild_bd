@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "emergency_status": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "shelter_occupancy": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "volunteer_status": {
+      ".read": true,
+      "$volunteer_id": {
+        ".write": "auth != null && auth.uid === $volunteer_id"
+      }
+    }
+  }
+}
+

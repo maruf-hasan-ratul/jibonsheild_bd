@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Water observation evidence photos
+    match /water_observations/{allPaths=**} {
+      // Anyone can view emergency community observations
+      allow read: if true;
+      // Only authenticated users can upload; enforce max 5MB and image type
+      allow write: if request.auth != null
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Community disaster evidence photos
+    match /disaster_evidence/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
+

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User Profiles
+    match /users/{userId} {
+      // Anyone authenticated can read user profile, but only owner can update their profile
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // Profiles are never deleted directly
+    }
+
+    // Community Water Observations
+    match /water_observations/{observationId} {
+      // Anyone can read community water observations (including unauthenticated guests for offline safety)
+      allow read: if true;
+      // Authenticated users (Citizens & Volunteers) can submit observations
+      allow create: if request.auth != null &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.locationName is string &&
+                    request.resource.data.district is string;
+      // Creator can update their own unverified observations
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+
+    // Official and Volunteer Disaster Reports
+    match /disaster_reports/{reportId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Volunteer Emergency Reports
+    match /volunteer_reports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Incident History
+    match /incident_history/{incidentId} {
+      allow read: if true;
+      allow write: if false; // Read-only archive for clients
+    }
+  }
+}
+
