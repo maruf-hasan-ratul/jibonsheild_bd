@@ -173,12 +173,12 @@
     <string name="hint_obs_reporter">যেমন: স্থানীয় স্বাস্থ্য সহকারী / স্বেচ্ছাসেবী</string>
     <string name="label_obs_notes">অতিরিক্ত মন্তব্য</string>
     <string name="hint_obs_notes">স্বাদে পরিবর্তন, বন্যার পানি দ্বারা প্লাবিত বা নিকটবর্তী ল্যাট্রিনের দূরত্ব উল্লেখ করুন।</string>
-    <string name="btn_submit_observation">অফলাইনে সংরক্ষণ করুন</string>
-    <string name="btn_update_observation">পর্যবেক্ষণ আপডেট করুন</string>
+    <string name="btn_submit_observation">ক্লাউড ফায়ারস্টোরে সংরক্ষণ করুন</string>
+    <string name="btn_update_observation">ফায়ারস্টোরে পর্যবেক্ষণ আপডেট করুন</string>
     <string name="btn_view_obs_history">পর্যবেক্ষণের তালিকা দেখুন</string>
-    <string name="obs_saved_success">পানির পর্যবেক্ষণ সফলভাবে অফলাইন তথ্যভান্ডারে সংরক্ষিত হয়েছে।</string>
-    <string name="obs_updated_success">পানির পর্যবেক্ষণ সফলভাবে আপডেট করা হয়েছে।</string>
-    <string name="obs_deleted_success">পর্যবেক্ষণ রেকর্ডটি তথ্যভান্ডার থেকে মুছে ফেলা হয়েছে।</string>
+    <string name="obs_saved_success">পানির পর্যবেক্ষণ সফলভাবে ক্লাউড ফায়ারস্টোরে সংরক্ষিত হয়েছে।</string>
+    <string name="obs_updated_success">পানির পর্যবেক্ষণ সফলভাবে ক্লাউড ফায়ারস্টোরে আপডেট হয়েছে।</string>
+    <string name="obs_deleted_success">পর্যবেক্ষণ রেকর্ডটি ক্লাউড ফায়ারস্টোর থেকে মুছে ফেলা হয়েছে।</string>
     <string name="obs_validation_error">অনুগ্রহ করে পানির উৎসের নাম লিখুন।</string>
     <string name="obs_empty_title">কোনো পর্যবেক্ষণ সংরক্ষিত নেই</string>
     <string name="obs_empty_desc">এখনো কোনো স্থানীয় পানির টেস্ট বা পর্যবেক্ষণ যোগ করা হয়নি। ফরম পূরণ করে তথ্য সংরক্ষণ করুন।</string>
@@ -365,7 +365,7 @@
     <string name="obs_error_ph_range">পিএইচ (pH) মান অবশ্যই ০.০ থেকে ১৪.০ এর মধ্যে হতে হবে।</string>
     <string name="obs_error_notes_too_long">অতিরিক্ত মন্তব্য ৫০০ অক্ষরের বেশি হতে পারবে না।</string>
     <string name="obs_error_future_date">পর্যবেক্ষণের তারিখ ভবিষ্যৎ সময় হতে পারবে না।</string>
-    <string name="obs_error_save_failed">তথ্যভান্ডারে পর্যবেক্ষণ সংরক্ষণ ব্যর্থ হয়েছে: %1$s</string>
+    <string name="obs_error_save_failed">ক্লাউড ফায়ারস্টোরে পর্যবেক্ষণ সংরক্ষণ ব্যর্থ হয়েছে: %1$s</string>
     <string name="obs_error_update_failed">পর্যবেক্ষণ আপডেট ব্যর্থ হয়েছে: %1$s</string>
     <string name="obs_error_delete_failed">পর্যবেক্ষণ মুছে ফেলা ব্যর্থ হয়েছে: %1$s</string>
     <string name="obs_disclaimer_title">পানির নিরাপত্তা ও সত্যতা বিষয়ক বিজ্ঞপ্তি</string>

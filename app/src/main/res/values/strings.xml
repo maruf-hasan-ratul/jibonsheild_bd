@@ -173,12 +173,12 @@
     <string name="hint_obs_reporter">e.g., Community Health Volunteer</string>
     <string name="label_obs_notes">Additional Field Remarks</string>
     <string name="hint_obs_notes">Record changes in taste, flood submersion, or nearest latrine distance.</string>
-    <string name="btn_submit_observation">Save Observation to Local Log</string>
-    <string name="btn_update_observation">Update Observation Record</string>
+    <string name="btn_submit_observation">Save Observation to Cloud Firestore</string>
+    <string name="btn_update_observation">Update Observation in Cloud Firestore</string>
     <string name="btn_view_obs_history">View Observation History</string>
-    <string name="obs_saved_success">Water observation successfully saved to local offline database.</string>
-    <string name="obs_updated_success">Water observation updated successfully in offline database.</string>
-    <string name="obs_deleted_success">Water observation removed from local storage.</string>
+    <string name="obs_saved_success">Water observation successfully saved to Cloud Firestore.</string>
+    <string name="obs_updated_success">Water observation updated successfully in Cloud Firestore.</string>
+    <string name="obs_deleted_success">Water observation removed from Cloud Firestore.</string>
     <string name="obs_validation_error">Please specify the water source location name.</string>
     <string name="obs_empty_title">No Observations Recorded</string>
     <string name="obs_empty_desc">No water quality observations recorded yet. Use the form to log tubewell and drinking point checks.</string>
@@ -369,7 +369,7 @@
     <string name="obs_error_ph_range">pH must be a valid number between 0.0 and 14.0.</string>
     <string name="obs_error_notes_too_long">Field remarks cannot exceed 500 characters.</string>
     <string name="obs_error_future_date">Observation date cannot be in the future.</string>
-    <string name="obs_error_save_failed">Failed to save observation to local database: %1$s</string>
+    <string name="obs_error_save_failed">Failed to save observation to Cloud Firestore: %1$s</string>
     <string name="obs_error_update_failed">Failed to update observation: %1$s</string>
     <string name="obs_error_delete_failed">Failed to delete observation: %1$s</string>
     <string name="obs_disclaimer_title">Water Safety &amp; Integrity Notice</string>

@@ -279,12 +279,35 @@ public class FirestoreSyncManager {
         for (DocumentSnapshot doc : snap.getDocuments()) {
             String id = doc.getId();
             String name = doc.getString("name");
+            if (name == null || name.trim().isEmpty() || "Shelter".equalsIgnoreCase(name.trim())) {
+                name = doc.getString("name_en");
+            }
+            if (name == null || name.trim().isEmpty() || "Shelter".equalsIgnoreCase(name.trim())) {
+                name = doc.getString("shelterName");
+            }
+
             String nameBn = doc.getString("nameBn");
+            if (nameBn == null || nameBn.trim().isEmpty()) {
+                nameBn = doc.getString("name_bn");
+            }
+            if (nameBn == null || nameBn.trim().isEmpty()) {
+                nameBn = name;
+            }
+            if (name == null || name.trim().isEmpty()) {
+                name = nameBn;
+            }
+
             String description = doc.getString("description");
             String descriptionBn = doc.getString("descriptionBn");
             String divisionId = doc.getString("divisionId");
             String districtId = doc.getString("districtId");
+            if (districtId == null || districtId.trim().isEmpty()) {
+                districtId = doc.getString("district");
+            }
             String upazilaId = doc.getString("upazilaId");
+            if (upazilaId == null || upazilaId.trim().isEmpty()) {
+                upazilaId = doc.getString("upazila");
+            }
             String address = doc.getString("address");
             String addressBn = doc.getString("addressBn");
 
@@ -292,12 +315,23 @@ public class FirestoreSyncManager {
             Double lng = doc.getDouble("longitude");
             Long cap = doc.getLong("capacity");
             Long occ = doc.getLong("currentOccupancy");
+            if (occ == null) occ = doc.getLong("current_occupancy");
             String shelterType = doc.getString("shelterType");
+            if (shelterType == null || shelterType.trim().isEmpty()) {
+                shelterType = doc.getString("shelter_type");
+            }
 
             @SuppressWarnings("unchecked")
             List<String> facilities = (List<String>) doc.get("facilities");
             String contactNumber = doc.getString("contactNumber");
+            if (contactNumber == null || contactNumber.trim().isEmpty()) {
+                contactNumber = doc.getString("contact_phone");
+            }
             Boolean active = doc.getBoolean("isActive");
+            if (active == null) {
+                Long actLong = doc.getLong("is_active");
+                if (actLong != null) active = (actLong == 1);
+            }
 
             long created = extractTimestamp(doc, "createdAt");
             long updated = extractTimestamp(doc, "updatedAt");

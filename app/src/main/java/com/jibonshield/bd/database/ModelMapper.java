@@ -21,10 +21,18 @@ public final class ModelMapper {
         if (entity == null) return null;
         long numericId = Math.abs((long) entity.getId().hashCode());
         String facilitiesStr = entity.getFacilities() != null ? String.join(", ", entity.getFacilities()) : "";
+        String name = entity.getName();
+        String nameBn = entity.getNameBn();
+        if ((name == null || name.trim().isEmpty() || "Shelter".equalsIgnoreCase(name.trim())) && nameBn != null && !nameBn.trim().isEmpty() && !"Shelter".equalsIgnoreCase(nameBn.trim())) {
+            name = nameBn;
+        }
+        if ((nameBn == null || nameBn.trim().isEmpty() || "Shelter".equalsIgnoreCase(nameBn.trim())) && name != null && !name.trim().isEmpty() && !"Shelter".equalsIgnoreCase(name.trim())) {
+            nameBn = name;
+        }
         return new Shelter(
                 numericId,
-                entity.getName(),
-                entity.getNameBn(),
+                name != null ? name : "Disaster Shelter",
+                nameBn != null ? nameBn : "দুর্যোগ আশ্রয়কেন্দ্র",
                 entity.getDistrictId(),
                 entity.getUpazilaId(),
                 entity.getAddress(),

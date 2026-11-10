@@ -43,16 +43,7 @@ public class SettingsActivity extends BaseActivity {
     private RadioButton rbThemeDark;
     private RadioButton rbThemeAmoled;
     private Spinner spinnerDistrict;
-    private TextView tvStorageContacts;
-    private TextView tvStorageShelters;
-    private TextView tvStorageWarnings;
-    private TextView tvStorageDatabase;
-    private ProgressBar progressSync;
-    private MaterialButton btnSync;
-    private MaterialButton btnSeedFirestore;
     private MaterialButton btnAbout;
-
-    private EmergencyRepository repository;
 
     private final String[] districts = DistrictData.getDistrictsWithAll();
 
@@ -65,7 +56,6 @@ public class SettingsActivity extends BaseActivity {
         setupToolbar();
         setupPreferences();
         setupListeners();
-        loadDatabaseStorageInfo();
     }
 
     private void initViews() {
@@ -78,16 +68,7 @@ public class SettingsActivity extends BaseActivity {
         rbThemeDark = findViewById(R.id.rb_theme_dark);
         rbThemeAmoled = findViewById(R.id.rb_theme_amoled);
         spinnerDistrict = findViewById(R.id.spinner_settings_district);
-        tvStorageContacts = findViewById(R.id.tv_storage_contacts);
-        tvStorageShelters = findViewById(R.id.tv_storage_shelters);
-        tvStorageWarnings = findViewById(R.id.tv_storage_warnings);
-        tvStorageDatabase = findViewById(R.id.tv_storage_database);
-        progressSync = findViewById(R.id.progress_sync_settings);
-        btnSync = findViewById(R.id.btn_settings_sync);
-        btnSeedFirestore = findViewById(R.id.btn_seed_firestore);
         btnAbout = findViewById(R.id.btn_settings_about);
-
-        repository = new EmergencyRepository(this);
     }
 
     private void setupToolbar() {
@@ -189,106 +170,5 @@ public class SettingsActivity extends BaseActivity {
             Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
             startActivity(intent);
         });
-
-        if (btnSync != null) {
-            btnSync.setOnClickListener(v -> {
-                if (progressSync != null) progressSync.setVisibility(View.VISIBLE);
-                btnSync.setEnabled(false);
-                android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
-
-                com.jibonshield.bd.sync.FirestoreSyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.FirestoreSyncManager.SyncCallback() {
-                    @Override
-                    public void onSyncStarted(String stage) {}
-
-                    @Override
-                    public void onSyncProgress(String stage, int count) {}
-
-                    @Override
-                    public void onSyncComplete(boolean success, int totalSynced, String message) {
-                        com.jibonshield.bd.sync.SyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
-                            @Override
-                            public void onSyncStarted(String entityName) {}
-
-                            @Override
-                            public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
-                                if (progressSync != null) progressSync.setVisibility(View.GONE);
-                                btnSync.setEnabled(true);
-                                loadDatabaseStorageInfo();
-
-                                if (result.isOffline()) {
-                                    android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
-                                } else if (result.isSuccess() || success) {
-                                    android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_complete_toast, (totalSynced > 0 ? totalSynced + " records" : result.getMessage())), android.widget.Toast.LENGTH_SHORT).show();
-                                } else {
-                                    android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-        }
-
-        if (btnSeedFirestore != null) {
-            btnSeedFirestore.setOnClickListener(v -> {
-                if (progressSync != null) progressSync.setVisibility(View.VISIBLE);
-                btnSeedFirestore.setEnabled(false);
-                android.widget.Toast.makeText(SettingsActivity.this, R.string.seeding_in_progress, android.widget.Toast.LENGTH_SHORT).show();
-
-                com.jibonshield.bd.firebase.FirestoreDataSeeder.seedAllDataToFirestore(SettingsActivity.this, new com.jibonshield.bd.firebase.FirestoreDataSeeder.SeedCallback() {
-                    @Override
-                    public void onProgress(String currentCollection, int currentCount, int totalCount) {}
-
-                    @Override
-                    public void onSuccess(String summary) {
-                        if (progressSync != null) progressSync.setVisibility(View.GONE);
-                        btnSeedFirestore.setEnabled(true);
-                        android.widget.Toast.makeText(SettingsActivity.this, R.string.seed_success_toast, android.widget.Toast.LENGTH_SHORT).show();
-                        if (btnSync != null) {
-                            btnSync.performClick();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(String errorMessage) {
-                        if (progressSync != null) progressSync.setVisibility(View.GONE);
-                        btnSeedFirestore.setEnabled(true);
-                        android.widget.Toast.makeText(SettingsActivity.this, "Seed error: " + errorMessage, android.widget.Toast.LENGTH_LONG).show();
-                    }
-                });
-            });
-        }
-    }
-
-    private void loadDatabaseStorageInfo() {
-        repository.getAllSyncMetadata(new EmergencyRepository.DataCallback<List<SyncMetadata>>() {
-            @Override
-            public void onDataLoaded(List<SyncMetadata> metadataList) {
-                if (metadataList != null && !metadataList.isEmpty()) {
-                    for (SyncMetadata meta : metadataList) {
-                        String timeStr = formatTimestamp(meta.getLastSyncTimestamp());
-                        if (meta.getTableName().contains("contact")) {
-                            tvStorageContacts.setText("Emergency Hotlines: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
-                        } else if (meta.getTableName().contains("shelter")) {
-                            tvStorageShelters.setText("Designated Shelters: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
-                        } else if (meta.getTableName().contains("flood") || meta.getTableName().contains("warning")) {
-                            tvStorageWarnings.setText("Flood Warnings: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
-                        }
-                    }
-                    tvStorageDatabase.setText("Local Database: Room v1 + Cloud Firestore (100% Offline Ready)");
-                }
-            }
-
-            @Override
-            public void onError(Exception error) {
-                // Keep default baseline text
-            }
-        });
-    }
-
-    private String formatTimestamp(long timestamp) {
-        if (timestamp <= 0) return "Initial Baseline";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        return sdf.format(new Date(timestamp)) + " BST";
     }
 }

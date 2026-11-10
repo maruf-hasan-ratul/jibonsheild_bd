@@ -50,7 +50,21 @@ public class ShelterAdapter extends RecyclerView.Adapter<ShelterAdapter.ShelterV
     public void onBindViewHolder(@NonNull ShelterViewHolder holder, int position) {
         Shelter item = shelterList.get(position);
 
-        String name = isBangla ? item.getNameBn() : item.getNameEn();
+        String name;
+        if (isBangla) {
+            name = (item.getNameBn() != null && !item.getNameBn().trim().isEmpty() && !item.getNameBn().equalsIgnoreCase("Shelter"))
+                    ? item.getNameBn()
+                    : item.getNameEn();
+        } else {
+            name = (item.getNameEn() != null && !item.getNameEn().trim().isEmpty() && !item.getNameEn().equalsIgnoreCase("Shelter"))
+                    ? item.getNameEn()
+                    : item.getNameBn();
+        }
+        if (name == null || name.trim().isEmpty() || name.equalsIgnoreCase("Shelter")) {
+            String dist = item.getDistrict() != null ? item.getDistrict() : "";
+            String up = item.getUpazila() != null ? item.getUpazila() : "";
+            name = (dist.isEmpty() && up.isEmpty()) ? "Designated Disaster Shelter" : (up + " " + dist + " Shelter").trim();
+        }
         holder.tvName.setText(name);
         holder.tvDistrict.setText(item.getDistrict());
         holder.tvUpazila.setText(item.getUpazila());

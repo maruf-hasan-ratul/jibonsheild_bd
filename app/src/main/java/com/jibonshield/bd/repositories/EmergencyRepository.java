@@ -628,6 +628,11 @@ public class EmergencyRepository {
     }
 
     public void searchShelters(String query, String district, String upazila, DataCallback<List<Shelter>> callback) {
+        if (isFirestoreAvailable()) {
+            queryFirestoreOrSeedShelters(query, district, upazila, callback);
+            return;
+        }
+
         if (appDatabase != null) {
             executorService.execute(() -> {
                 List<ShelterEntity> entities = appDatabase.shelterDao().getAllActive();
@@ -645,12 +650,19 @@ public class EmergencyRepository {
                     return;
                 }
 
-                queryFirestoreOrSeedShelters(query, district, upazila, callback);
+                List<Shelter> fallback = filterShelters(getSeedShelters(), query, district, upazila);
+                if (callback != null && mainHandler != null) {
+                    mainHandler.post(() -> callback.onDataLoaded(fallback));
+                } else if (callback != null) {
+                    callback.onDataLoaded(fallback);
+                }
             });
             return;
         }
 
-        queryFirestoreOrSeedShelters(query, district, upazila, callback);
+        if (callback != null) {
+            callback.onDataLoaded(filterShelters(getSeedShelters(), query, district, upazila));
+        }
     }
 
     private void queryFirestoreOrSeedShelters(String query, String district, String upazila, DataCallback<List<Shelter>> callback) {
@@ -690,14 +702,71 @@ public class EmergencyRepository {
                             }
                         }
                     }
+
+                    // Update local Room cache in background with genuine shelter names
+                    if (!list.isEmpty() && appDatabase != null) {
+                        final List<Shelter> sheltersToCache = new ArrayList<>(list);
+                        executorService.execute(() -> {
+                            try {
+                                List<ShelterEntity> entities = new ArrayList<>();
+                                for (Shelter s : sheltersToCache) {
+                                    entities.add(new ShelterEntity(
+                                            "shelter_" + s.getId(),
+                                            s.getNameEn(),
+                                            s.getNameBn(),
+                                            "",
+                                            "",
+                                            "",
+                                            s.getDistrict() != null ? s.getDistrict().toLowerCase().trim() : "",
+                                            s.getUpazila() != null ? s.getUpazila().toLowerCase().trim() : "",
+                                            s.getAddress() != null ? s.getAddress() : "",
+                                            "",
+                                            s.getLatitude(),
+                                            s.getLongitude(),
+                                            s.getCapacity(),
+                                            s.getCurrentOccupancy(),
+                                            s.getShelterType(),
+                                            new ArrayList<>(),
+                                            s.getContactPhone(),
+                                            s.isActive(),
+                                            s.getCreatedAt(),
+                                            s.getUpdatedAt()
+                                    ));
+                                }
+                                appDatabase.shelterDao().insertAll(entities);
+                            } catch (Exception ignored) {}
+                        });
+                    }
+
                     List<Shelter> filtered = filterShelters(list, query, district, upazila);
                     if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onDataLoaded(filtered));
                     else if (callback != null) callback.onDataLoaded(filtered);
                 })
                 .addOnFailureListener(e -> {
-                    List<Shelter> fallback = filterShelters(getSeedShelters(), query, district, upazila);
-                    if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onDataLoaded(fallback));
-                    else if (callback != null) callback.onDataLoaded(fallback);
+                    // Fallback to Room if offline or failure
+                    if (appDatabase != null) {
+                        executorService.execute(() -> {
+                            List<ShelterEntity> entities = appDatabase.shelterDao().getAllActive();
+                            if (entities != null && !entities.isEmpty()) {
+                                List<Shelter> roomList = new ArrayList<>();
+                                for (ShelterEntity entity : entities) {
+                                    roomList.add(ModelMapper.toShelter(entity));
+                                }
+                                List<Shelter> filtered = filterShelters(roomList, query, district, upazila);
+                                if (callback != null && mainHandler != null) {
+                                    mainHandler.post(() -> callback.onDataLoaded(filtered));
+                                }
+                                return;
+                            }
+                            List<Shelter> fallback = filterShelters(getSeedShelters(), query, district, upazila);
+                            if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onDataLoaded(fallback));
+                            else if (callback != null) callback.onDataLoaded(fallback);
+                        });
+                    } else {
+                        List<Shelter> fallback = filterShelters(getSeedShelters(), query, district, upazila);
+                        if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onDataLoaded(fallback));
+                        else if (callback != null) callback.onDataLoaded(fallback);
+                    }
                 });
     }
 
@@ -1736,29 +1805,71 @@ public class EmergencyRepository {
             Long idLong = doc.getLong(DatabaseContract.ShelterEntry._ID);
             long id = idLong != null ? idLong : parseDocIdToLong(doc.getId());
             String nameEn = doc.getString(DatabaseContract.ShelterEntry.COLUMN_NAME_EN);
+            if (nameEn == null || nameEn.trim().isEmpty() || "Shelter".equalsIgnoreCase(nameEn.trim())) {
+                nameEn = doc.getString("name");
+            }
+            if (nameEn == null || nameEn.trim().isEmpty() || "Shelter".equalsIgnoreCase(nameEn.trim())) {
+                nameEn = doc.getString("shelterName");
+            }
+            if (nameEn == null || nameEn.trim().isEmpty() || "Shelter".equalsIgnoreCase(nameEn.trim())) {
+                nameEn = doc.getString("title");
+            }
+
             String nameBn = doc.getString(DatabaseContract.ShelterEntry.COLUMN_NAME_BN);
+            if (nameBn == null || nameBn.trim().isEmpty()) {
+                nameBn = doc.getString("nameBn");
+            }
+            if (nameBn == null || nameBn.trim().isEmpty()) {
+                nameBn = doc.getString("titleBn");
+            }
+            if (nameBn == null || nameBn.trim().isEmpty()) {
+                nameBn = nameEn;
+            }
+            if (nameEn == null || nameEn.trim().isEmpty()) {
+                nameEn = nameBn;
+            }
+
             String dist = doc.getString(DatabaseContract.ShelterEntry.COLUMN_DISTRICT);
+            if (dist == null || dist.trim().isEmpty()) {
+                dist = doc.getString("districtId");
+            }
+
             String upazila = doc.getString(DatabaseContract.ShelterEntry.COLUMN_UPAZILA);
+            if (upazila == null || upazila.trim().isEmpty()) {
+                upazila = doc.getString("upazilaId");
+            }
+
             String address = doc.getString(DatabaseContract.ShelterEntry.COLUMN_ADDRESS);
             Double lat = doc.getDouble(DatabaseContract.ShelterEntry.COLUMN_LATITUDE);
             Double lng = doc.getDouble(DatabaseContract.ShelterEntry.COLUMN_LONGITUDE);
             Long capLong = doc.getLong(DatabaseContract.ShelterEntry.COLUMN_CAPACITY);
             int capacity = capLong != null ? capLong.intValue() : 500;
             Long occLong = doc.getLong(DatabaseContract.ShelterEntry.COLUMN_CURRENT_OCCUPANCY);
+            if (occLong == null) occLong = doc.getLong("current_occupancy");
             int occupancy = occLong != null ? occLong.intValue() : 0;
+
             String phone = doc.getString(DatabaseContract.ShelterEntry.COLUMN_CONTACT_PHONE);
+            if (phone == null || phone.trim().isEmpty()) {
+                phone = doc.getString("contactNumber");
+            }
+
             String type = doc.getString(DatabaseContract.ShelterEntry.COLUMN_SHELTER_TYPE);
+            if (type == null || type.trim().isEmpty()) {
+                type = doc.getString("shelterType");
+            }
+
             String notes = doc.getString(DatabaseContract.ShelterEntry.COLUMN_ACCESSIBILITY_NOTES);
             String source = doc.getString(DatabaseContract.ShelterEntry.COLUMN_SOURCE);
             Long activeLong = doc.getLong(DatabaseContract.ShelterEntry.COLUMN_IS_ACTIVE);
-            boolean active = activeLong == null || activeLong == 1;
+            Boolean actBool = doc.getBoolean("isActive");
+            boolean active = actBool != null ? actBool : (activeLong == null || activeLong == 1);
             String verified = doc.getString(DatabaseContract.ShelterEntry.COLUMN_VERIFIED_AT);
             Long createdLong = doc.getLong(DatabaseContract.ShelterEntry.COLUMN_CREATED_AT);
             long created = createdLong != null ? createdLong : System.currentTimeMillis();
             Long updatedLong = doc.getLong(DatabaseContract.ShelterEntry.COLUMN_UPDATED_AT);
             long updated = updatedLong != null ? updatedLong : System.currentTimeMillis();
 
-            return new Shelter(id, nameEn != null ? nameEn : "", nameBn != null ? nameBn : "",
+            return new Shelter(id, nameEn != null ? nameEn : "Disaster Shelter", nameBn != null ? nameBn : "দুর্যোগ আশ্রয়কেন্দ্র",
                     dist != null ? dist : "", upazila != null ? upazila : "", address != null ? address : "",
                     lat != null ? lat : 0.0, lng != null ? lng : 0.0, capacity, occupancy,
                     phone != null ? phone : "", type != null ? type : "Disaster Shelter",
@@ -1771,6 +1882,7 @@ public class EmergencyRepository {
 
     private Map<String, Object> waterObservationToMap(WaterObservation o) {
         Map<String, Object> map = new HashMap<>();
+        // Snake case keys
         map.put(DatabaseContract.WaterObservationEntry._ID, o.getId());
         map.put(DatabaseContract.WaterObservationEntry.COLUMN_LOCATION_NAME, o.getLocationName());
         map.put(DatabaseContract.WaterObservationEntry.COLUMN_DISTRICT, o.getDistrict());
@@ -1788,6 +1900,19 @@ public class EmergencyRepository {
         map.put(DatabaseContract.WaterObservationEntry.COLUMN_SYNC_STATUS, o.getSyncStatus());
         map.put(DatabaseContract.WaterObservationEntry.COLUMN_CREATED_AT, o.getCreatedAt());
         map.put(DatabaseContract.WaterObservationEntry.COLUMN_UPDATED_AT, o.getUpdatedAt());
+
+        // Camel case keys for multi-client compatibility
+        map.put("locationName", o.getLocationName());
+        map.put("sourceType", o.getSourceType());
+        map.put("phLevel", o.getPhLevel());
+        map.put("turbidityStatus", o.getTurbidityStatus());
+        map.put("safetyStatus", o.getSafetyStatus());
+        map.put("observationTime", o.getObservationTime());
+        map.put("reportedBy", o.getReportedBy());
+        map.put("imageUrl", o.getImageUrl());
+        map.put("imageUri", o.getImageUri());
+        map.put("createdAt", o.getCreatedAt());
+        map.put("updatedAt", o.getUpdatedAt());
         return map;
     }
 
@@ -1796,22 +1921,46 @@ public class EmergencyRepository {
             Long idLong = doc.getLong(DatabaseContract.WaterObservationEntry._ID);
             long id = idLong != null ? idLong : parseDocIdToLong(doc.getId());
             String loc = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_LOCATION_NAME);
+            if (loc == null) loc = doc.getString("locationName");
+            if (loc == null) loc = doc.getString("location");
+
             String dist = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_DISTRICT);
+            if (dist == null) dist = doc.getString("districtId");
+
             String src = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_SOURCE_TYPE);
+            if (src == null) src = doc.getString("sourceType");
+
             String app = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_APPEARANCE);
             String odor = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_ODOR);
             Double ph = doc.getDouble(DatabaseContract.WaterObservationEntry.COLUMN_PH_LEVEL);
+            if (ph == null) ph = doc.getDouble("phLevel");
+
             String turb = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_TURBIDITY_STATUS);
+            if (turb == null) turb = doc.getString("turbidityStatus");
+
             String safe = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_SAFETY_STATUS);
+            if (safe == null) safe = doc.getString("safetyStatus");
+
             String time = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_OBSERVATION_TIME);
+            if (time == null) time = doc.getString("observationTime");
+
             String rep = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_REPORTED_BY);
+            if (rep == null) rep = doc.getString("reportedBy");
+
             String rem = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_REMARKS);
             String imgUri = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_IMAGE_URI);
+            if (imgUri == null) imgUri = doc.getString("imageUri");
+
             String imgUrl = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_IMAGE_URL);
+            if (imgUrl == null) imgUrl = doc.getString("imageUrl");
+
             String sync = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_SYNC_STATUS);
             Long createdLong = doc.getLong(DatabaseContract.WaterObservationEntry.COLUMN_CREATED_AT);
+            if (createdLong == null) createdLong = doc.getLong("createdAt");
             long created = createdLong != null ? createdLong : System.currentTimeMillis();
+
             Long updatedLong = doc.getLong(DatabaseContract.WaterObservationEntry.COLUMN_UPDATED_AT);
+            if (updatedLong == null) updatedLong = doc.getLong("updatedAt");
             long updated = updatedLong != null ? updatedLong : System.currentTimeMillis();
 
             return new WaterObservation(id, loc != null ? loc : "Unknown Location",
