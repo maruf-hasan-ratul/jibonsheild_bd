@@ -475,6 +475,20 @@
     <string name="logout_success">সাইন আউট সম্পন্ন হয়েছে।</string>
     <string name="profile_guest_mode">অতিথি মোড (স্থানীয় অফলাইন নিরাপত্তা)</string>
     <string name="profile_cloud_mode">যাচাইকৃত ক্লাউড অ্যাকাউন্ট</string>
+    <string name="label_profile_name">পূর্ণ নাম</string>
+    <string name="label_profile_email">ইমেইল ঠিকানা</string>
+    <string name="label_profile_location">নিজ জেলা / এলাকা</string>
+    <string name="btn_edit_name">নাম পরিবর্তন করুন</string>
+    <string name="dialog_edit_name_title">ব্যবহারকারীর নাম নির্ধারণ</string>
+    <string name="dialog_edit_name_hint">আপনার নাম লিখুন</string>
+    <string name="toast_name_updated">ব্যবহারকারীর নাম সফলভাবে আপডেট করা হয়েছে</string>
+    <string name="error_name_empty">অনুগ্রহ করে একটি সঠিক নাম লিখুন</string>
+    <string name="profile_guest_email_hint">স্থানীয় গেস্ট মোড (ক্লাউড সংরক্ষণ নেই)</string>
+    <string name="btn_save">সংরক্ষণ করুন</string>
+    <string name="dialog_cancel">বাতিল</string>
+    <string name="btn_seed_firestore">ফায়ারস্টোর ডাটাবেজ আপডেট (জাভা)</string>
+    <string name="seeding_in_progress">ক্লাউড ফায়ারস্টোরে প্রশাসনিক ও জরুরি তথ্য আপলোড হচ্ছে…</string>
+    <string name="seed_success_toast">ফায়ারস্টোরে ডাটা সফলভাবে আপলোড হয়েছে</string>
 
     <!-- Material 3 Navigation & Theme Strings -->
     <string name="nav_home">হোম</string>
@@ -494,4 +508,24 @@
     <string name="badge_advisory">পরামর্শ</string>
     <string name="badge_safe">স্বাভাবিক</string>
     <string name="banner_stale_data">তথ্য ২৪ ঘণ্টার বেশি পুরোনো। আপডেট পেতে ইন্টারনেট সংযুক্ত করুন।</string>
+
+    <!-- Disaster CRUD Strings -->
+    <string name="btn_add_warning">নতুন সতর্কতা</string>
+    <string name="title_dialog_add_warning">নতুন দুর্যোগ সতর্কতা প্রকাশ</string>
+    <string name="btn_update_status">স্ট্যাটাস পরিবর্তন</string>
+    <string name="btn_delete_warning">সতর্কতা মুছুন</string>
+    <string name="confirm_delete_warning">আপনি কি এই সতর্কতাটি মুছে ফেলতে চান? এটি ফায়ারবেস ক্লাউড ও ডিভাইস থেকে মুছে যাবে।</string>
+    <string name="msg_warning_created">দুর্যোগ সতর্কতা ফায়ারস্টোরে সফলভাবে প্রকাশিত হয়েছে!</string>
+    <string name="msg_warning_updated">সতর্কতা সফলভাবে আপডেট করা হয়েছে!</string>
+    <string name="msg_warning_deleted">সতর্কতা সফলভাবে মুছে ফেলা হয়েছে!</string>
+    <string name="label_disaster_type">দুর্যোগের ধরন:</string>
+    <string name="label_severity">তীব্রতার মাত্রা:</string>
+    <string name="label_status">বর্তমান অবস্থা:</string>
+    <string name="status_active">সক্রিয় (Active)</string>
+    <string name="status_resolved">নিষ্পন্ন / মেয়াদোত্তীর্ণ (Resolved)</string>
+    <string name="hint_warning_title_en">সতর্কতার শিরোনাম (ইংরেজি)</string>
+    <string name="hint_warning_title_bn">সতর্কতার শিরোনাম (বাংলা)</string>
+    <string name="hint_warning_details">জরুরি নির্দেশনা ও সতর্কতার বিবরণ</string>
+    <string name="btn_publish_alert">সতর্কতা প্রকাশ করুন</string>
+    <string name="hometown_badge">আমার এলাকা</string>
 </resources>

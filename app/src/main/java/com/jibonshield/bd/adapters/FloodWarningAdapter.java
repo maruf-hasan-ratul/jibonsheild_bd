@@ -58,7 +58,8 @@ public class FloodWarningAdapter extends RecyclerView.Adapter<FloodWarningAdapte
         holder.tvIssued.setText(item.getIssuedAt() + " • " + item.getSource());
 
         // Severity styling
-        switch (item.getWarningLevel().toUpperCase()) {
+        String level = item.getWarningLevel() != null ? item.getWarningLevel().toUpperCase() : "NORMAL";
+        switch (level) {
             case "CRITICAL":
                 holder.tvSeverity.setText(R.string.severity_critical_label);
                 holder.tvSeverity.setBackgroundResource(R.drawable.bg_severity_critical);
@@ -66,12 +67,14 @@ public class FloodWarningAdapter extends RecyclerView.Adapter<FloodWarningAdapte
                 holder.cardRoot.setStrokeColor(ContextCompat.getColor(context, R.color.severity_critical));
                 break;
             case "WARNING":
+            case "HIGH":
                 holder.tvSeverity.setText(R.string.severity_warning_label);
                 holder.tvSeverity.setBackgroundResource(R.drawable.bg_severity_warning);
                 holder.tvSeverity.setTextColor(ContextCompat.getColor(context, R.color.severity_warning));
                 holder.cardRoot.setStrokeColor(ContextCompat.getColor(context, R.color.severity_warning));
                 break;
             case "ADVISORY":
+            case "MODERATE":
                 holder.tvSeverity.setText(R.string.severity_advisory_label);
                 holder.tvSeverity.setBackgroundResource(R.drawable.bg_severity_warning);
                 holder.tvSeverity.setTextColor(ContextCompat.getColor(context, R.color.warning_amber));

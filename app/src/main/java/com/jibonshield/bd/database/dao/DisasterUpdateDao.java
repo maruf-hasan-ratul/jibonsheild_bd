@@ -39,6 +39,9 @@ public interface DisasterUpdateDao {
     @Query("SELECT COUNT(*) FROM disaster_updates WHERE isActive = 1")
     int getActiveCount();
 
+    @Query("DELETE FROM disaster_updates WHERE id = :id")
+    void deleteById(String id);
+
     @Query("DELETE FROM disaster_updates")
     void deleteAll();
 }

@@ -3,7 +3,6 @@ package com.jibonshield.bd.activities;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
@@ -14,7 +13,8 @@ import com.jibonshield.bd.utils.PreferenceUtils;
 
 /**
  * Screen 3: Flood Warning Details.
- * Shows the full advisory text, vulnerable areas, validity timeline, and official advice.
+ * Displays official advisory text, affected regions, validity timeline, and safety directives.
+ * Read-only official emergency broadcast presentation.
  */
 public class FloodWarningDetailActivity extends BaseActivity {
 
@@ -84,7 +84,8 @@ public class FloodWarningDetailActivity extends BaseActivity {
         tvSource.setText(sourceText);
 
         // Severity styling
-        switch (warning.getWarningLevel().toUpperCase()) {
+        String level = warning.getWarningLevel() != null ? warning.getWarningLevel().toUpperCase() : "NORMAL";
+        switch (level) {
             case "CRITICAL":
                 tvSeverity.setText(R.string.severity_critical_label);
                 tvSeverity.setBackgroundResource(R.drawable.bg_severity_critical);
@@ -92,12 +93,14 @@ public class FloodWarningDetailActivity extends BaseActivity {
                 cardMain.setStrokeColor(ContextCompat.getColor(this, R.color.severity_critical));
                 break;
             case "WARNING":
+            case "HIGH":
                 tvSeverity.setText(R.string.severity_warning_label);
                 tvSeverity.setBackgroundResource(R.drawable.bg_severity_warning);
                 tvSeverity.setTextColor(ContextCompat.getColor(this, R.color.severity_warning));
                 cardMain.setStrokeColor(ContextCompat.getColor(this, R.color.severity_warning));
                 break;
             case "ADVISORY":
+            case "MODERATE":
                 tvSeverity.setText(R.string.severity_advisory_label);
                 tvSeverity.setBackgroundResource(R.drawable.bg_severity_warning);
                 tvSeverity.setTextColor(ContextCompat.getColor(this, R.color.warning_amber));
@@ -122,7 +125,6 @@ public class FloodWarningDetailActivity extends BaseActivity {
             tvStatus.setBackgroundResource(R.drawable.bg_severity_critical);
             tvStatus.setTextColor(ContextCompat.getColor(this, R.color.severity_critical));
 
-            // Display warning banner at top of advice body
             TextView tvAdviceBody = findViewById(R.id.tv_detail_advice_body);
             if (tvAdviceBody != null) {
                 tvAdviceBody.setText(getString(R.string.warning_expired_banner) + "\n\n" + getString(R.string.flood_advice_body));

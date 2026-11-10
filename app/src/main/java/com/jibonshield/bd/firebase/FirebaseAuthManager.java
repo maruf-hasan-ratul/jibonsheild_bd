@@ -116,6 +116,9 @@ public class FirebaseAuthManager {
                 .addOnSuccessListener(authResult -> {
                     FirebaseUser user = authResult.getUser();
                     if (user != null) {
+                        PreferenceUtils.setUserName(context, displayName);
+                        PreferenceUtils.setUserEmail(context, email);
+
                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(displayName)
                                 .build();
@@ -164,6 +167,10 @@ public class FirebaseAuthManager {
                 .addOnSuccessListener(authResult -> {
                     FirebaseUser user = authResult.getUser();
                     if (user != null) {
+                        PreferenceUtils.setUserEmail(context, user.getEmail() != null ? user.getEmail() : email);
+                        if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                            PreferenceUtils.setUserName(context, user.getDisplayName());
+                        }
                         syncUserProfileFromFirestore(user.getUid());
                     }
                     if (callback != null) {
@@ -212,8 +219,19 @@ public class FirebaseAuthManager {
             if (current != null) {
                 appDatabase.userProfileDao().updateHometown(uid, divisionId, districtId, upazilaId, now);
             } else {
+                String existingName = PreferenceUtils.getUserName(context);
+                if (existingName.isEmpty() && getCurrentUser() != null && getCurrentUser().getDisplayName() != null) {
+                    existingName = getCurrentUser().getDisplayName();
+                }
+                if (existingName.isEmpty()) existingName = "JibonShield Citizen";
+
+                String existingEmail = PreferenceUtils.getUserEmail(context);
+                if (existingEmail.isEmpty() && getCurrentUser() != null && getCurrentUser().getEmail() != null) {
+                    existingEmail = getCurrentUser().getEmail();
+                }
+
                 UserProfileEntity newProfile = new UserProfileEntity(
-                        uid, "User", "", "", divisionId, districtId, upazilaId, true, now
+                        uid, existingName, existingEmail, "", divisionId, districtId, upazilaId, true, now
                 );
                 appDatabase.userProfileDao().insert(newProfile);
             }
@@ -247,6 +265,12 @@ public class FirebaseAuthManager {
 
     private void saveProfileLocally(UserProfile profile) {
         if (profile == null) return;
+        if (profile.getName() != null && !profile.getName().trim().isEmpty() && !profile.getName().equals("User")) {
+            PreferenceUtils.setUserName(context, profile.getName().trim());
+        }
+        if (profile.getEmail() != null && !profile.getEmail().trim().isEmpty()) {
+            PreferenceUtils.setUserEmail(context, profile.getEmail().trim());
+        }
         if (profile.isHometownConfigured() || (profile.getDistrictId() != null && !profile.getDistrictId().isEmpty())) {
             PreferenceUtils.setHometown(context, profile.getDivisionId(), profile.getDistrictId(), profile.getUpazilaId());
         }
@@ -304,15 +328,73 @@ public class FirebaseAuthManager {
 
     public void getCurrentUserProfile(ProfileCallback callback) {
         String uid = getCurrentUserId();
+        FirebaseUser user = getCurrentUser();
+
         // Check local Room cache first (instant response)
         executor.execute(() -> {
             UserProfileEntity cached = appDatabase.userProfileDao().getByUid(uid);
+
+            // Determine best name from all available sources
+            String bestName = "";
+            if (user != null && user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
+                bestName = user.getDisplayName().trim();
+            }
+            if (bestName.isEmpty() && cached != null && cached.getName() != null && !cached.getName().trim().isEmpty() && !cached.getName().equals("User")) {
+                bestName = cached.getName().trim();
+            }
+            if (bestName.isEmpty()) {
+                bestName = PreferenceUtils.getUserName(context);
+            }
+            if (bestName.isEmpty() && user != null && user.getEmail() != null && user.getEmail().contains("@")) {
+                bestName = user.getEmail().substring(0, user.getEmail().indexOf('@'));
+            }
+            if (bestName.isEmpty()) {
+                bestName = isUserLoggedIn() ? "JibonShield User" : "Guest Citizen";
+            }
+
+            // Determine best email from all available sources
+            String bestEmail = "";
+            if (user != null && user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+                bestEmail = user.getEmail().trim();
+            }
+            if (bestEmail.isEmpty() && cached != null && cached.getEmail() != null && !cached.getEmail().trim().isEmpty()) {
+                bestEmail = cached.getEmail().trim();
+            }
+            if (bestEmail.isEmpty()) {
+                bestEmail = PreferenceUtils.getUserEmail(context);
+            }
+            if (bestEmail.isEmpty()) {
+                bestEmail = (user != null) ? "—" : "guest@offline.local";
+            }
+
+            // Update preferences with resolved details
+            if (!bestName.isEmpty()) {
+                PreferenceUtils.setUserName(context, bestName);
+            }
+            if (!bestEmail.isEmpty() && !bestEmail.equals("—") && !bestEmail.equals("guest@offline.local")) {
+                PreferenceUtils.setUserEmail(context, bestEmail);
+            }
+
             if (cached != null) {
+                // Ensure cached entity keeps best details
+                boolean needsUpdate = false;
+                if ((cached.getName() == null || cached.getName().isEmpty() || cached.getName().equals("User")) && !bestName.isEmpty()) {
+                    cached.setName(bestName);
+                    needsUpdate = true;
+                }
+                if ((cached.getEmail() == null || cached.getEmail().isEmpty()) && !bestEmail.isEmpty() && !bestEmail.equals("—") && !bestEmail.equals("guest@offline.local")) {
+                    cached.setEmail(bestEmail);
+                    needsUpdate = true;
+                }
+                if (needsUpdate) {
+                    appDatabase.userProfileDao().insert(cached);
+                }
+
                 UserProfile profile = new UserProfile(
                         cached.getUid(),
-                        cached.getName(),
-                        cached.getEmail(),
-                        cached.getPhone(),
+                        bestName,
+                        bestEmail,
+                        cached.getPhone() != null ? cached.getPhone() : "",
                         cached.getDivisionId(),
                         cached.getDistrictId(),
                         cached.getUpazilaId(),
@@ -325,19 +407,37 @@ public class FirebaseAuthManager {
                 return;
             }
 
-            // Fallback to Firestore
-            FirebaseUser user = getCurrentUser();
+            // Fallback to Firestore if no cache
             if (user == null) {
+                UserProfile guestProfile = new UserProfile(
+                        uid,
+                        bestName,
+                        bestEmail,
+                        "",
+                        PreferenceUtils.getHometownDivision(context),
+                        PreferenceUtils.getHometownDistrict(context),
+                        PreferenceUtils.getHometownUpazila(context),
+                        PreferenceUtils.isHometownConfigured(context),
+                        System.currentTimeMillis()
+                );
                 mainHandler.post(() -> {
-                    if (callback != null) callback.onFailure("No user is currently logged in.");
+                    if (callback != null) callback.onSuccess(guestProfile);
                 });
                 return;
             }
 
+            final String finalBestName = bestName;
+            final String finalBestEmail = bestEmail;
             FirestoreManager.getInstance(context).getUserProfile(user.getUid(), new FirestoreManager.ProfileResultCallback() {
                 @Override
                 public void onSuccess(UserProfile profile) {
                     if (profile != null) {
+                        if (profile.getName() == null || profile.getName().isEmpty() || profile.getName().equals("User")) {
+                            profile.setName(finalBestName);
+                        }
+                        if (profile.getEmail() == null || profile.getEmail().isEmpty()) {
+                            profile.setEmail(finalBestEmail);
+                        }
                         saveProfileLocally(profile);
                     }
                     if (callback != null) callback.onSuccess(profile);
@@ -347,16 +447,85 @@ public class FirebaseAuthManager {
                 public void onFailure(String error) {
                     UserProfile fallback = new UserProfile(
                             user.getUid(),
-                            user.getEmail(),
-                            user.getDisplayName() != null ? user.getDisplayName() : "JibonShield User",
-                            UserProfile.ROLE_CITIZEN,
-                            PreferenceUtils.getHometownDistrict(context),
+                            finalBestName,
+                            finalBestEmail,
                             user.getPhoneNumber() != null ? user.getPhoneNumber() : "—",
+                            PreferenceUtils.getHometownDivision(context),
+                            PreferenceUtils.getHometownDistrict(context),
+                            PreferenceUtils.getHometownUpazila(context),
+                            PreferenceUtils.isHometownConfigured(context),
                             System.currentTimeMillis()
                     );
+                    saveProfileLocally(fallback);
                     if (callback != null) callback.onSuccess(fallback);
                 }
             });
+        });
+    }
+
+    /**
+     * Updates user display name locally (Preferences + Room) and synchronizes to Firebase Auth and Firestore.
+     */
+    public void updateUserName(String newName, ActionCallback callback) {
+        if (newName == null || newName.trim().isEmpty()) {
+            if (callback != null) callback.onFailure("Name cannot be empty");
+            return;
+        }
+        String cleanName = newName.trim();
+        PreferenceUtils.setUserName(context, cleanName);
+
+        String uid = getCurrentUserId();
+        long now = System.currentTimeMillis();
+
+        executor.execute(() -> {
+            UserProfileEntity current = appDatabase.userProfileDao().getByUid(uid);
+            if (current != null) {
+                appDatabase.userProfileDao().updateName(uid, cleanName, now);
+            } else {
+                UserProfileEntity newProfile = new UserProfileEntity(
+                        uid,
+                        cleanName,
+                        PreferenceUtils.getUserEmail(context),
+                        "",
+                        PreferenceUtils.getHometownDivision(context),
+                        PreferenceUtils.getHometownDistrict(context),
+                        PreferenceUtils.getHometownUpazila(context),
+                        PreferenceUtils.isHometownConfigured(context),
+                        now
+                );
+                appDatabase.userProfileDao().insert(newProfile);
+            }
+
+            // Sync to Firebase Auth & Firestore if logged in
+            if (isFirebaseConfigured() && isUserLoggedIn()) {
+                FirebaseUser user = getCurrentUser();
+                if (user != null) {
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(cleanName)
+                            .build();
+                    user.updateProfile(profileUpdates);
+                }
+
+                try {
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("name", cleanName);
+                    update.put("displayName", cleanName);
+                    update.put("updatedAt", FieldValue.serverTimestamp());
+
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(uid)
+                            .set(update, SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> Log.i(TAG, "User name synced to Firestore"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Failed syncing name to Firestore: " + e.getMessage()));
+                } catch (Exception e) {
+                    Log.w(TAG, "Firestore name update exception", e);
+                }
+            }
+
+            if (callback != null) {
+                mainHandler.post(callback::onSuccess);
+            }
         });
     }
 }

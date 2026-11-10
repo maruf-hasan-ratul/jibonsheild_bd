@@ -260,6 +260,16 @@
                         app:icon="@drawable/ic_sync"
                         app:iconGravity="textStart" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_seed_firestore"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:text="@string/btn_seed_firestore"
+                        app:icon="@drawable/ic_shelter"
+                        app:iconGravity="textStart" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

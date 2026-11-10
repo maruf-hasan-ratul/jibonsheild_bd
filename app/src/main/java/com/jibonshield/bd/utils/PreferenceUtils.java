@@ -20,6 +20,10 @@ public final class PreferenceUtils {
     private static final String KEY_HOMETOWN_UPAZILA = "hometown_upazila_id";
     private static final String KEY_HOMETOWN_CONFIGURED = "hometown_configured";
 
+    // User Profile Keys
+    private static final String KEY_USER_NAME = "user_display_name";
+    private static final String KEY_USER_EMAIL = "user_email_address";
+
     public static final String DEFAULT_DISTRICT = "All";
     public static final String LANG_BN = "bn";
     public static final String LANG_EN = "en";
@@ -103,5 +107,25 @@ public final class PreferenceUtils {
                 .remove(KEY_HOMETOWN_UPAZILA)
                 .putBoolean(KEY_HOMETOWN_CONFIGURED, false)
                 .apply();
+    }
+
+    // =========================================================================
+    // USER PROFILE IDENTITY
+    // =========================================================================
+
+    public static String getUserName(Context context) {
+        return getPrefs(context).getString(KEY_USER_NAME, "");
+    }
+
+    public static void setUserName(Context context, String name) {
+        getPrefs(context).edit().putString(KEY_USER_NAME, name != null ? name.trim() : "").apply();
+    }
+
+    public static String getUserEmail(Context context) {
+        return getPrefs(context).getString(KEY_USER_EMAIL, "");
+    }
+
+    public static void setUserEmail(Context context, String email) {
+        getPrefs(context).edit().putString(KEY_USER_EMAIL, email != null ? email.trim() : "").apply();
     }
 }

@@ -120,4 +120,5 @@
     <color name="badge_offline_bg">#FFF3E0</color>
     <color name="badge_offline_text">#C25500</color>
     <color name="skeleton_shimmer">#E5E8F0</color>
+    <color name="white">#FFFFFF</color>
 </resources>

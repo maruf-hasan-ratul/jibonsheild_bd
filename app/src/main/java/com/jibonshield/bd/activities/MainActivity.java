@@ -364,11 +364,7 @@ public class MainActivity extends BaseActivity implements DashboardAdapter.OnMod
         }
 
         binding.btnMainAccount.setOnClickListener(v -> {
-            if (FirebaseAuthManager.getInstance(MainActivity.this).isUserLoggedIn()) {
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-            } else {
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            }
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
         });
 
         binding.btnMainSettings.setOnClickListener(v -> {

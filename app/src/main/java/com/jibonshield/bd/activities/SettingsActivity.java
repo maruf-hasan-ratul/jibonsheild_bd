@@ -49,6 +49,7 @@ public class SettingsActivity extends BaseActivity {
     private TextView tvStorageDatabase;
     private ProgressBar progressSync;
     private MaterialButton btnSync;
+    private MaterialButton btnSeedFirestore;
     private MaterialButton btnAbout;
 
     private EmergencyRepository repository;
@@ -83,6 +84,7 @@ public class SettingsActivity extends BaseActivity {
         tvStorageDatabase = findViewById(R.id.tv_storage_database);
         progressSync = findViewById(R.id.progress_sync_settings);
         btnSync = findViewById(R.id.btn_settings_sync);
+        btnSeedFirestore = findViewById(R.id.btn_seed_firestore);
         btnAbout = findViewById(R.id.btn_settings_about);
 
         repository = new EmergencyRepository(this);
@@ -222,6 +224,36 @@ public class SettingsActivity extends BaseActivity {
                                 }
                             }
                         });
+                    }
+                });
+            });
+        }
+
+        if (btnSeedFirestore != null) {
+            btnSeedFirestore.setOnClickListener(v -> {
+                if (progressSync != null) progressSync.setVisibility(View.VISIBLE);
+                btnSeedFirestore.setEnabled(false);
+                android.widget.Toast.makeText(SettingsActivity.this, R.string.seeding_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+
+                com.jibonshield.bd.firebase.FirestoreDataSeeder.seedAllDataToFirestore(SettingsActivity.this, new com.jibonshield.bd.firebase.FirestoreDataSeeder.SeedCallback() {
+                    @Override
+                    public void onProgress(String currentCollection, int currentCount, int totalCount) {}
+
+                    @Override
+                    public void onSuccess(String summary) {
+                        if (progressSync != null) progressSync.setVisibility(View.GONE);
+                        btnSeedFirestore.setEnabled(true);
+                        android.widget.Toast.makeText(SettingsActivity.this, R.string.seed_success_toast, android.widget.Toast.LENGTH_SHORT).show();
+                        if (btnSync != null) {
+                            btnSync.performClick();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        if (progressSync != null) progressSync.setVisibility(View.GONE);
+                        btnSeedFirestore.setEnabled(true);
+                        android.widget.Toast.makeText(SettingsActivity.this, "Seed error: " + errorMessage, android.widget.Toast.LENGTH_LONG).show();
                     }
                 });
             });

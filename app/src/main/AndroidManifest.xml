@@ -31,31 +31,31 @@
         <!-- 1. Main Emergency Dashboard -->
         <activity
             android:name=".activities.MainActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 2. Flood Warning List -->
         <activity
             android:name=".activities.FloodWarningListActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 3. Flood Warning Details -->
         <activity
             android:name=".activities.FloodWarningDetailActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 4. Shelter Directory -->
         <activity
             android:name=".activities.ShelterDirectoryActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 5. Shelter Details -->
         <activity
             android:name=".activities.ShelterDetailActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 6. Emergency Contacts -->

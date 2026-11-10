@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -34,9 +35,11 @@ import com.jibonshield.bd.models.SyncMetadata;
 import com.jibonshield.bd.models.WaterObservation;
 import com.jibonshield.bd.utils.DistrictData;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -309,18 +312,21 @@ public class EmergencyRepository {
     private void getFloodWarningsInternal(String regionFilter, Boolean activeFilter, DataCallback<List<FloodWarning>> callback) {
         if (appDatabase != null) {
             executorService.execute(() -> {
-                List<DisasterUpdateEntity> entities = appDatabase.disasterUpdateDao().getAllActive();
+                List<DisasterUpdateEntity> entities = (activeFilter != null && activeFilter)
+                        ? appDatabase.disasterUpdateDao().getAllActive()
+                        : appDatabase.disasterUpdateDao().getAll();
                 if (entities != null && !entities.isEmpty()) {
                     List<FloodWarning> list = new ArrayList<>();
                     for (DisasterUpdateEntity entity : entities) {
                         list.add(ModelMapper.toFloodWarning(entity));
                     }
                     List<FloodWarning> filtered = filterFloodWarnings(list, regionFilter, activeFilter);
-                    if (callback != null) mainHandler.post(() -> callback.onDataLoaded(filtered));
-                    return;
+                    if (callback != null && mainHandler != null) {
+                        mainHandler.post(() -> callback.onDataLoaded(filtered));
+                    }
                 }
 
-                // If Room DB has no records yet, query Firestore or seeds
+                // Immediately synchronize with latest Firestore disaster_updates in cloud
                 queryFirestoreOrSeedFloodWarnings(regionFilter, activeFilter, callback);
             });
             return;
@@ -339,14 +345,20 @@ public class EmergencyRepository {
             return;
         }
 
-        db.collection(DatabaseContract.FloodWarningEntry.TABLE_NAME)
+        db.collection("disaster_updates")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<FloodWarning> list = new ArrayList<>();
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        List<DisasterUpdateEntity> entitiesToCache = new ArrayList<>();
                         for (DocumentSnapshot doc : queryDocumentSnapshots) {
                             FloodWarning warning = mapToFloodWarning(doc);
                             if (warning != null) list.add(warning);
+                            DisasterUpdateEntity ent = mapToDisasterUpdateEntity(doc);
+                            if (ent != null) entitiesToCache.add(ent);
+                        }
+                        if (appDatabase != null && !entitiesToCache.isEmpty()) {
+                            executorService.execute(() -> appDatabase.disasterUpdateDao().insertAll(entitiesToCache));
                         }
                     }
                     if (list.isEmpty()) {
@@ -423,6 +435,163 @@ public class EmergencyRepository {
                 .addOnFailureListener(e -> {
                     if (callback != null) mainHandler.post(() -> callback.onError(e));
                 });
+    }
+
+    /**
+     * Real-time listener on Cloud Firestore disaster_updates collection.
+     */
+    public ListenerRegistration listenToDisasterUpdates(
+            String regionFilter, Boolean activeFilter, DataCallback<List<FloodWarning>> callback) {
+        if (!isFirestoreAvailable()) return null;
+        return db.collection("disaster_updates")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.w(TAG, "Real-time snapshot listen error: " + error.getMessage());
+                        return;
+                    }
+                    if (snapshots != null) {
+                        List<FloodWarning> list = new ArrayList<>();
+                        List<DisasterUpdateEntity> entitiesToCache = new ArrayList<>();
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            FloodWarning warning = mapToFloodWarning(doc);
+                            if (warning != null) list.add(warning);
+                            DisasterUpdateEntity ent = mapToDisasterUpdateEntity(doc);
+                            if (ent != null) entitiesToCache.add(ent);
+                        }
+                        if (appDatabase != null && !entitiesToCache.isEmpty()) {
+                            executorService.execute(() -> appDatabase.disasterUpdateDao().insertAll(entitiesToCache));
+                        }
+                        List<FloodWarning> filtered = filterFloodWarnings(list, regionFilter, activeFilter);
+                        if (callback != null && mainHandler != null) {
+                            mainHandler.post(() -> callback.onDataLoaded(filtered));
+                        } else if (callback != null) {
+                            callback.onDataLoaded(filtered);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * CRUD: CREATE a new disaster update alert in Firestore and local Room database.
+     */
+    public void createDisasterUpdate(DisasterUpdateEntity update, ActionCallback callback) {
+        if (update == null) {
+            if (callback != null) mainHandler.post(() -> callback.onError(new IllegalArgumentException("Null entity")));
+            return;
+        }
+
+        executorService.execute(() -> {
+            if (appDatabase != null) {
+                appDatabase.disasterUpdateDao().insert(update);
+            }
+
+            if (!isFirestoreAvailable()) {
+                if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                return;
+            }
+
+            Map<String, Object> map = disasterUpdateToMap(update);
+            db.collection("disaster_updates")
+                    .document(update.getId())
+                    .set(map, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Firestore write warning: " + e.getMessage());
+                        if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                    });
+        });
+    }
+
+    /**
+     * CRUD: UPDATE an existing disaster update alert in Firestore and Room.
+     */
+    public void updateDisasterUpdate(String id, Map<String, Object> updates, ActionCallback callback) {
+        if (id == null || id.isEmpty()) {
+            if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+            return;
+        }
+
+        executorService.execute(() -> {
+            if (appDatabase != null) {
+                DisasterUpdateEntity existing = appDatabase.disasterUpdateDao().getById(id);
+                if (existing != null) {
+                    if (updates.containsKey("status")) {
+                        existing.setStatus((String) updates.get("status"));
+                    }
+                    if (updates.containsKey("isActive")) {
+                        existing.setActive(Boolean.TRUE.equals(updates.get("isActive")));
+                    }
+                    if (updates.containsKey("severity")) {
+                        existing.setSeverity((String) updates.get("severity"));
+                    }
+                    if (updates.containsKey("description")) {
+                        existing.setDescription((String) updates.get("description"));
+                    }
+                    if (updates.containsKey("title")) {
+                        existing.setTitle((String) updates.get("title"));
+                    }
+                    existing.setUpdatedAt(System.currentTimeMillis());
+                    appDatabase.disasterUpdateDao().insert(existing);
+                }
+            }
+
+            if (!isFirestoreAvailable()) {
+                if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                return;
+            }
+
+            updates.put("updatedAt", com.google.firebase.firestore.FieldValue.serverTimestamp());
+            db.collection("disaster_updates")
+                    .document(id)
+                    .update(updates)
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                    })
+                    .addOnFailureListener(e -> {
+                        db.collection("disaster_updates")
+                                .document(id)
+                                .set(updates, SetOptions.merge())
+                                .addOnSuccessListener(v -> {
+                                    if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                                })
+                                .addOnFailureListener(err -> {
+                                    if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onError(err));
+                                });
+                    });
+        });
+    }
+
+    /**
+     * CRUD: DELETE a disaster update alert from Firestore and local Room database.
+     */
+    public void deleteDisasterUpdate(String id, ActionCallback callback) {
+        if (id == null || id.isEmpty()) {
+            if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+            return;
+        }
+
+        executorService.execute(() -> {
+            if (appDatabase != null) {
+                appDatabase.disasterUpdateDao().deleteById(id);
+            }
+
+            if (!isFirestoreAvailable()) {
+                if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                return;
+            }
+
+            db.collection("disaster_updates")
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null && mainHandler != null) mainHandler.post(callback::onSuccess);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null && mainHandler != null) mainHandler.post(() -> callback.onError(e));
+                    });
+        });
     }
 
     public void syncFloodWarningsTransactional(List<FloodWarning> warnings, String sourceName, SyncCallback callback) {
@@ -1377,32 +1546,163 @@ public class EmergencyRepository {
         return map;
     }
 
+    public Map<String, Object> disasterUpdateToMap(DisasterUpdateEntity entity) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", entity.getId());
+        map.put("title", entity.getTitle());
+        map.put("titleBn", entity.getTitleBn() != null ? entity.getTitleBn() : "");
+        map.put("description", entity.getDescription());
+        map.put("descriptionBn", entity.getDescriptionBn() != null ? entity.getDescriptionBn() : "");
+        map.put("disasterType", entity.getDisasterType() != null ? entity.getDisasterType() : "Flood");
+        map.put("severity", entity.getSeverity() != null ? entity.getSeverity() : "Moderate");
+        map.put("status", entity.getStatus() != null ? entity.getStatus() : "Active");
+        map.put("divisionId", entity.getDivisionId() != null ? entity.getDivisionId() : "");
+        map.put("districtId", entity.getDistrictId() != null ? entity.getDistrictId() : "");
+        map.put("upazilaId", entity.getUpazilaId() != null ? entity.getUpazilaId() : "");
+        map.put("affectedAreas", entity.getAffectedAreas() != null ? entity.getAffectedAreas() : new ArrayList<>());
+        map.put("issuedBy", entity.getIssuedBy() != null ? entity.getIssuedBy() : "JibonShield Emergency Ops");
+        map.put("issuedAt", new com.google.firebase.Timestamp(new java.util.Date(entity.getIssuedAt() > 0 ? entity.getIssuedAt() : System.currentTimeMillis())));
+        map.put("expiresAt", new com.google.firebase.Timestamp(new java.util.Date(entity.getExpiresAt() > 0 ? entity.getExpiresAt() : System.currentTimeMillis() + 86400000L * 4)));
+        map.put("updatedAt", com.google.firebase.firestore.FieldValue.serverTimestamp());
+        map.put("isActive", entity.isActive());
+        return map;
+    }
+
+    private long extractTimestamp(DocumentSnapshot doc, String field) {
+        if (doc == null || field == null) return 0L;
+        Object val = doc.get(field);
+        if (val instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) val).toDate().getTime();
+        } else if (val instanceof Number) {
+            return ((Number) val).longValue();
+        } else if (val instanceof java.util.Date) {
+            return ((java.util.Date) val).getTime();
+        }
+        return 0L;
+    }
+
     private FloodWarning mapToFloodWarning(DocumentSnapshot doc) {
         try {
             Long idLong = doc.getLong(DatabaseContract.FloodWarningEntry._ID);
             long id = idLong != null ? idLong : parseDocIdToLong(doc.getId());
-            String level = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_WARNING_LEVEL);
-            String titleEn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_EN);
-            String titleBn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_BN);
+
+            String level = doc.getString("severity");
+            if (level == null) level = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_WARNING_LEVEL);
+
+            String titleEn = doc.getString("title");
+            if (titleEn == null) titleEn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_EN);
+
+            String titleBn = doc.getString("titleBn");
+            if (titleBn == null) titleBn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_TITLE_BN);
+
             String region = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_REGION);
-            String detailsEn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_EN);
-            String detailsBn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_BN);
+            if (region == null) {
+                String dist = doc.getString("districtId");
+                String upz = doc.getString("upazilaId");
+                region = (upz != null && !upz.isEmpty() ? upz + ", " : "") + (dist != null ? dist : "Bangladesh");
+            }
+
+            String detailsEn = doc.getString("description");
+            if (detailsEn == null) detailsEn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_EN);
+
+            String detailsBn = doc.getString("descriptionBn");
+            if (detailsBn == null) detailsBn = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_DETAILS_BN);
+
+            long issuedTime = extractTimestamp(doc, "issuedAt");
             String issued = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_ISSUED_AT);
+            if (issued == null && issuedTime > 0) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                issued = sdf.format(new java.util.Date(issuedTime)) + " BST";
+            } else if (issued == null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                issued = sdf.format(new java.util.Date()) + " BST";
+            }
+
+            long expiresTime = extractTimestamp(doc, "expiresAt");
             String expires = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_EXPIRES_AT);
-            String source = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_SOURCE);
+            if (expires == null && expiresTime > 0) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                expires = sdf.format(new java.util.Date(expiresTime)) + " BST";
+            } else if (expires == null) {
+                long defaultExpires = (issuedTime > 0 ? issuedTime : System.currentTimeMillis()) + 7L * 86400000L;
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                expires = sdf.format(new java.util.Date(defaultExpires)) + " BST";
+            }
+
+            String source = doc.getString("issuedBy");
+            if (source == null) source = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_SOURCE);
+
             String sourceRef = doc.getString(DatabaseContract.FloodWarningEntry.COLUMN_SOURCE_REFERENCE);
+            if (sourceRef == null) sourceRef = doc.getId();
+
+            Boolean activeBool = doc.getBoolean("isActive");
             Long activeLong = doc.getLong(DatabaseContract.FloodWarningEntry.COLUMN_IS_ACTIVE);
-            boolean active = activeLong == null || activeLong == 1;
+            boolean active = activeBool != null ? activeBool : (activeLong == null || activeLong == 1);
+
             Long sampleLong = doc.getLong(DatabaseContract.FloodWarningEntry.COLUMN_IS_SAMPLE);
             boolean sample = sampleLong != null && sampleLong == 1;
-            Long syncLong = doc.getLong(DatabaseContract.FloodWarningEntry.COLUMN_LAST_SYNC_TIMESTAMP);
-            long sync = syncLong != null ? syncLong : System.currentTimeMillis();
 
-            return new FloodWarning(id, level != null ? level : "NORMAL", titleEn != null ? titleEn : "",
+            long syncTime = extractTimestamp(doc, "updatedAt");
+            long sync = syncTime > 0 ? syncTime : System.currentTimeMillis();
+
+            return new FloodWarning(id, level != null ? level.toUpperCase() : "NORMAL", titleEn != null ? titleEn : "",
                     titleBn != null ? titleBn : "", region != null ? region : "Bangladesh",
                     detailsEn != null ? detailsEn : "", detailsBn != null ? detailsBn : "",
                     issued != null ? issued : "", expires != null ? expires : "",
                     source != null ? source : "FFWC", sourceRef, active, sample, sync);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private DisasterUpdateEntity mapToDisasterUpdateEntity(DocumentSnapshot doc) {
+        try {
+            String id = doc.getId();
+            String title = doc.getString("title");
+            String titleBn = doc.getString("titleBn");
+            String description = doc.getString("description");
+            String descriptionBn = doc.getString("descriptionBn");
+            String disasterType = doc.getString("disasterType");
+            String severity = doc.getString("severity");
+            String status = doc.getString("status");
+            String divisionId = doc.getString("divisionId");
+            String districtId = doc.getString("districtId");
+            String upazilaId = doc.getString("upazilaId");
+
+            @SuppressWarnings("unchecked")
+            List<String> affectedAreas = (List<String>) doc.get("affectedAreas");
+            String issuedBy = doc.getString("issuedBy");
+
+            long issuedAt = extractTimestamp(doc, "issuedAt");
+            if (issuedAt <= 0) issuedAt = System.currentTimeMillis();
+
+            long expiresAt = extractTimestamp(doc, "expiresAt");
+            if (expiresAt <= 0) expiresAt = issuedAt + 7L * 86400000L;
+
+            long updated = extractTimestamp(doc, "updatedAt");
+            if (updated <= 0) updated = System.currentTimeMillis();
+
+            Boolean active = doc.getBoolean("isActive");
+
+            return new DisasterUpdateEntity(
+                    id,
+                    title != null ? title : "Disaster Alert",
+                    titleBn != null ? titleBn : "",
+                    description != null ? description : "",
+                    descriptionBn != null ? descriptionBn : "",
+                    disasterType != null ? disasterType : "Flood",
+                    severity != null ? severity : "Moderate",
+                    status != null ? status : "Active",
+                    divisionId != null ? divisionId.toLowerCase().trim() : "",
+                    districtId != null ? districtId.toLowerCase().trim() : "",
+                    upazilaId != null ? upazilaId.toLowerCase().trim() : "",
+                    affectedAreas != null ? affectedAreas : new ArrayList<>(),
+                    issuedBy != null ? issuedBy : "FFWC / BMD",
+                    issuedAt,
+                    expiresAt,
+                    updated,
+                    active == null || active
+            );
         } catch (Exception e) {
             return null;
         }
@@ -1626,41 +1926,77 @@ public class EmergencyRepository {
 
     private List<FloodWarning> getSeedFloodWarnings() {
         List<FloodWarning> list = new ArrayList<>();
-        list.add(new FloodWarning(1, "WARNING",
-                "Surma-Kushiyara Basin High Water Level Warning",
-                "সুরমা-কুশিয়ারা অববাহিকায় পানির উচ্চতা বৃদ্ধি সতর্কবার্তা",
+        list.add(new FloodWarning(1, "CRITICAL",
+                "Surma-Kushiyara Severe Flash Flood",
+                "সুরমা-কুশিয়ারা তীব্র আকস্মিক বন্যা সতর্কবার্তা",
                 "Sylhet & Sunamganj",
-                "River water levels in Surma at Sunamganj point are near danger mark due to upstream heavy rainfall in Meghalaya. Low-lying union roads may become inundated.",
-                "মেঘালয়ে ভারী বৃষ্টিপাতের কারণে সুনামগঞ্জ পয়েন্টে সুরমা নদীর পানি বিপদসীমার কাছাকাছি প্রবাহিত হচ্ছে। নিম্নাঞ্চলের রাস্তাঘাট প্লাবিত হতে পারে।",
-                "2026-10-12 08:00 BST", "2026-10-16 18:00 BST",
-                "FFWC (BWDB)", "FFWC Bulletin No. 2026-FL-14", true, false, System.currentTimeMillis()));
+                "Surma River is flowing 68 cm above danger level at Kanaighat and 28 cm at Sylhet Sadar. Inundation spreading across low-lying unions.",
+                "মেঘালয় ও আসামে অতিভারী বর্ষণে সুরমা নদী কানাইঘাটে ৬৮ সেমি এবং সিলেট সদরে ২৮ সেমি বিপৎসীমার উপর দিয়ে প্রবাহিত হচ্ছে। নিম্নাঞ্চল প্লাবিত।",
+                "2026-10-12 08:00 BST", "2026-10-18 18:00 BST",
+                "FFWC (BWDB)", "alert_surma_001", true, false, System.currentTimeMillis()));
 
-        list.add(new FloodWarning(2, "ADVISORY",
-                "Teesta Basin Monsoon Water Discharge Advisory",
-                "তিস্তা অববাহিকায় মৌসুমি পানি প্রবাহ সতর্কতা",
-                "Kurigram, Lalmonirhat, Nilphamari",
-                "Water flow at Dalia Barrage point is currently flowing below danger level, but localized bank erosion and swell may occur in char areas.",
-                "ডালিয়া পয়েন্টে তিস্তার পানি বর্তমানে বিপদসীমার নিচে অবস্থান করছে, তবে চরাঞ্চলে স্থানীয়ভাবে ভাঙন ও পানি বৃদ্ধি হতে পারে।",
-                "2026-10-11 12:00 BST", "2026-10-16 12:00 BST",
-                "FFWC (BWDB)", "FFWC Bulletin No. 2026-TE-08", true, false, System.currentTimeMillis()));
-
-        list.add(new FloodWarning(3, "NORMAL",
-                "Dharla River Flash Surge Advisory (Past)",
-                "ধরলা নদী পানির প্রবাহ সতর্কতা (অতিক্রান্ত)",
-                "Kurigram",
-                "Previous surge alert has subsided safely below warning threshold. River flow has stabilized.",
-                "পূর্ববর্তী পানির বৃদ্ধি বিপদসীমার নিচে নেমে স্বাভাবিক অবস্থায় এসেছে। সতর্কতা সমাপ্ত।",
-                "2026-10-08 06:00 BST", "2026-10-10 18:00 BST",
-                "FFWC (BWDB)", "FFWC Bulletin No. 2026-DH-02", false, false, System.currentTimeMillis()));
-
-        list.add(new FloodWarning(4, "CRITICAL",
-                "[DEV SAMPLE] Simulated Jamuna River Flash Surge Drill",
-                "[টেস্টিং রেকর্ড] সিমুলেটেড যমুনা নদী আকস্মিক বন্যা ড্রিল",
+        list.add(new FloodWarning(2, "CRITICAL",
+                "Brahmaputra-Jamuna Basin Major Flood Alert",
+                "ব্রহ্মপুত্র-যমুনা অববাহিকায় ভয়াবহ বন্যা সতর্কতা",
                 "Sirajganj & Bogura",
-                "This is a verified test sample record for offline alert testing. Simulates water level rising 45cm above danger line.",
-                "এটি অফলাইন সিস্টেম পরীক্ষার জন্য সংরক্ষিত একটি টেস্ট রেকর্ড। বিপদসীমার ৪৫ সেমি ওপরে পানি বৃদ্ধির সিমুলেশন।",
-                "2026-10-13 06:00 BST", "2026-10-17 06:00 BST",
-                "JibonShield Offline Simulation", "DEV-DRILL-JAMUNA-01", true, true, System.currentTimeMillis()));
+                "Jamuna water level rising at 18 cm/24h at Sirajganj and Sariakandi. Riverbank erosion and embankment overtopping imminent.",
+                "যমুনা নদীর পানি সিরাজগঞ্জ ও সারিয়াকান্দি পয়েন্টে দ্রুত বাড়ছে। নদী তীরবর্তী নিম্নাঞ্চল ও চরে বন্যা পরিস্থিতি অবনতিশীল।",
+                "2026-10-13 06:00 BST", "2026-10-19 12:00 BST",
+                "Flood Forecasting & Warning Centre", "alert_jamuna_002", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(3, "CRITICAL",
+                "Dharla & Dudhkumar Flood Inundation",
+                "ধরলা ও দুধকুমার নদীর পানি বৃদ্ধি ও প্লাবন",
+                "Kurigram",
+                "Dharla river flowing 35 cm above danger level at Kurigram. Over 40,000 households across char areas stranded.",
+                "কুড়িগ্রাম পয়েন্টে ধরলা নদী বিপৎসীমার ৩৫ সেমি উপরে। রৌমারী, রাজিবপুর ও চিলমারী চরাঞ্চল প্লাবিত হয়েছে।",
+                "2026-10-12 10:00 BST", "2026-10-17 18:00 BST",
+                "BWDB & FFWC", "alert_kurigram_003", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(4, "WARNING",
+                "Teesta River High Water Advisory",
+                "তিস্তা নদীর পানি বৃদ্ধি সতর্কবার্তা",
+                "Kurigram, Lalmonirhat, Nilphamari",
+                "Teesta Barrage point at Dalia recorded discharge at maximum capacity. Gated flumes fully opened to release upstream run-off.",
+                "ডালিয়া পয়েন্টে তিস্তা নদীর পানি বিপৎসীমার কাছাকাছি। ডিমলা, হাতীবান্ধা ও পাটগ্রাম চরে সতর্কবার্তা জারি।",
+                "2026-10-11 12:00 BST", "2026-10-16 12:00 BST",
+                "BWDB Dalia Division", "alert_teesta_004", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(5, "WARNING",
+                "Bay of Bengal Coastal Cyclone & Surge Warning",
+                "বঙ্গোপসাগরে ঘূর্ণিঝড় ও জলোচ্ছ্বাস সতর্কবার্তা",
+                "Cox's Bazar & Chittagong",
+                "Deep tropical depression intensifying into cyclonic storm. Maritime signal 4 hoisted. 4-6 ft storm surge expected along coastlines.",
+                "বঙ্গোপসাগরে সৃষ্ট গভীর নিম্নচাপটি ঘূর্ণিঝড়ে রূপ নিচ্ছে। ৪ নম্বর স্থানীয় হুঁশিয়ারি সংকেত জারি। ৪-৬ ফুট উচ্চতার জলোচ্ছ্বাসের আশঙ্কা।",
+                "2026-10-14 06:00 BST", "2026-10-18 20:00 BST",
+                "Bangladesh Meteorological Department (BMD)", "alert_cyclone_005", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(6, "CRITICAL",
+                "Muhuri River Embankment Breach Alert",
+                "মুহুরী নদীর বাঁধ ভাঙন ও প্লাবন সতর্কতা",
+                "Feni",
+                "Heavy transboundary hill torrents caused multiple dyke breaches along Muhuri river in Parshuram and Fulgazi upazilas.",
+                "ভারতের ত্রিপুরা থেকে নেমে আসা পাহাড়ি ঢলে পরশুরাম ও ফুলগাজীতে মুহুরী নদীর বন্যা নিয়ন্ত্রণ বাঁধ ভেঙে বেশ কয়েকটি গ্রাম প্লাবিত।",
+                "2026-10-13 14:00 BST", "2026-10-17 18:00 BST",
+                "Feni District Administration & BWDB", "alert_muhuri_006", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(7, "ADVISORY",
+                "Coastal Tidal Inundation Advisory",
+                "উপকূলীয় জোয়ারের পানি বৃদ্ধি ও বাঁধ সতর্কতা",
+                "Khulna & Satkhira",
+                "Spring tide combined with southerly wind forcing saline water through weak embankments across Dacope, Koyra, and Shyamnagar.",
+                "অমাবস্যার জোয়ার ও বাতাসের প্রভাবে দাকোপ, কয়রা ও শ্যামনগরের দুর্বল বেড়িবাঁধ উপচে লবণাক্ত পানি প্রবেশের আশঙ্কা।",
+                "2026-10-12 12:00 BST", "2026-10-16 18:00 BST",
+                "CPP & Local Disaster Management Committee", "alert_sundarbans_007", true, false, System.currentTimeMillis()));
+
+        list.add(new FloodWarning(8, "ADVISORY",
+                "Urban Torrential Rain & Waterlogging Advisory",
+                "ভারী বর্ষণজনিত জলাবদ্ধতা ও সতর্কতা",
+                "Dhaka",
+                "Consecutive cloudbursts forecast over Greater Dhaka. Urban road waterlogging and slow drainage expected in low-lying canals.",
+                "ঢাকায় টানা ভারী বৃষ্টির পূর্বাভাস। মিরপুর, ডেমরা, ও টঙ্গী খাল এলাকায় জলাবদ্ধতার কারণে যান চলাচলে বিঘ্ন ঘটতে পারে।",
+                "2026-10-14 09:00 BST", "2026-10-17 12:00 BST",
+                "Dhaka City Corporation Disaster Cell", "alert_dhaka_008", true, false, System.currentTimeMillis()));
 
         return list;
     }

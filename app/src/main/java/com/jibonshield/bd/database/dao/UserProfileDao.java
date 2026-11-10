@@ -22,6 +22,12 @@ public interface UserProfileDao {
     @Query("UPDATE user_profiles SET divisionId = :divisionId, districtId = :districtId, upazilaId = :upazilaId, hometownConfigured = 1, updatedAt = :updatedAt WHERE uid = :uid")
     void updateHometown(String uid, String divisionId, String districtId, String upazilaId, long updatedAt);
 
+    @Query("UPDATE user_profiles SET name = :name, updatedAt = :updatedAt WHERE uid = :uid")
+    void updateName(String uid, String name, long updatedAt);
+
+    @Query("UPDATE user_profiles SET name = :name, email = :email, updatedAt = :updatedAt WHERE uid = :uid")
+    void updateNameAndEmail(String uid, String name, String email, long updatedAt);
+
     @Query("DELETE FROM user_profiles")
     void deleteAll();
 }
