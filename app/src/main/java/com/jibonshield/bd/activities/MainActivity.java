@@ -64,12 +64,28 @@ public class MainActivity extends BaseActivity implements DashboardAdapter.OnMod
     protected void onStart() {
         super.onStart();
         registerReceivers();
+        com.jibonshield.bd.firebase.RealtimeDatabaseManager.getInstance(this).listenToEmergencyStatus(new com.jibonshield.bd.firebase.RealtimeDatabaseManager.EmergencyStatusListener() {
+            @Override
+            public void onStatusUpdated(java.util.List<com.jibonshield.bd.models.LiveEmergencyIncident> incidents) {
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                if (incidents != null && !incidents.isEmpty()) {
+                    com.jibonshield.bd.models.LiveEmergencyIncident top = incidents.get(0);
+                    binding.tvBroadcastStatus.setVisibility(android.view.View.VISIBLE);
+                    binding.tvBroadcastStatus.setText("🚨 LIVE RTDB: " + top.getMessage());
+                    binding.tvBroadcastStatus.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.emergency_red));
+                }
+            }
+
+            @Override
+            public void onError(String message) {}
+        });
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unregisterReceivers();
+        com.jibonshield.bd.firebase.RealtimeDatabaseManager.getInstance(this).stopListeningToEmergencyStatus();
     }
 
     @Override

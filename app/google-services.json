@@ -2,6 +2,7 @@
   "project_info": {
     "project_number": "324136739302",
     "project_id": "jibonsheildbd",
+    "firebase_url": "https://jibonsheildbd-default-rtdb.firebaseio.com",
     "storage_bucket": "jibonsheildbd.firebasestorage.app"
   },
   "client": [

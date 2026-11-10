@@ -79,6 +79,12 @@ public class ShelterDetailActivity extends BaseActivity {
 
         boolean isBangla = PreferenceUtils.LANG_BN.equals(PreferenceUtils.getLanguage(this));
         String name = isBangla ? shelter.getNameBn() : shelter.getNameEn();
+        if (name == null || name.trim().isEmpty()) {
+            name = isBangla ? shelter.getNameEn() : shelter.getNameBn();
+        }
+        if (name == null || name.trim().isEmpty()) {
+            name = shelter.getUpazila() + " " + getString(R.string.nav_shelters);
+        }
 
         tvDistrict.setText(shelter.getDistrict());
         tvUpazila.setText(shelter.getUpazila());
@@ -100,8 +106,27 @@ public class ShelterDetailActivity extends BaseActivity {
             tvCapacity.setText(R.string.shelter_capacity_unspecified);
         }
 
-        // Occupancy - Clearly state not tracked in real-time
+        // Occupancy - Real-time sync with Firebase Realtime Database
+        final int maxCap = shelter.getCapacity() > 0 ? shelter.getCapacity() : 500;
+        String rtdbKey = "shelter_" + shelter.getId();
+
         tvOccupancy.setText(R.string.shelter_occupancy_unverified);
+
+        com.jibonshield.bd.firebase.RealtimeDatabaseManager.getInstance(this).listenToShelterOccupancy(rtdbKey, new com.jibonshield.bd.firebase.RealtimeDatabaseManager.OccupancyListener() {
+            @Override
+            public void onOccupancyUpdated(int capacity, int occupancy, long lastUpdated) {
+                if (isFinishing() || isDestroyed() || tvOccupancy == null) return;
+                int cap = capacity > 0 ? capacity : maxCap;
+                int available = Math.max(0, cap - occupancy);
+                String status = occupancy >= cap ? "FULL" : (occupancy >= cap * 0.8 ? "NEAR CAPACITY" : "AVAILABLE");
+                tvOccupancy.setText(occupancy + " / " + cap + " (" + available + " spaces • " + status + " • Live RTDB)");
+            }
+
+            @Override
+            public void onError(String message) {
+                // Keep graceful default if offline
+            }
+        });
 
         // Coordinates - Graceful fallback if missing or 0.0
         if (shelter.getLatitude() > 0.1 && shelter.getLongitude() > 0.1) {
@@ -142,28 +167,30 @@ public class ShelterDetailActivity extends BaseActivity {
 
     private void dialPhoneNumber(String phone) {
         try {
+            copyPhoneToClipboard(phone, false);
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone.trim()));
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            } else {
-                copyPhoneToClipboard(phone);
-            }
+            intent.setData(Uri.fromParts("tel", phone.trim(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            copyPhoneToClipboard(phone, true);
+            Toast.makeText(this, "No dialer application found. Phone number copied to clipboard.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            copyPhoneToClipboard(phone);
+            copyPhoneToClipboard(phone, true);
         }
     }
 
-    private void copyPhoneToClipboard(String phone) {
+    private void copyPhoneToClipboard(String phone, boolean showToast) {
         try {
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboard != null) {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("Shelter Phone", phone);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+                if (showToast) {
+                    Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (Exception ignored) {
-            Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
         }
     }
 }

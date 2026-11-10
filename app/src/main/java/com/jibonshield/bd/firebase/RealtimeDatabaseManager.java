@@ -63,7 +63,7 @@ public class RealtimeDatabaseManager {
         this.context = context;
         try {
             if (!FirebaseApp.getApps(context).isEmpty()) {
-                this.database = FirebaseDatabase.getInstance();
+                this.database = FirebaseDatabase.getInstance("https://jibonsheildbd-default-rtdb.firebaseio.com/");
             }
         } catch (Exception e) {
             Log.w(TAG, "Realtime Database initialization warning: " + e.getMessage());

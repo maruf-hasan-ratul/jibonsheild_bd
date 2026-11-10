@@ -8,6 +8,18 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Queries for system dialer and phone apps (Android 11+ package visibility) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+    </queries>
+
     <application
         android:name=".JibonShieldApp"
         android:allowBackup="true"
@@ -61,7 +73,7 @@
         <!-- 6. Emergency Contacts -->
         <activity
             android:name=".activities.EmergencyContactsActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 7. Water Observation Form -->

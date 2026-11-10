@@ -1951,6 +1951,19 @@ public class EmergencyRepository {
         map.put("user_id", o.getUserId());
         map.put("createdAt", o.getCreatedAt());
         map.put("updatedAt", o.getUpdatedAt());
+
+        // Camel case keys for multi-client compatibility
+        map.put("locationName", o.getLocationName());
+        map.put("sourceType", o.getSourceType());
+        map.put("phLevel", o.getPhLevel());
+        map.put("turbidityStatus", o.getTurbidityStatus());
+        map.put("safetyStatus", o.getSafetyStatus());
+        map.put("observationTime", o.getObservationTime());
+        map.put("reportedBy", o.getReportedBy());
+        map.put("imageUrl", o.getImageUrl());
+        map.put("imageUri", o.getImageUri());
+        map.put("createdAt", o.getCreatedAt());
+        map.put("updatedAt", o.getUpdatedAt());
         return map;
     }
 

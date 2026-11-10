@@ -111,6 +111,11 @@
     <string name="label_shelter_verified">Verification Date:</string>
     <string name="shelter_capacity_format">%1$d Persons</string>
     <string name="shelter_occupancy_format">%1$d / %2$d Occupied</string>
+    <string name="btn_update_occupancy">Update Count</string>
+    <string name="dialog_occupancy_title">Update Shelter Occupancy</string>
+    <string name="dialog_occupancy_message">Broadcast verified real-time headcount to Firebase Realtime Database for responders and evacuees.</string>
+    <string name="dialog_occupancy_hint">Current Persons Inside</string>
+    <string name="dialog_occupancy_success">Live occupancy updated in Realtime Database!</string>
     <string name="shelter_empty_title">No Shelters Found</string>
     <string name="shelter_empty_desc">No designated shelters matched your search query or district filter.</string>
     <string name="shelter_facilities_heading">Emergency Facilities</string>

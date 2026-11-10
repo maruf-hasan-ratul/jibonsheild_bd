@@ -69,7 +69,20 @@ public class FloodWarningDetailActivity extends BaseActivity {
 
         boolean isBangla = PreferenceUtils.LANG_BN.equals(PreferenceUtils.getLanguage(this));
         String title = isBangla ? warning.getTitleBn() : warning.getTitleEn();
+        if (title == null || title.trim().isEmpty()) {
+            title = isBangla ? warning.getTitleEn() : warning.getTitleBn();
+        }
+        if (title == null || title.trim().isEmpty()) {
+            title = warning.getRegion() + " Flood Alert";
+        }
+
         String body = isBangla ? warning.getDetailsBn() : warning.getDetailsEn();
+        if (body == null || body.trim().isEmpty()) {
+            body = isBangla ? warning.getDetailsEn() : warning.getDetailsBn();
+        }
+        if (body == null || body.trim().isEmpty()) {
+            body = "No detailed description provided for this alert.";
+        }
 
         tvTitle.setText(title);
         tvRegion.setText(getString(R.string.label_warning_region) + " " + warning.getRegion());

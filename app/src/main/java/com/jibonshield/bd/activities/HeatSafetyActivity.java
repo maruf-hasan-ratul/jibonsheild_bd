@@ -53,10 +53,11 @@ public class HeatSafetyActivity extends BaseActivity {
     private void dialHotline(String phone) {
         try {
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone));
+            intent.setData(Uri.fromParts("tel", phone.trim(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (Exception e) {
-            Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Could not open phone dialer for " + phone, Toast.LENGTH_SHORT).show();
         }
     }
 }

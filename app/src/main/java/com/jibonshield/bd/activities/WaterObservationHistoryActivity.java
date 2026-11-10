@@ -184,30 +184,7 @@ public class WaterObservationHistoryActivity extends BaseActivity implements Wat
 
     @Override
     public void onObservationClick(WaterObservation observation) {
-        boolean isOwner = isObservationOwner(observation);
-        List<String> optionsList = new ArrayList<>();
-        optionsList.add(getString(R.string.obs_action_view_details));
-        if (isOwner) {
-            optionsList.add(getString(R.string.action_edit));
-            optionsList.add(getString(R.string.action_delete));
-        }
-
-        String[] options = optionsList.toArray(new String[0]);
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(observation.getLocationName())
-                .setItems(options, (dialog, which) -> {
-                    String selected = options[which];
-                    if (selected.equals(getString(R.string.obs_action_view_details))) {
-                        showObservationDetailsDialog(observation);
-                    } else if (selected.equals(getString(R.string.action_edit))) {
-                        openFormActivity(observation);
-                    } else if (selected.equals(getString(R.string.action_delete))) {
-                        confirmDeleteObservation(observation);
-                    }
-                })
-                .setNegativeButton(R.string.dialog_close, (dialog, which) -> dialog.dismiss())
-                .show();
+        showObservationDetailsDialog(observation);
     }
 
     private void showObservationDetailsDialog(WaterObservation observation) {

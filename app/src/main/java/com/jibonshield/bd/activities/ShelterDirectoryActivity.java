@@ -240,28 +240,30 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
         }
 
         try {
+            copyPhoneToClipboard(phone.trim(), false);
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone.trim()));
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            } else {
-                copyPhoneToClipboard(phone);
-            }
+            intent.setData(Uri.fromParts("tel", phone.trim(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            copyPhoneToClipboard(phone.trim(), true);
+            Toast.makeText(this, "No dialer application found. Phone number copied to clipboard.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            copyPhoneToClipboard(phone);
+            copyPhoneToClipboard(phone.trim(), true);
         }
     }
 
-    private void copyPhoneToClipboard(String phone) {
+    private void copyPhoneToClipboard(String phone, boolean showToast) {
         try {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboard != null) {
                 ClipData clip = ClipData.newPlainText("Shelter Phone", phone);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+                if (showToast) {
+                    Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (Exception ignored) {
-            Toast.makeText(this, getString(R.string.toast_dialer_opened, phone), Toast.LENGTH_SHORT).show();
         }
     }
 

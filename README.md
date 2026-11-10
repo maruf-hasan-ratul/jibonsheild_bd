@@ -1,72 +1,104 @@
 # JibonShield BD (জীবনশীল্ড বিডি)
-### Offline-First Disaster Emergency Resilience, Android System Integration & Cloud Synchronized Application
+### Offline-First Disaster Emergency Resilience, Android System Integration & Real-Time Cloud Telemetry
 
-[![Android Build](https://img.shields.io/badge/Android-SDK%2021--33-brightgreen.svg)](https://developer.android.com)
+[![Android Build](https://img.shields.io/badge/Android-SDK%2021--34-brightgreen.svg)](https://developer.android.com)
 [![Platform](https://img.shields.io/badge/Platform-Java%208%20%2F%20Android%20Jetpack-blue.svg)](https://developer.android.com)
 [![Tests](https://img.shields.io/badge/Tests-69%2F69%20Passing%20(100%25)-success.svg)](https://junit.org)
-[![Offline First](https://img.shields.io/badge/Architecture-Offline--First%20SQLite-orange.svg)](https://sqlite.org)
-[![Firebase](https://img.shields.io/badge/Cloud-Firebase%20Auth%20%7C%20Firestore%20%7C%20RTDB%20%7C%20Storage-yellow.svg)](https://firebase.google.com)
+[![Offline First](https://img.shields.io/badge/Architecture-Offline--First%20SQLite%203-orange.svg)](https://sqlite.org)
+[![Cloud Hybrid](https://img.shields.io/badge/Cloud-Firestore%20%2B%20RTDB%20%2B%20Storage-yellow.svg)](https://firebase.google.com)
 [![ViewBinding](https://img.shields.io/badge/UI-ViewBinding%20%2B%20Material3-blueviolet.svg)](https://developer.android.com/topic/libraries/view-binding)
-[![License](https://img.shields.io/badge/License-Academic%20%2F%20Open-lightgrey.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT%20Academic-lightgrey.svg)](LICENSE)
 
 ---
 
-## 1. Project Introduction & Purpose
-**JibonShield BD (জীবনশীল্ড বিডি)** is an offline-first disaster emergency resilience and environmental safety Android application engineered specifically for the disaster-prone geographical realities of Bangladesh.
+## 1. Project Introduction & Mission
+**JibonShield BD (জীবনশীল্ড বিডি)** is an enterprise-grade, offline-first disaster emergency resilience and citizen environmental safety Android application engineered specifically for Bangladesh's extreme climate-vulnerability profile.
 
-During acute monsoon flooding, coastal cyclones, riverbank erosion, extreme heatwaves, or drinking water contamination, critical telecommunications infrastructure often experiences brownouts or congestion. JibonShield BD ensures that **100% of essential life-preserving information and field reporting tools remain accessible offline** using an embedded SQLite database as the primary local source of truth. When internet connectivity is detected, safe cloud synchronization extends the application using Google Firebase Authentication, Cloud Firestore, Firebase Realtime Database, Firebase Cloud Storage, and Android WorkManager.
+During catastrophic monsoon inundations, coastal tropical cyclones, tidal surges, riverbank erosion, or acute heatwaves, traditional cellular backhauls, broadband access, and municipal power grids suffer severe brownouts or total collapse. JibonShield BD guarantees that **100% of vital life-preserving information remains immediately available on-device without internet access** using an embedded SQLite database as the local source of truth.
 
----
-
-## 2. Problem Statement
-Bangladesh ranks among the most climate-vulnerable nations globally. Millions of residents across the Sylhet Haor basin, coastal belts, and river char areas regularly confront:
-1. Complete breakdown of cellular communication during flash floods and cyclones.
-2. Inability to locate verified cyclone or flood refuge shelters with confirmed capacity, drinking water, and accessibility.
-3. Lack of rapid one-tap dialing access to national emergency helplines without searching online.
-4. Post-flood drinking water contamination causing severe waterborne disease outbreaks.
-5. Inability to document and capture photographic field observations of water quality without internet.
-6. Heatstroke emergencies during summer heatwaves without clear triage cooling protocols.
+When connectivity is detected, the application synchronizes seamlessly with **Google Firebase** using a clean separation of concerns:
+- **Cloud Firestore**: Persistent master catalog of static directories (64 districts, upazilas, shelters, disaster warning bulletins, user profiles).
+- **Firebase Realtime Database (RTDB)**: Low-latency dynamic operational telemetry (live shelter occupancy tracking, emergency incident broadcast ticker, volunteer squad availability).
+- **Firebase Cloud Storage**: Field photo evidence storage for community water quality observations.
+- **AndroidX WorkManager**: Resilient background synchronization with zero data loss.
 
 ---
 
-## 3. Project Objectives
-* **Absolute Offline Availability**: Instant access to flood bulletins, 64-district shelter directory, and disaster helplines with zero network dependency.
-* **Dual Persistence Architecture**: SQLite provides the local source of truth; Firebase extends the system with cloud identity, real-time alerts, and evidence photo storage.
-* **Android System Integration**: Demonstrate practical implementations of Broadcast Receivers (Airplane Mode, Battery Saver), Foreground Services (Emergency Monitoring Mode), Content Providers / Photo Picker, and WorkManager background tasks.
-* **Modern Java Architecture**: Type-safe View Binding, multi-Activity navigation with explicit and implicit intents, and dynamic RecyclerView list filtering.
-* **Bilingual Inclusivity**: 100% complete English and Bengali (বাংলা) localization with runtime language switching.
+## 2. Core Problem & Real-World Context
+Bangladesh is one of the world's most climate-vulnerable countries. Tens of millions of residents throughout the Sylhet Haor basin, coastal belts (Barishal, Khulna, Chattogram), and Brahmaputra/Jamuna river char areas regularly confront:
+1. **Network Blackouts**: Complete cellular failures during peak flood crests and cyclone landfalls.
+2. **Refuge Information Gap**: Inability to locate verified cyclone or flood shelters with confirmed capacity, water supply, and disability ramps.
+3. **Emergency Call Failures**: Inability to rapidly dial verified national emergency helplines without searching online or suffering clipboard failures.
+4. **Post-Flood Drinking Water Crisis**: Contaminated tubewells triggering catastrophic cholera, typhoid, and acute diarrhea outbreaks.
+5. **Field Reporting Inability**: Inability to record, capture photographic evidence, and queue field water safety reports while completely offline.
+6. **Summer Heat Extremes**: Lethal heatstroke spikes during April–June without localized triage and cooling protocols.
 
 ---
 
-## 4. Target Users
-1. **Citizens & Rural Communities**: Families living in flood-prone and cyclone-exposed districts.
-2. **Disaster Management Volunteers**: Field observers and Red Crescent volunteers collecting field data.
-3. **Local Emergency Response Teams**: Personnel managing shelter occupancy and evacuee intake.
-4. **Community Water Quality Observers**: Volunteers monitoring tubewell safety and turbidity post-disaster.
+## 3. High-Level Architectural Highlights
+
+### 3.1 One-Tap Native System Phone Dialing
+* **Direct Implicit Intent**: Tapping any hotline or shelter contact triggers `Intent.ACTION_DIAL` with `Uri.fromParts("tel", phone, null)`.
+* **Android 11+ (API 30+) Package Visibility**: Fully declared `<queries>` in `AndroidManifest.xml` targeting the `tel:` URI scheme, preventing package visibility blocks and `resolveActivity()` null-pointer pitfalls.
+* **Instant Dialer Launch**: Opens the device's native dialer app pre-populated with the target emergency hotline (e.g., `999`, `1090`, `16263`, `109`, `333`), allowing instant emergency calls with zero friction.
+* **Non-Blocking Clipboard Sync**: Automatically and transparently places the phone number into the device clipboard in the background without blocking the dialer screen.
+* **Graceful Fallback**: If running on a non-telephony tablet without a phone dialer app, catches `ActivityNotFoundException` and provides a clipboard notice.
+
+### 3.2 Dual-Tier Database Architecture & Separation of Concerns
+To ensure high performance and prevent data duplication between cloud databases:
+* **Cloud Firestore (Master Directory & User Records)**:
+  - `districts/`: 64 administrative districts categorized by divisions.
+  - `upazilas/`: 495+ sub-districts linked to their respective districts.
+  - `shelters/`: Comprehensive shelter facilities with verified geographic coordinates, capacities, water access, and accessibility features.
+  - `disaster_updates/`: Official bulletins verified against Flood Forecasting and Warning Centre (FFWC) and Bangladesh Meteorological Department (BMD).
+  - `water_observations/`: Community tubewell field submissions with photo links.
+  - `users/`: Secure user profiles with role attributes (`CITIZEN` vs. `VOLUNTEER`).
+* **Firebase Realtime Database (Dynamic Telemetry)**:
+  - `/shelter_occupancy/{shelter_id}`: Real-time capacity vs. current intake count (`capacity`, `occupancy`, `lastUpdated`). Read-only for standard citizens, live-synced to `ShelterDetailActivity`.
+  - `/emergency_status/`: Real-time emergency incident alerts displayed in the `MainActivity` broadcast banner.
+  - `/volunteer_status/`: Real-time deployment status of emergency response squads.
+
+### 3.3 Author-Only Edit & Delete Security for Water Observations
+* **Strict Ownership Validation**: Community water observations can only be edited or removed by the author who originally logged the entry.
+* **Multi-Account Integrity**: Compares current Firebase Auth UID / local reporter identifier against `observation.getReportedBy()`. Unauthorized users are barred from editing or deleting peer reports.
+* **Comprehensive Observation Details Dialog**: Tapping any observation card opens an inspection modal displaying all 12 observation parameters:
+  - Source type (Tubewell, Pond, River, Piped, Rainwater)
+  - Color, appearance, and odor classification
+  - Measured pH level and turbidity status
+  - Health safety rating (Safe / Caution / Contaminated)
+  - Location, district, and coordinates
+  - Observer identity and reporting timestamp
+  - Full photographic field evidence
+
+### 3.4 Android System Components & Resilience
+* **Airplane Mode Detection**: Dynamically registered `AirplaneModeReceiver` informs the user of active offline isolation and prevents battery drain from futile network calls.
+* **Battery Saver Mode**: Dynamically registered `BatterySaverReceiver` throttles background polling during power-restricted conditions.
+* **Emergency Monitoring Service**: Persistent foreground service with high-priority ongoing notification and a one-tap "Stop Monitoring" action.
+* **Photo Picker Integration**: Modern Android `PickVisualMedia` contract with local stream cloning to internal storage for offline persistence.
 
 ---
 
-## 5. Technology Stack
+## 4. Technology Stack & Dependencies
 
 | Component | Technology | Version / Implementation |
 |---|---|---|
-| **Programming Language** | Java | Java 8 (`VERSION_1_8`) |
-| **UI Architecture** | XML Layouts + View Binding | ConstraintLayout 2.1.4, Material Components 1.8.0 |
-| **Local Database** | SQLite | `SQLiteOpenHelper` (Version 3 schema) |
-| **Cloud Authentication** | Firebase Authentication | Email/Password with Citizen & Volunteer roles |
-| **Realtime Cloud Data** | Firebase Realtime Database | Live disaster broadcasts & shelter occupancy |
-| **Structured Cloud Data** | Cloud Firestore | Users, observations, and incident history |
-| **Media Storage** | Firebase Storage | Water observation evidence photos (5MB max) |
-| **Background Synchronization**| AndroidX WorkManager | `work-runtime:2.8.1` (`EmergencySyncWorker`) |
-| **Persistent User Task** | Android Foreground Service | `EmergencyMonitoringService` with NotificationChannel |
-| **System Broadcasts** | Broadcast Receivers | `AirplaneModeReceiver`, `BatterySaverReceiver` |
-| **Device Media** | Photo Picker / ContentResolver | `PickVisualMedia` with local stream persistence |
-| **Networking** | Native HTTP | `HttpURLConnection` with strict JSON schema validator |
-| **Automated Testing** | JUnit 4 + AndroidX Test | 69 Unit Tests (100% passing) |
+| **Language** | Java | Java 8 (`VERSION_1_8`) |
+| **Android SDK** | Min SDK 21, Target SDK 33, Compile SDK 34 | Full backward compatibility to Android 5.0 |
+| **UI Framework** | XML Layouts + View Binding | Material Components 1.8.0, ConstraintLayout 2.1.4 |
+| **Local Database** | Embedded SQLite | `SQLiteOpenHelper` (Schema Version 3) |
+| **Cloud Authentication**| Firebase Authentication | Email/Password with Citizen and Volunteer roles |
+| **Master Cloud Data** | Cloud Firestore | Structured directory documents and user data |
+| **Realtime Telemetry** | Firebase Realtime Database | Live shelter occupancy & emergency incident stream |
+| **Evidence Media** | Firebase Cloud Storage | Water observation photographs |
+| **Background Sync** | AndroidX WorkManager | `work-runtime:2.8.1` (`EmergencySyncWorker`) |
+| **System Services** | Android Foreground Service | `EmergencyMonitoringService` (`dataSync` type) |
+| **System Receivers** | Broadcast Receivers | `AirplaneModeReceiver`, `BatterySaverReceiver` |
+| **Image Loading** | Glide | `glide:4.15.1` with disk caching |
+| **Testing Suite** | JUnit 4 + AndroidX Test | 69 Automated Unit Tests (100% Pass Rate) |
 
 ---
 
-## 6. Architecture Overview
+## 5. System Architecture Diagram
 
 ```
                                   +------------------------------------+
@@ -88,35 +120,35 @@ Bangladesh ranks among the most climate-vulnerable nations globally. Millions of
     |      (SQLite / DatabaseHelper)       |                   |  (Firebase SDKs & WorkManager Sync)  |
     |                                      |                   |                                      |
     | - emergency_contacts (Verified)      | <--- Two-Way ---> | - FirebaseAuthManager (Auth & Role)  |
-    | - flood_warnings (FFWC Bulletins)    |    Sync Pass      | - FirestoreManager (Structured Data) |
-    | - shelters (64 Districts Directory)  |                   | - RealtimeDatabaseManager (Live)     |
+    | - flood_warnings (FFWC Bulletins)    |    Sync Pass      | - FirestoreManager (Static Catalog)  |
+    | - shelters (64 Districts Directory)  |                   | - RealtimeDatabaseManager (Live RTDB)|
     | - water_observations (Image URI/URL) |                   | - FirebaseStorageManager (Photos)    |
     | - preparedness_checklists            |                   | - EmergencySyncWorker (Background)   |
     +--------------------------------------+                   +--------------------------------------+
                        ^                                                          ^
                        |                                                          |
     +------------------+-------------------+                   +------------------+-------------------+
-    |      Android System Components       |                   |       Native HTTP Networking         |
-    | - AirplaneModeReceiver (Offline mode)|                   | - NetworkHttpClient                  |
-    | - BatterySaverReceiver (Power save)  |                   | - RemoteDataValidator (JSON schema)  |
-    | - EmergencyMonitoringService (Notif) |                   | - HttpURLConnection (DNS timeouts)   |
+    |      Android System Components       |                   |      Dialer & System Integration     |
+    | - AirplaneModeReceiver (Offline mode)|                   | - Intent.ACTION_DIAL (One-Tap Call)  |
+    | - BatterySaverReceiver (Power save)  |                   | - <queries> Package Visibility (API 30+)
+    | - EmergencyMonitoringService (Notif) |                   | - Photo Picker (PickVisualMedia)     |
     +--------------------------------------+                   +--------------------------------------+
 ```
 
 ---
 
-## 7. Folder Structure
+## 6. Project Directory Structure
 
 ```
-JIBONSHIELD BD/
+JIBONSHEILD BD/
 ├── app/
-│   ├── google-services.json            # Firebase configuration
-│   ├── build.gradle                    # App build features (ViewBinding, BOM, WorkManager)
+│   ├── google-services.json            # Firebase configuration file
+│   ├── build.gradle                    # Dependencies, ViewBinding, SDK versions
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── AndroidManifest.xml     # Manifest declarations, permissions, services
+│   │   │   ├── AndroidManifest.xml     # Permissions, queries, activities, services
 │   │   │   ├── java/com/jibonshield/bd/
-│   │   │   │   ├── JibonShieldApp.java
+│   │   │   │   ├── JibonShieldApp.java # Application singleton & channels
 │   │   │   │   ├── activities/
 │   │   │   │   │   ├── BaseActivity.java
 │   │   │   │   │   ├── SplashActivity.java
@@ -180,10 +212,10 @@ JIBONSHIELD BD/
 │   │   │   │       ├── PermissionUtils.java
 │   │   │   │       └── PreferenceUtils.java
 │   │   │   └── res/
-│   │   │       ├── layout/             # View Binding XML layouts
+│   │   │       ├── layout/             # 17 View Binding XML layouts
 │   │   │       ├── values/strings.xml  # Complete English localization strings
 │   │   │       ├── values-bn/          # Complete Bengali (বাংলা) localization
-│   │   │       └── drawable/           # Vector assets & backgrounds
+│   │   │       └── drawable/           # Vector icons & emergency styling
 │   │   └── test/java/com/jibonshield/bd/
 │   │       ├── Day2VerificationTest.java       (6 tests)
 │   │       ├── Day3DatabaseTest.java           (13 tests)
@@ -203,122 +235,119 @@ JIBONSHIELD BD/
 
 ---
 
-## 8. Complete Activity Navigation Flow
+## 7. Complete Activity Map & Navigation Flow
 
-1. **`SplashActivity`**: Verifies database readiness, applies selected language, and launches `MainActivity`.
-2. **`MainActivity`**: Core command center. Displays live SQLite counts (alerts, shelters, helplines, kit readiness), network status banner, broadcast notices, Emergency Monitoring trigger, and navigation tiles.
-3. **`LoginActivity`**: Email and password sign-in with View Binding, field validation, and guest offline access mode.
-4. **`RegisterActivity`**: Account creation supporting Citizen vs Volunteer role distinction and home district selection.
-5. **`ProfileActivity`**: Displays user identity, role safety badge, and secure sign-out.
-6. **`FloodWarningListActivity`**: Lists flood bulletins with severity filtering (`CRITICAL`, `WARNING`, `ADVISORY`, `NORMAL`) and stale-cache warnings.
-7. **`FloodWarningDetailActivity`**: Full river basin, danger levels, and official bulletin references.
-8. **`ShelterDirectoryActivity`**: Instant local search across 64 districts with upazila, capacity, and facility filtering.
-9. **`ShelterDetailActivity`**: Detailed shelter breakdown (ramps, women's spaces, drinking water, electricity).
-10. **`EmergencyContactsActivity`**: Pre-seeded national disaster helplines with safe implicit `ACTION_DIAL` intent launching.
-11. **`WaterObservationFormActivity`**: Field observation entry form with Android Photo Picker, local stream caching, and pH validation.
-12. **`WaterObservationHistoryActivity`**: Searchable/filterable log of community water observations with attached photo previews.
-13. **`HeatSafetyActivity`**: WHO/DGHS heat safety matrix, heatstroke emergency cooling protocols, and 999 hotline calling.
-14. **`EvacuationGuidelinesActivity`**: Pre-, during-, and post-disaster guidelines in English and Bengali.
-15. **`PreparednessChecklistActivity`**: Interactive checklist tracking supplies and vital documents with progress saving.
-16. **`SettingsActivity`**: Runtime language switching, district preference, and manual synchronization trigger.
-17. **`AboutActivity`**: Data provenance, government disclaimers, and version information.
-
----
-
-## 9. Local Database Schema & Provenance
-
-* **Database File**: `jibonshield.db`
-* **Version**: `3`
-
-### Tables
-1. **`flood_warnings`**: `_id`, `warning_level`, `title_en`, `title_bn`, `region`, `details_en`, `details_bn`, `issued_at`, `expires_at`, `source`, `source_reference`, `is_active`, `is_sample`, `last_synced_at`.
-2. **`shelters`**: `_id`, `name_en`, `name_bn`, `district`, `upazila`, `address`, `latitude`, `longitude`, `capacity`, `current_occupancy`, `contact_phone`, `shelter_type`, `accessibility_notes`, `source`, `verified_at`, `is_active`.
-3. **`emergency_contacts`**: `_id`, `service_name_en`, `service_name_bn`, `phone_number`, `service_description_en`, `service_description_bn`, `category`, `available_hours`, `is_toll_free`, `source`, `verification_date`, `is_enabled`, `priority_order`.
-4. **`water_observations`**: `_id`, `location_name`, `district`, `source_type`, `appearance`, `odor`, `ph_level`, `turbidity_status`, `safety_status`, `observation_time`, `reported_by`, `remarks`, `image_uri` (Local path), `image_url` (Cloud URL), `sync_status` (`PENDING`, `SYNCED`, `FAILED`), `created_at`, `updated_at`.
-5. **`preparedness_checklists` & `checklist_items`**: Foreign-key linked checklist tables with completion flags (`is_completed`).
-6. **`synchronization_metadata`**: Provenance tracking, record counts, and last synchronization timestamps.
+1. **`SplashActivity`**: Verifies database readiness, validates local seeds, loads active language preferences, and launches `MainActivity`.
+2. **`MainActivity`**: Core command hub. Displays real-time SQLite metric counters (active warnings, shelters, emergency hotlines, emergency kit preparedness percentage), live network status banner, real-time emergency broadcast ticker from RTDB, foreground service toggle, and navigation tiles.
+3. **`LoginActivity`**: Authentication portal with email and password verification, password visibility toggle, role check, and an explicit **Offline Guest Mode** for unauthenticated field access.
+4. **`RegisterActivity`**: Account registration supporting **Citizen** vs **Disaster Response Volunteer** roles, home district selection, and validation.
+5. **`ProfileActivity`**: Displays user identity, verified role badge, home district, sync statistics, and account management options.
+6. **`FloodWarningListActivity`**: Searchable flood bulletins categorized by severity (`CRITICAL`, `WARNING`, `ADVISORY`, `NORMAL`) with offline cache staleness notices.
+7. **`FloodWarningDetailActivity`**: Detailed hydrological breakdown, river basin danger marks, affected upazilas, and official FFWC source links.
+8. **`ShelterDirectoryActivity`**: Instant local search across 64 districts with upazila, facility, and capacity filters, plus one-tap shelter contact calling.
+9. **`ShelterDetailActivity`**: Comprehensive shelter information (lat/long, women's facilities, ramps, generator, drinking water) and **live real-time occupancy synchronization** from Firebase RTDB.
+10. **`EmergencyContactsActivity`**: Pre-seeded national disaster helplines with one-tap native phone dialer launching (`ACTION_DIAL`) and safe clipboard sync.
+11. **`WaterObservationFormActivity`**: Community field observation intake form with photo picker, local file stream persistence, pH validation, turbidity assessment, and safety classification.
+12. **`WaterObservationHistoryActivity`**: Searchable/filterable log of community water observations with attached photo previews, author-restricted edit/delete security, and detailed observation modal dialogs.
+13. **`HeatSafetyActivity`**: WHO/DGHS extreme heat index safety matrix, symptoms triage, emergency cooling procedures, and one-tap hotline calling.
+14. **`EvacuationGuidelinesActivity`**: Step-by-step pre-, during-, and post-disaster guidelines in English and Bengali.
+15. **`PreparednessChecklistActivity`**: Interactive disaster kit checklist tracking essential supplies and vital documents with persistent SQLite progress saving.
+16. **`SettingsActivity`**: Runtime language switching (English / বাংলা), default home district selection, and manual full synchronization trigger.
+17. **`AboutActivity`**: Data provenance, government disclaimers, open-source attributions, and software build metadata.
 
 ---
 
-## 10. Firebase Architecture & Security Rules
+## 8. Database Specifications
 
-### 10.1 Authentication (`FirebaseAuthManager.java`)
-* Email & Password registration and login.
-* Role-based profiles: `CITIZEN` and `VOLUNTEER`.
-* Guest Mode: Users can freely access public safety data without being forced to authenticate.
+### 8.1 SQLite Schema (Version 3)
+* **File**: `jibonshield.db`
+* **Schema Management**: Managed by `DatabaseHelper.java` extending `SQLiteOpenHelper`.
 
-### 10.2 Realtime Database (`RealtimeDatabaseManager.java`)
-* Real-time listeners for `emergency_status/` and `shelter_occupancy/`.
-* Synchronizes active flood incidents without manual page refreshing.
-
-### 10.3 Cloud Firestore (`FirestoreManager.java`)
-* Collections: `users`, `water_observations`, `disaster_reports`, `volunteer_reports`, `incident_history`.
-* Strict schema validation and timestamps.
-
-### 10.4 Firebase Storage (`FirebaseStorageManager.java`)
-* Uploads observation photos to `water_observations/obs_{id}.jpg`.
-* Retrieves public HTTPS download URLs for synchronization with Firestore and SQLite.
-
-### 10.5 Security Rules
-Production-grade security rules are provided in `firestore.rules`, `database.rules.json`, and `storage.rules`. Unauthenticated users can read public warnings, while only authenticated users can upload field reports and photos under strict MIME and 5MB size limits.
+1. **`flood_warnings`**:
+   `_id` (INTEGER PK), `warning_level` (TEXT), `title_en` (TEXT), `title_bn` (TEXT), `region` (TEXT), `details_en` (TEXT), `details_bn` (TEXT), `issued_at` (INTEGER), `expires_at` (INTEGER), `source` (TEXT), `source_reference` (TEXT), `is_active` (INTEGER), `is_sample` (INTEGER), `last_synced_at` (INTEGER).
+2. **`shelters`**:
+   `_id` (INTEGER PK), `name_en` (TEXT), `name_bn` (TEXT), `district` (TEXT), `upazila` (TEXT), `address` (TEXT), `latitude` (REAL), `longitude` (REAL), `capacity` (INTEGER), `current_occupancy` (INTEGER), `contact_phone` (TEXT), `shelter_type` (TEXT), `accessibility_notes` (TEXT), `source` (TEXT), `verified_at` (TEXT), `is_active` (INTEGER).
+3. **`emergency_contacts`**:
+   `_id` (INTEGER PK), `service_name_en` (TEXT), `service_name_bn` (TEXT), `phone_number` (TEXT), `service_description_en` (TEXT), `service_description_bn` (TEXT), `category` (TEXT), `available_hours` (TEXT), `is_toll_free` (INTEGER), `source` (TEXT), `verification_date` (TEXT), `is_enabled` (INTEGER), `priority_order` (INTEGER).
+4. **`water_observations`**:
+   `_id` (INTEGER PK AUTOINCREMENT), `location_name` (TEXT), `district` (TEXT), `source_type` (TEXT), `appearance` (TEXT), `odor` (TEXT), `ph_level` (REAL), `turbidity_status` (TEXT), `safety_status` (TEXT), `observation_time` (INTEGER), `reported_by` (TEXT), `remarks` (TEXT), `image_uri` (TEXT), `image_url` (TEXT), `sync_status` (TEXT), `created_at` (INTEGER), `updated_at` (INTEGER).
+5. **`preparedness_checklists` & `checklist_items`**:
+   Disaster emergency kit items with item descriptions, categories, and completion state.
+6. **`synchronization_metadata`**:
+   Keeps record counts and synchronization timestamps for offline staleness detection.
 
 ---
 
-## 11. Android System Components Integration
+## 9. Cloud Security Rules & Schemas
 
-### 11.1 Airplane Mode Receiver (`AirplaneModeReceiver.java`)
-* Dynamically registered to listen for `Intent.ACTION_AIRPLANE_MODE_CHANGED`.
-* When enabled: Informs the user that the application is operating in 100% offline mode and suppresses unnecessary network retries.
-* When disabled: Re-verifies actual internet reachability before resuming cloud synchronization.
+### 9.1 Cloud Firestore (`firestore.rules`)
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public directory data is read-only to all users
+    match /districts/{districtId} { allow read: if true; allow write: if false; }
+    match /upazilas/{upazilaId} { allow read: if true; allow write: if false; }
+    match /shelters/{shelterId} { allow read: if true; allow write: if false; }
+    match /disaster_updates/{updateId} { allow read: if true; allow write: if false; }
 
-### 11.2 Battery Saver Receiver (`BatterySaverReceiver.java`)
-* Dynamically registered to monitor `PowerManager.ACTION_POWER_SAVE_MODE_CHANGED`.
-* When active: Displays power-saving status and instructs background tasks to conserve battery.
+    // User profiles are readable and editable by their owner
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
 
-### 11.3 Device Media & Content Provider (`WaterObservationFormActivity.java`)
-* Integrates Android Photo Picker (`ActivityResultContracts.PickVisualMedia`) with `ACTION_OPEN_DOCUMENT` fallback.
-* Reads media streams via `ContentResolver` and persists a managed local copy via `FileUtils` to maintain offline availability.
+    // Water observations: readable by all, author-only modify/delete
+    match /water_observations/{obsId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        (resource.data.reported_by == request.auth.uid || resource.data.reported_by == request.auth.token.email);
+    }
+  }
+}
+```
 
-### 11.4 Emergency Monitoring Foreground Service (`EmergencyMonitoringService.java`)
-* Creates a persistent high-priority notification channel (`channel_emergency_monitoring`).
-* Displays a user-visible notification with a one-tap **Stop Monitoring** action button.
-* Uses `android:foregroundServiceType="dataSync"` complying with Android 13/14 requirements.
+### 9.2 Realtime Database (`database.rules.json`)
+```json
+{
+  "rules": {
+    "shelter_occupancy": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "emergency_status": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "volunteer_status": {
+      ".read": true,
+      ".write": "auth != null"
+    }
+  }
+}
+```
+
+### 9.3 Firebase Cloud Storage (`storage.rules`)
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /water_observations/{imageId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+                   request.resource.size < 5 * 1024 * 1024 &&
+                   request.resource.contentType.matches('image/.*');
+    }
+  }
+}
+```
 
 ---
 
-## 12. Offline-First Background Synchronization (`EmergencySyncWorker.java`)
+## 10. Automated Testing & Verification
 
-1. Scheduled via WorkManager with `NetworkType.CONNECTED` constraints.
-2. Identifies pending SQLite records (`sync_status != 'SYNCED'`).
-3. Uploads evidence photos to Firebase Cloud Storage.
-4. Saves structured observation data to Cloud Firestore.
-5. Updates local SQLite status to `SYNC_SYNCED` with cloud image URL.
-6. Invokes `SyncManager.syncAll()` to refresh warnings and shelter occupancy.
-7. **Zero Data Loss Guarantee**: Local records are never deleted if a network request fails.
-
----
-
-## 13. Security and Permission Management
-
-Declared in `AndroidManifest.xml`:
-* `android.permission.INTERNET`: Cloud synchronization with Firebase and official portals.
-* `android.permission.ACCESS_NETWORK_STATE`: Pre-flight connectivity verification.
-* `android.permission.FOREGROUND_SERVICE`: Persistent emergency monitoring service.
-* `android.permission.POST_NOTIFICATIONS`: Android 13+ runtime notification permissions requested contextually via `PermissionUtils.java`.
-
----
-
-## 14. Responsive Layouts & Orientation
-* Hardcoded portrait locks removed from `AndroidManifest.xml` across all feature activities.
-* Layouts wrapped in `NestedScrollView` preventing viewport clipping in landscape mode.
-* Form input states and timestamps preserved across device rotation via `onSaveInstanceState`.
-
----
-
-## 15. Testing & Quality Assurance
-
-### Automated Unit Test Summary
-The project contains **69 automated unit tests** passing with **zero failures**:
+The test harness contains **69 comprehensive unit tests** testing business logic, persistence, and synchronization:
 
 ```bash
 cmd /c "gradlew.bat testDebugUnitTest --rerun-tasks"
@@ -333,74 +362,50 @@ cmd /c "gradlew.bat testDebugUnitTest --rerun-tasks"
 | `Day6IntegrationTest` | 14 | 0 | 0 | **PASSED** |
 | `Day7ReleaseVerificationTest` | 7 | 0 | 0 | **PASSED** |
 | `Day8SystemComponentsTest` | 3 | 0 | 0 | **PASSED** |
-| `Day9FirebaseAuthAndModelTest`| 2 | 0 | 0 | **PASSED** |
+| `Day9FirebaseAuthAndModelTest` | 2 | 0 | 0 | **PASSED** |
 | `Day10SyncAndStorageTest` | 2 | 0 | 0 | **PASSED** |
 | **Total** | **69** | **0** | **0** | **100% PASSED** |
 
 ---
 
-## 16. APK Build & Verification
+## 11. Compilation & Deployment
 
-### Compiling Debug APK
+### Build Debug APK
 ```bash
-gradlew.bat assembleDebug
+./gradlew assembleDebug
+```
+* **Output Path**: `app/build/outputs/apk/debug/app-debug.apk`
+* **Package Name**: `com.jibonshield.bd`
+* **Size**: ~12 MB
+* **Target OS Range**: Android 5.0 (Lollipop / API 21) through Android 14/15 (API 34)
+
+### Install via ADB to Connected Device
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-* **Verified Output Path**: `app/build/outputs/apk/debug/app-debug.apk`
-* **Package Name**: `com.jibonshield.bd`
-* **File Size**: ~10.2 MB (10,713,870 bytes)
-* **SDK Compatibility**: Android 5.0 (API 21) – Android 13 (API 33)
+---
+
+## 12. Academic Presentation Script & Live Demonstration Workflow
+
+### Part 1: Problem Space & Offline Core (2 minutes)
+* **Opening**: "Bangladesh experiences recurrent climate extremes where cellular infrastructure and electricity collapse. JibonShield BD ensures 100% of life-critical disaster information remains available offline."
+* **Live Demo**: Enable **Airplane Mode** on the phone. Launch JibonShield BD. Demonstrate that flood bulletins, the 64-district shelter directory, and disaster contacts load immediately from local SQLite.
+
+### Part 2: One-Tap Emergency Calling & Shelters (2 minutes)
+* **Hotlines Demo**: Open **Emergency Contacts**. Tap the "Call Now" button on the **999** or **1090** card. Show that it immediately launches the phone's native dialer with the number pre-filled.
+* **Shelters Demo**: Open **Shelter Directory**. Filter by "Sylhet" or "Feni". Open a shelter to show its facilities, coordinates, and **live real-time occupancy synchronization** from RTDB.
+
+### Part 3: Field Water Observation & Author Ownership (3 minutes)
+* **Photo & Form**: Open **Water Observation Form**. Attach a photo of a water source using the photo picker, enter observation details (pH 7.2, clear, odorless, tubewell), and save offline.
+* **Details Modal**: Tap the observation in **Observation History** to open the 12-parameter inspection dialog with photo evidence.
+* **Author Security**: Switch accounts or demonstrate that non-author accounts cannot edit or delete reports filed by another volunteer.
+
+### Part 4: Android System Services & Broadcasts (2 minutes)
+* **Foreground Service**: On the dashboard, tap "Start Emergency Monitoring". Pull down the system notification shade to display the persistent notification and demonstrate the one-tap "Stop Monitoring" button.
+* **Broadcast Receivers**: Demonstrate the airplane mode and battery saver state indicators.
 
 ---
 
-## 17. Firebase Configuration Instructions
-
-To connect your own Firebase project:
-1. Open the [Firebase Console](https://console.firebase.google.com).
-2. Create a project named `jibonshield-bd`.
-3. Add an Android app with package name `com.jibonshield.bd`.
-4. Enable **Authentication** (Email/Password provider).
-5. Enable **Cloud Firestore** and deploy `firestore.rules`.
-6. Enable **Realtime Database** and deploy `database.rules.json`.
-7. Enable **Cloud Storage** and deploy `storage.rules`.
-8. Download `google-services.json` and replace `app/google-services.json`.
-
----
-
-## 18. Academic Presentation Script & Live Demonstration Workflow
-
-### Part 1: Application Purpose & Identity (2 minutes)
-* **Opening**: "JibonShield BD is an offline-first disaster emergency resilience application for Bangladesh, maintaining life-safety information even when mobile networks and power grids collapse."
-* **Offline Demonstration**: Put device into **Airplane Mode**. Show that flood warnings, 64-district shelters, and disaster helplines load instantly from SQLite without network latency.
-
-### Part 2: Architecture & Navigation (2 minutes)
-* **Activities & Intents**: Demonstrate explicit navigation from Dashboard to Shelters, Water Observations, and Settings.
-* **Implicit Intent**: Click the 999 hotline in Emergency Contacts to launch the system phone dialer (`ACTION_DIAL`) without dialing without permission.
-* **View Binding**: Explain how generated binding classes eliminate `findViewById` and prevent null pointer exceptions.
-
-### Part 3: UI Layouts & Lists (2 minutes)
-* **RecyclerView & Filters**: Demonstrate live filtering in the Shelter Directory by typing a district name (e.g., "Sylhet" or "Chandpur").
-* **Rotation**: Rotate the device to landscape mode, showing that the layout does not clip and form data is preserved.
-
-### Part 4: Android System Components (3 minutes)
-1. **Airplane Mode Receiver**: Toggle Airplane Mode on/off in quick settings; point out the dynamic status update in the dashboard banner.
-2. **Battery Saver Receiver**: Toggle Battery Saver; show the power-saving warning in the UI.
-3. **Photo Picker & Media**: Open the Water Observation Form, click "Add Photo", select an image, show the preview, and save the record.
-4. **Foreground Service**: Tap "Start Emergency Monitoring" on the dashboard; pull down the Android notification drawer to show the persistent ongoing notification and tap "Stop Monitoring" to stop the service.
-
-### Part 5: Firebase & Cloud Synchronization (2 minutes)
-* **Authentication**: Register a new user as an "Emergency Response Volunteer" and view their profile.
-* **Storage & Firestore**: Show that saving an observation queues the image and data for synchronization to Firebase Storage and Firestore via WorkManager.
-
----
-
-## 19. Known Limitations & Future Roadmap
-* **Official Government APIs**: FFWC and BMD do not currently offer public unauthenticated REST APIs. JibonShield BD uses verified baseline seeds and modular HTTP client adapters ready for official API integration when released.
-* **Offline Map Tiles**: Future versions will bundle offline vector map tiles for GPS shelter routing without Google Maps internet access.
-* **Bluetooth Mesh**: Exploring BLE mesh for direct device-to-device alerts in communication blackout zones.
-
----
-
-## 20. License
-Developed for Academic Android Integration, Advanced Software Engineering & Disaster Risk Reduction Demonstration.
-Distributed under the MIT Academic License.
+## 13. License & Academic Attribution
+Developed as an advanced academic and humanitarian engineering initiative for Disaster Risk Reduction (DRR) in Bangladesh. Distributed under the MIT Academic License.
