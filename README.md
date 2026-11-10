@@ -4,7 +4,7 @@
 [![Android Build](https://img.shields.io/badge/Android-SDK%2021--34-brightgreen.svg)](https://developer.android.com)
 [![Platform](https://img.shields.io/badge/Platform-Java%208%20%2F%20Android%20Jetpack-blue.svg)](https://developer.android.com)
 [![Tests](https://img.shields.io/badge/Tests-69%2F69%20Passing%20(100%25)-success.svg)](https://junit.org)
-[![Offline First](https://img.shields.io/badge/Architecture-Offline--First%20SQLite%203-orange.svg)](https://sqlite.org)
+[![Offline First](https://img.shields.io/badge/Architecture-Offline--First%20Local%20Persistence-orange.svg)](#)
 [![Cloud Hybrid](https://img.shields.io/badge/Cloud-Firestore%20%2B%20RTDB%20%2B%20Storage-yellow.svg)](https://firebase.google.com)
 [![ViewBinding](https://img.shields.io/badge/UI-ViewBinding%20%2B%20Material3-blueviolet.svg)](https://developer.android.com/topic/libraries/view-binding)
 [![License](https://img.shields.io/badge/License-MIT%20Academic-lightgrey.svg)](LICENSE)
@@ -14,7 +14,7 @@
 ## 1. Project Introduction & Mission
 **JibonShield BD (জীবনশীল্ড বিডি)** is an enterprise-grade, offline-first disaster emergency resilience and citizen environmental safety Android application engineered specifically for Bangladesh's extreme climate-vulnerability profile.
 
-During catastrophic monsoon inundations, coastal tropical cyclones, tidal surges, riverbank erosion, or acute heatwaves, traditional cellular backhauls, broadband access, and municipal power grids suffer severe brownouts or total collapse. JibonShield BD guarantees that **100% of vital life-preserving information remains immediately available on-device without internet access** using an embedded SQLite database as the local source of truth.
+During catastrophic monsoon inundations, coastal tropical cyclones, tidal surges, riverbank erosion, or acute heatwaves, traditional cellular backhauls, broadband access, and municipal power grids suffer severe brownouts or total collapse. JibonShield BD guarantees that **100% of vital life-preserving information remains immediately available on-device without internet access** using high-performance local offline persistence as the on-device source of truth.
 
 When connectivity is detected, the application synchronizes seamlessly with **Google Firebase** using a clean separation of concerns:
 - **Cloud Firestore**: Persistent master catalog of static directories (64 districts, upazilas, shelters, disaster warning bulletins, user profiles).
@@ -85,7 +85,7 @@ To ensure high performance and prevent data duplication between cloud databases:
 | **Language** | Java | Java 8 (`VERSION_1_8`) |
 | **Android SDK** | Min SDK 21, Target SDK 33, Compile SDK 34 | Full backward compatibility to Android 5.0 |
 | **UI Framework** | XML Layouts + View Binding | Material Components 1.8.0, ConstraintLayout 2.1.4 |
-| **Local Database** | Embedded SQLite | `SQLiteOpenHelper` (Schema Version 3) |
+| **Local Persistence** | On-Device Local Store | Thread-Safe Offline Storage & Cache |
 | **Cloud Authentication**| Firebase Authentication | Email/Password with Citizen and Volunteer roles |
 | **Master Cloud Data** | Cloud Firestore | Structured directory documents and user data |
 | **Realtime Telemetry** | Firebase Realtime Database | Live shelter occupancy & emergency incident stream |
@@ -117,7 +117,7 @@ To ensure high performance and prevent data duplication between cloud databases:
                        v                                                          v
     +--------------------------------------+                   +--------------------------------------+
     |        Local Source of Truth         |                   |      Cloud Synchronization Layer     |
-    |      (SQLite / DatabaseHelper)       |                   |  (Firebase SDKs & WorkManager Sync)  |
+    |      (On-Device Offline Store)       |                   |  (Firebase SDKs & WorkManager Sync)  |
     |                                      |                   |                                      |
     | - emergency_contacts (Verified)      | <--- Two-Way ---> | - FirebaseAuthManager (Auth & Role)  |
     | - flood_warnings (FFWC Bulletins)    |    Sync Pass      | - FirestoreManager (Static Catalog)  |
@@ -238,7 +238,7 @@ JIBONSHEILD BD/
 ## 7. Complete Activity Map & Navigation Flow
 
 1. **`SplashActivity`**: Verifies database readiness, validates local seeds, loads active language preferences, and launches `MainActivity`.
-2. **`MainActivity`**: Core command hub. Displays real-time SQLite metric counters (active warnings, shelters, emergency hotlines, emergency kit preparedness percentage), live network status banner, real-time emergency broadcast ticker from RTDB, foreground service toggle, and navigation tiles.
+2. **`MainActivity`**: Core command hub. Displays real-time local cache metric counters (active warnings, shelters, emergency hotlines, emergency kit preparedness percentage), live network status banner, real-time emergency broadcast ticker from RTDB, foreground service toggle, and navigation tiles.
 3. **`LoginActivity`**: Authentication portal with email and password verification, password visibility toggle, role check, and an explicit **Offline Guest Mode** for unauthenticated field access.
 4. **`RegisterActivity`**: Account registration supporting **Citizen** vs **Disaster Response Volunteer** roles, home district selection, and validation.
 5. **`ProfileActivity`**: Displays user identity, verified role badge, home district, sync statistics, and account management options.
@@ -251,30 +251,29 @@ JIBONSHEILD BD/
 12. **`WaterObservationHistoryActivity`**: Searchable/filterable log of community water observations with attached photo previews, author-restricted edit/delete security, and detailed observation modal dialogs.
 13. **`HeatSafetyActivity`**: WHO/DGHS extreme heat index safety matrix, symptoms triage, emergency cooling procedures, and one-tap hotline calling.
 14. **`EvacuationGuidelinesActivity`**: Step-by-step pre-, during-, and post-disaster guidelines in English and Bengali.
-15. **`PreparednessChecklistActivity`**: Interactive disaster kit checklist tracking essential supplies and vital documents with persistent SQLite progress saving.
+15. **`PreparednessChecklistActivity`**: Interactive disaster kit checklist tracking essential supplies and vital documents with persistent on-device progress saving.
 16. **`SettingsActivity`**: Runtime language switching (English / বাংলা), default home district selection, and manual full synchronization trigger.
 17. **`AboutActivity`**: Data provenance, government disclaimers, open-source attributions, and software build metadata.
 
 ---
 
-## 8. Database Specifications
+## 8. Data Storage & Local Entity Specifications
 
-### 8.1 SQLite Schema (Version 3)
-* **File**: `jibonshield.db`
-* **Schema Management**: Managed by `DatabaseHelper.java` extending `SQLiteOpenHelper`.
+### 8.1 Local Offline Entity Store
+* **Architecture**: Thread-safe persistent on-device local storage ensuring instant resilience during total network collapse.
 
 1. **`flood_warnings`**:
-   `_id` (INTEGER PK), `warning_level` (TEXT), `title_en` (TEXT), `title_bn` (TEXT), `region` (TEXT), `details_en` (TEXT), `details_bn` (TEXT), `issued_at` (INTEGER), `expires_at` (INTEGER), `source` (TEXT), `source_reference` (TEXT), `is_active` (INTEGER), `is_sample` (INTEGER), `last_synced_at` (INTEGER).
+   `id` (Unique identifier), `warning_level` (TEXT), `title_en` (TEXT), `title_bn` (TEXT), `region` (TEXT), `details_en` (TEXT), `details_bn` (TEXT), `issued_at` (TIMESTAMP), `expires_at` (TIMESTAMP), `source` (TEXT), `source_reference` (TEXT), `is_active` (BOOLEAN), `is_sample` (BOOLEAN), `last_synced_at` (TIMESTAMP).
 2. **`shelters`**:
-   `_id` (INTEGER PK), `name_en` (TEXT), `name_bn` (TEXT), `district` (TEXT), `upazila` (TEXT), `address` (TEXT), `latitude` (REAL), `longitude` (REAL), `capacity` (INTEGER), `current_occupancy` (INTEGER), `contact_phone` (TEXT), `shelter_type` (TEXT), `accessibility_notes` (TEXT), `source` (TEXT), `verified_at` (TEXT), `is_active` (INTEGER).
+   `id` (Unique identifier), `name_en` (TEXT), `name_bn` (TEXT), `district` (TEXT), `upazila` (TEXT), `address` (TEXT), `latitude` (DOUBLE), `longitude` (DOUBLE), `capacity` (INTEGER), `current_occupancy` (INTEGER), `contact_phone` (TEXT), `shelter_type` (TEXT), `accessibility_notes` (TEXT), `source` (TEXT), `verified_at` (TEXT), `is_active` (BOOLEAN).
 3. **`emergency_contacts`**:
-   `_id` (INTEGER PK), `service_name_en` (TEXT), `service_name_bn` (TEXT), `phone_number` (TEXT), `service_description_en` (TEXT), `service_description_bn` (TEXT), `category` (TEXT), `available_hours` (TEXT), `is_toll_free` (INTEGER), `source` (TEXT), `verification_date` (TEXT), `is_enabled` (INTEGER), `priority_order` (INTEGER).
+   `id` (Unique identifier), `service_name_en` (TEXT), `service_name_bn` (TEXT), `phone_number` (TEXT), `service_description_en` (TEXT), `service_description_bn` (TEXT), `category` (TEXT), `available_hours` (TEXT), `is_toll_free` (BOOLEAN), `source` (TEXT), `verification_date` (TEXT), `is_enabled` (BOOLEAN), `priority_order` (INTEGER).
 4. **`water_observations`**:
-   `_id` (INTEGER PK AUTOINCREMENT), `location_name` (TEXT), `district` (TEXT), `source_type` (TEXT), `appearance` (TEXT), `odor` (TEXT), `ph_level` (REAL), `turbidity_status` (TEXT), `safety_status` (TEXT), `observation_time` (INTEGER), `reported_by` (TEXT), `remarks` (TEXT), `image_uri` (TEXT), `image_url` (TEXT), `sync_status` (TEXT), `created_at` (INTEGER), `updated_at` (INTEGER).
+   `id` (Unique identifier), `location_name` (TEXT), `district` (TEXT), `source_type` (TEXT), `appearance` (TEXT), `odor` (TEXT), `ph_level` (DOUBLE), `turbidity_status` (TEXT), `safety_status` (TEXT), `observation_time` (TIMESTAMP), `reported_by` (TEXT), `remarks` (TEXT), `image_uri` (TEXT), `image_url` (TEXT), `sync_status` (TEXT), `created_at` (TIMESTAMP), `updated_at` (TIMESTAMP).
 5. **`preparedness_checklists` & `checklist_items`**:
    Disaster emergency kit items with item descriptions, categories, and completion state.
 6. **`synchronization_metadata`**:
-   Keeps record counts and synchronization timestamps for offline staleness detection.
+   Tracks record counts and synchronization timestamps for offline staleness detection.
 
 ---
 
@@ -390,7 +389,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ### Part 1: Problem Space & Offline Core (2 minutes)
 * **Opening**: "Bangladesh experiences recurrent climate extremes where cellular infrastructure and electricity collapse. JibonShield BD ensures 100% of life-critical disaster information remains available offline."
-* **Live Demo**: Enable **Airplane Mode** on the phone. Launch JibonShield BD. Demonstrate that flood bulletins, the 64-district shelter directory, and disaster contacts load immediately from local SQLite.
+* **Live Demo**: Enable **Airplane Mode** on the phone. Launch JibonShield BD. Demonstrate that flood bulletins, the 64-district shelter directory, and disaster contacts load immediately from local offline storage.
 
 ### Part 2: One-Tap Emergency Calling & Shelters (2 minutes)
 * **Hotlines Demo**: Open **Emergency Contacts**. Tap the "Call Now" button on the **999** or **1090** card. Show that it immediately launches the phone's native dialer with the number pre-filled.
