@@ -79,5 +79,13 @@ public class Day9FirebaseAuthAndModelTest {
         assertEquals("Sylhet", map.get("district"));
         assertEquals(true, map.get("verified"));
     }
+
+    @Test
+    public void testFriendlyErrorMessageForDisabledOperation() {
+        Exception notAllowedException = new Exception("This operation is not allowed");
+        String friendly = com.jibonshield.bd.firebase.FirebaseAuthManager.getFriendlyErrorMessage(notAllowedException);
+        assertTrue(friendly.contains("Firebase Console"));
+        assertTrue(friendly.contains("Email/Password"));
+    }
 }
 

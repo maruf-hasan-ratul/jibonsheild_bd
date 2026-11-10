@@ -57,7 +57,13 @@ public class ProfileActivity extends BaseActivity {
             binding.tvProfileName.setText(R.string.profile_guest_mode);
             binding.tvProfileRole.setText(R.string.role_citizen);
             binding.tvProfileEmail.setText("guest@offline.local");
-            binding.tvProfileDistrict.setText("National Baseline (64 Districts)");
+            if (com.jibonshield.bd.utils.PreferenceUtils.isHometownConfigured(this)) {
+                String upz = com.jibonshield.bd.utils.PreferenceUtils.getHometownUpazila(this);
+                String dist = com.jibonshield.bd.utils.PreferenceUtils.getHometownDistrict(this);
+                binding.tvProfileDistrict.setText((!upz.isEmpty() ? upz + ", " : "") + dist);
+            } else {
+                binding.tvProfileDistrict.setText("National Baseline (64 Districts)");
+            }
             binding.tvProfileStatus.setText(R.string.profile_guest_mode);
             binding.btnActionLogout.setText(R.string.btn_login);
             binding.btnActionLogout.setOnClickListener(v -> {
@@ -75,7 +81,11 @@ public class ProfileActivity extends BaseActivity {
                 binding.tvProfileName.setText(profile.getDisplayName() != null ? profile.getDisplayName() : "JibonShield User");
                 binding.tvProfileRole.setText(profile.isVolunteer() ? getString(R.string.role_volunteer) : getString(R.string.role_citizen));
                 binding.tvProfileEmail.setText(profile.getEmail() != null ? profile.getEmail() : "—");
-                binding.tvProfileDistrict.setText(profile.getDistrict() != null ? profile.getDistrict() : "All");
+                String location = profile.getDistrict() != null ? profile.getDistrict() : "All";
+                if (profile.getUpazilaId() != null && !profile.getUpazilaId().isEmpty()) {
+                    location = profile.getUpazilaId() + ", " + location;
+                }
+                binding.tvProfileDistrict.setText(location);
                 binding.tvProfileStatus.setText(R.string.profile_cloud_mode);
             }
 

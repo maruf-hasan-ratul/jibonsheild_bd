@@ -100,6 +100,9 @@ public final class DatabaseContract {
         public static final String COLUMN_OBSERVATION_TIME = "observation_time";
         public static final String COLUMN_REPORTED_BY = "reported_by";
         public static final String COLUMN_REMARKS = "remarks";
+        public static final String COLUMN_IMAGE_URI = "image_uri"; // Local content URI or cached path
+        public static final String COLUMN_IMAGE_URL = "image_url"; // Cloud Firebase Storage URL
+        public static final String COLUMN_SYNC_STATUS = "sync_status"; // PENDING, SYNCED, FAILED
         public static final String COLUMN_CREATED_AT = "created_at"; // Epoch millis
         public static final String COLUMN_UPDATED_AT = "updated_at"; // Epoch millis
     }

@@ -7,16 +7,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.adapters.EmergencyContactAdapter;
+import com.jibonshield.bd.databinding.ActivityEmergencyContactsBinding;
 import com.jibonshield.bd.models.EmergencyContact;
 import com.jibonshield.bd.repositories.EmergencyRepository;
 
@@ -26,13 +24,11 @@ import java.util.List;
 /**
  * Screen 6: Emergency Contacts.
  * Lists national emergency response hotlines stored in the offline database with direct dialing.
+ * Demonstrates View Binding, implicit Intent ACTION_DIAL launching, and clipboard fallbacks.
  */
 public class EmergencyContactsActivity extends BaseActivity implements EmergencyContactAdapter.OnContactActionListener {
 
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private View emptyStateLayout;
-
+    private ActivityEmergencyContactsBinding binding;
     private EmergencyContactAdapter adapter;
     private EmergencyRepository repository;
     private final List<EmergencyContact> contactList = new ArrayList<>();
@@ -40,23 +36,18 @@ public class EmergencyContactsActivity extends BaseActivity implements Emergency
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_emergency_contacts);
+        binding = ActivityEmergencyContactsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        initViews();
+        repository = new EmergencyRepository(this);
+
         setupToolbar();
         setupRecyclerView();
         loadContacts();
     }
 
-    private void initViews() {
-        recyclerView = findViewById(R.id.recycler_emergency_contacts);
-        progressBar = findViewById(R.id.progress_emergency_contacts);
-        emptyStateLayout = findViewById(R.id.empty_state_contacts);
-        repository = new EmergencyRepository(this);
-    }
-
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_emergency_contacts);
+        Toolbar toolbar = binding.toolbarEmergencyContacts;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -66,17 +57,18 @@ public class EmergencyContactsActivity extends BaseActivity implements Emergency
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerEmergencyContacts.setLayoutManager(new LinearLayoutManager(this));
         adapter = new EmergencyContactAdapter(this, contactList, this);
-        recyclerView.setAdapter(adapter);
+        binding.recyclerEmergencyContacts.setAdapter(adapter);
     }
 
     private void loadContacts() {
-        progressBar.setVisibility(View.VISIBLE);
+        binding.progressEmergencyContacts.setVisibility(View.VISIBLE);
         repository.getEmergencyContacts(new EmergencyRepository.DataCallback<List<EmergencyContact>>() {
             @Override
             public void onDataLoaded(List<EmergencyContact> data) {
-                progressBar.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressEmergencyContacts.setVisibility(View.GONE);
                 contactList.clear();
                 if (data != null) {
                     contactList.addAll(data);
@@ -84,19 +76,20 @@ public class EmergencyContactsActivity extends BaseActivity implements Emergency
                 adapter.notifyDataSetChanged();
 
                 if (contactList.isEmpty()) {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
+                    binding.emptyStateContacts.getRoot().setVisibility(View.VISIBLE);
+                    binding.recyclerEmergencyContacts.setVisibility(View.GONE);
                 } else {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
+                    binding.emptyStateContacts.getRoot().setVisibility(View.GONE);
+                    binding.recyclerEmergencyContacts.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onError(Exception error) {
-                progressBar.setVisibility(View.GONE);
-                if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressEmergencyContacts.setVisibility(View.GONE);
+                binding.emptyStateContacts.getRoot().setVisibility(View.VISIBLE);
+                binding.recyclerEmergencyContacts.setVisibility(View.GONE);
             }
         });
     }
@@ -164,7 +157,7 @@ public class EmergencyContactsActivity extends BaseActivity implements Emergency
     }
 
     private void triggerSync() {
-        progressBar.setVisibility(View.VISIBLE);
+        binding.progressEmergencyContacts.setVisibility(View.VISIBLE);
         Toast.makeText(this, R.string.sync_in_progress, Toast.LENGTH_SHORT).show();
 
         com.jibonshield.bd.sync.SyncManager.getInstance(this).syncEmergencyContacts(null, new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
@@ -183,5 +176,11 @@ public class EmergencyContactsActivity extends BaseActivity implements Emergency
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

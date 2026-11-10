@@ -3,197 +3,268 @@ package com.jibonshield.bd.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.adapters.DashboardAdapter;
-import com.jibonshield.bd.models.DashboardCardItem;
-import com.jibonshield.bd.utils.NetworkUtils;
-import com.jibonshield.bd.utils.PreferenceUtils;
+import com.jibonshield.bd.databinding.ActivityMainBinding;
+import com.jibonshield.bd.firebase.FirebaseAuthManager;
 import com.jibonshield.bd.models.ChecklistItem;
+import com.jibonshield.bd.models.DashboardCardItem;
 import com.jibonshield.bd.models.EmergencyContact;
 import com.jibonshield.bd.models.FloodWarning;
 import com.jibonshield.bd.models.Shelter;
+import com.jibonshield.bd.receivers.AirplaneModeReceiver;
+import com.jibonshield.bd.receivers.BatterySaverReceiver;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.services.EmergencyMonitoringService;
+import com.jibonshield.bd.sync.SyncManager;
+import com.jibonshield.bd.sync.SyncResult;
+import com.jibonshield.bd.utils.NetworkUtils;
+import com.jibonshield.bd.utils.PermissionUtils;
+import com.jibonshield.bd.utils.PreferenceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Main Dashboard Activity for JibonShield BD.
- * Provides offline-first entry points to all disaster preparedness and environmental safety modules.
+ * Demonstrates View Binding, Airplane Mode & Battery Saver Broadcast Receivers,
+ * persistent Foreground Monitoring Service, user authentication profile access,
+ * and offline-first SQLite summary calculations.
  */
 public class MainActivity extends BaseActivity implements DashboardAdapter.OnModuleClickListener {
 
-    private RecyclerView recyclerModules;
+    private ActivityMainBinding binding;
     private DashboardAdapter adapter;
     private List<DashboardCardItem> moduleList;
-    private View bannerOffline;
-    private ImageView ivConnectivityIcon;
-    private TextView tvOfflineHeader;
-    private TextView tvOfflineDesc;
-    private TextView tvDashboardLocation;
-    private MaterialButton btnEmergencyHotlines;
-    private ImageView btnMainSettings;
-
-    // Day 4: Live dashboard summary tile views
-    private TextView tvSummaryWarnings;
-    private TextView tvSummaryShelters;
-    private TextView tvSummaryContacts;
-    private TextView tvSummaryChecklist;
-    private TextView tvSummaryCaveat;
     private EmergencyRepository repository;
+
+    private AirplaneModeReceiver airplaneModeReceiver;
+    private BatterySaverReceiver batterySaverReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        initViews();
+        repository = new EmergencyRepository(this);
+
         setupToolbar();
         setupModules();
         setupListeners();
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceivers();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceivers();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        if (binding != null && binding.bottomNavMain != null) {
+            binding.bottomNavMain.setSelectedItemId(R.id.nav_home);
+        }
         updateConnectivityState();
         updateSelectedLocation();
         loadDashboardSummary();
-    }
-
-    private void initViews() {
-        recyclerModules = findViewById(R.id.recycler_dashboard_modules);
-        bannerOffline = findViewById(R.id.banner_offline_status);
-        ivConnectivityIcon = findViewById(R.id.iv_connectivity_icon);
-        tvOfflineHeader = findViewById(R.id.tv_offline_header);
-        tvOfflineDesc = findViewById(R.id.tv_offline_desc);
-        tvDashboardLocation = findViewById(R.id.tv_dashboard_location);
-        btnEmergencyHotlines = findViewById(R.id.btn_emergency_hotlines);
-        btnMainSettings = findViewById(R.id.btn_main_settings);
-
-        // Day 4: Live summary stat tiles
-        tvSummaryWarnings = findViewById(R.id.tv_summary_warnings_count);
-        tvSummaryShelters = findViewById(R.id.tv_summary_shelters_count);
-        tvSummaryContacts = findViewById(R.id.tv_summary_contacts_count);
-        tvSummaryChecklist = findViewById(R.id.tv_summary_checklist_count);
-        tvSummaryCaveat   = findViewById(R.id.tv_summary_safety_caveat);
-        repository = new EmergencyRepository(this);
+        updateMonitoringUi();
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_main);
+        Toolbar toolbar = binding.toolbarMain;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
 
+    private void registerReceivers() {
+        airplaneModeReceiver = AirplaneModeReceiver.register(this, (isAirplaneModeOn, hasInternet) -> {
+            updateBroadcastIndicators();
+            updateConnectivityState();
+        });
+
+        batterySaverReceiver = BatterySaverReceiver.register(this, isPowerSaveMode -> {
+            updateBroadcastIndicators();
+        });
+
+        updateBroadcastIndicators();
+    }
+
+    private void unregisterReceivers() {
+        AirplaneModeReceiver.unregister(this, airplaneModeReceiver);
+        BatterySaverReceiver.unregister(this, batterySaverReceiver);
+    }
+
+    private void updateBroadcastIndicators() {
+        boolean isPowerSave = BatterySaverReceiver.isPowerSaveModeActive(this);
+        // Check system airplane mode setting
+        boolean isAirplane = false;
+        try {
+            isAirplane = android.provider.Settings.Global.getInt(
+                    getContentResolver(),
+                    android.provider.Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+        } catch (Exception ignored) {}
+
+        if (isAirplane) {
+            binding.tvBroadcastStatus.setVisibility(View.VISIBLE);
+            binding.tvBroadcastStatus.setText(R.string.status_airplane_mode_active);
+            binding.tvBroadcastStatus.setTextColor(ContextCompat.getColor(this, R.color.warning_amber));
+        } else if (isPowerSave) {
+            binding.tvBroadcastStatus.setVisibility(View.VISIBLE);
+            binding.tvBroadcastStatus.setText(R.string.status_battery_saver_active);
+            binding.tvBroadcastStatus.setTextColor(ContextCompat.getColor(this, R.color.warning_amber));
+        } else {
+            binding.tvBroadcastStatus.setVisibility(View.GONE);
+        }
+    }
+
     private void updateConnectivityState() {
         boolean isConnected = NetworkUtils.isInternetAvailable(this);
         if (isConnected) {
-            tvOfflineHeader.setText(R.string.status_online_mode);
-            tvOfflineDesc.setText(R.string.status_online_sub);
-            tvOfflineHeader.setTextColor(ContextCompat.getColor(this, R.color.success_green));
-            if (ivConnectivityIcon != null) {
-                ivConnectivityIcon.setImageResource(R.drawable.ic_check_circle);
-            }
+            binding.tvOfflineHeader.setText(R.string.status_online_mode);
+            binding.tvOfflineDesc.setText(R.string.status_online_sub);
+            binding.tvOfflineHeader.setTextColor(ContextCompat.getColor(this, R.color.success_green));
+            binding.ivConnectivityIcon.setImageResource(R.drawable.ic_check_circle);
         } else {
-            tvOfflineHeader.setText(R.string.status_offline_mode);
-            tvOfflineDesc.setText(R.string.status_offline_sub);
-            tvOfflineHeader.setTextColor(ContextCompat.getColor(this, R.color.badge_offline_text));
-            if (ivConnectivityIcon != null) {
-                ivConnectivityIcon.setImageResource(R.drawable.ic_offline);
-            }
+            binding.tvOfflineHeader.setText(R.string.status_offline_mode);
+            binding.tvOfflineDesc.setText(R.string.status_offline_sub);
+            binding.tvOfflineHeader.setTextColor(ContextCompat.getColor(this, R.color.badge_offline_text));
+            binding.ivConnectivityIcon.setImageResource(R.drawable.ic_offline);
         }
     }
 
     private void updateSelectedLocation() {
-        String district = PreferenceUtils.getSelectedDistrict(this);
-        if (district == null || district.equalsIgnoreCase("All")) {
-            tvDashboardLocation.setText(R.string.dashboard_location_label);
+        if (PreferenceUtils.isHometownConfigured(this)) {
+            String upz = PreferenceUtils.getHometownUpazila(this);
+            String dist = PreferenceUtils.getHometownDistrict(this);
+            String locationStr = (!upz.isEmpty() ? upz + ", " : "") + (!dist.isEmpty() ? dist : "");
+            binding.tvDashboardLocation.setText("🏠 " + locationStr);
         } else {
-            tvDashboardLocation.setText(getString(R.string.label_selected_location) + " " + district);
+            String district = PreferenceUtils.getSelectedDistrict(this);
+            if (district == null || district.equalsIgnoreCase("All")) {
+                binding.tvDashboardLocation.setText(R.string.dashboard_location_label);
+            } else {
+                binding.tvDashboardLocation.setText(getString(R.string.label_selected_location) + " " + district);
+            }
         }
     }
 
-    /**
-     * Loads live counts from SQLite into the four dashboard summary tiles.
-     * Each query runs on a background thread; results are posted to the main thread.
-     * Called on every onResume so the summary reflects checklist toggles made in sub-screens.
-     */
+    private void updateMonitoringUi() {
+        boolean isMonitoring = EmergencyMonitoringService.isMonitoringActive();
+        if (isMonitoring) {
+            binding.tvMonitoringTitle.setText(R.string.monitoring_active_title);
+            binding.tvMonitoringTitle.setTextColor(ContextCompat.getColor(this, R.color.emergency_red));
+            binding.btnToggleMonitoring.setText(R.string.action_stop_monitoring);
+            binding.btnToggleMonitoring.setTextColor(ContextCompat.getColor(this, R.color.emergency_red));
+            binding.cardMonitoringSession.setStrokeColor(ContextCompat.getColor(this, R.color.emergency_red));
+        } else {
+            binding.tvMonitoringTitle.setText(R.string.channel_emergency_monitoring_name);
+            binding.tvMonitoringTitle.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            binding.btnToggleMonitoring.setText(R.string.action_start_monitoring);
+            binding.btnToggleMonitoring.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            binding.cardMonitoringSession.setStrokeColor(ContextCompat.getColor(this, R.color.divider_color));
+        }
+    }
+
+    private void toggleEmergencyMonitoring() {
+        PermissionUtils.requestNotificationPermission(this);
+
+        if (EmergencyMonitoringService.isMonitoringActive()) {
+            EmergencyMonitoringService.stopMonitoring(this);
+            Toast.makeText(this, R.string.action_stop_monitoring, Toast.LENGTH_SHORT).show();
+        } else {
+            EmergencyMonitoringService.startMonitoring(this);
+            Toast.makeText(this, R.string.monitoring_active_title, Toast.LENGTH_SHORT).show();
+        }
+        updateMonitoringUi();
+    }
+
     private void loadDashboardSummary() {
-        // Tile 1: Active flood warnings (uses isActive flag + isExpired() model check)
-        repository.getActiveFloodWarnings("All", new EmergencyRepository.DataCallback<List<FloodWarning>>() {
+        String div = PreferenceUtils.getHometownDivision(this);
+        String dist = PreferenceUtils.getHometownDistrict(this);
+        String upz = PreferenceUtils.getHometownUpazila(this);
+
+        // Tile 1: Active disaster warnings prioritized by hometown
+        repository.getDisasterUpdatesByHometown(div, dist, upz, new EmergencyRepository.DataCallback<List<FloodWarning>>() {
             @Override
             public void onDataLoaded(List<FloodWarning> data) {
-                if (tvSummaryWarnings == null) return;
+                if (binding == null) return;
                 int count = data != null ? data.size() : 0;
-                tvSummaryWarnings.setText(String.valueOf(count));
-                tvSummaryWarnings.setTextColor(ContextCompat.getColor(MainActivity.this,
+                binding.tvSummaryWarningsCount.setText(String.valueOf(count));
+                binding.tvSummaryWarningsCount.setTextColor(ContextCompat.getColor(MainActivity.this,
                         count > 0 ? R.color.emergency_red : R.color.success_green));
-                if (tvSummaryCaveat != null) {
-                    tvSummaryCaveat.setVisibility(android.view.View.VISIBLE);
-                }
+                binding.tvSummarySafetyCaveat.setVisibility(View.VISIBLE);
             }
+
             @Override
             public void onError(Exception error) {
-                if (tvSummaryWarnings != null) tvSummaryWarnings.setText("—");
+                if (binding != null) binding.tvSummaryWarningsCount.setText("—");
             }
         });
 
-        // Tile 2: Designated shelters stored offline
-        repository.getShelters("", "All", new EmergencyRepository.DataCallback<List<Shelter>>() {
+        // Tile 2: Designated shelters (prioritized by hometown district if configured)
+        String shelterDistrict = (dist != null && !dist.isEmpty()) ? dist : "All";
+        repository.getShelters("", shelterDistrict, new EmergencyRepository.DataCallback<List<Shelter>>() {
             @Override
             public void onDataLoaded(List<Shelter> data) {
-                if (tvSummaryShelters != null) {
-                    tvSummaryShelters.setText(data != null ? String.valueOf(data.size()) : "—");
+                if (binding != null) {
+                    binding.tvSummarySheltersCount.setText(data != null ? String.valueOf(data.size()) : "—");
                 }
             }
+
             @Override
             public void onError(Exception error) {
-                if (tvSummaryShelters != null) tvSummaryShelters.setText("—");
+                if (binding != null) binding.tvSummarySheltersCount.setText("—");
             }
         });
 
-        // Tile 3: Emergency contacts / hotlines
+        // Tile 3: Emergency contacts
         repository.getEmergencyContacts(new EmergencyRepository.DataCallback<List<EmergencyContact>>() {
             @Override
             public void onDataLoaded(List<EmergencyContact> data) {
-                if (tvSummaryContacts != null) {
-                    tvSummaryContacts.setText(data != null ? String.valueOf(data.size()) : "—");
+                if (binding != null) {
+                    binding.tvSummaryContactsCount.setText(data != null ? String.valueOf(data.size()) : "—");
                 }
             }
+
             @Override
             public void onError(Exception error) {
-                if (tvSummaryContacts != null) tvSummaryContacts.setText("—");
+                if (binding != null) binding.tvSummaryContactsCount.setText("—");
             }
         });
 
-        // Tile 4: Preparedness checklist completion percentage
+        // Tile 4: Preparedness checklist progress
         repository.getChecklistItems(new EmergencyRepository.DataCallback<List<ChecklistItem>>() {
             @Override
             public void onDataLoaded(List<ChecklistItem> data) {
-                if (tvSummaryChecklist == null || data == null) return;
+                if (binding == null || data == null) return;
                 int total = data.size();
                 int done = 0;
                 for (ChecklistItem item : data) {
                     if (item.isCompleted()) done++;
                 }
                 int pct = total > 0 ? (done * 100) / total : 0;
-                tvSummaryChecklist.setText(pct + "%");
+                binding.tvSummaryChecklistCount.setText(pct + "%");
             }
+
             @Override
             public void onError(Exception error) {
-                if (tvSummaryChecklist != null) tvSummaryChecklist.setText("—");
+                if (binding != null) binding.tvSummaryChecklistCount.setText("—");
             }
         });
     }
@@ -203,127 +274,133 @@ public class MainActivity extends BaseActivity implements DashboardAdapter.OnMod
 
         // 1. Flood Warnings
         moduleList.add(new DashboardCardItem(
-                1,
-                R.string.card_flood_title,
-                R.string.card_flood_desc,
-                R.drawable.ic_flood,
-                R.string.badge_offline_ready,
-                true
+                1, R.string.card_flood_title, R.string.card_flood_desc,
+                R.drawable.ic_flood, R.string.badge_offline_ready, true
         ));
 
         // 2. Nearby Shelters
         moduleList.add(new DashboardCardItem(
-                2,
-                R.string.card_shelter_title,
-                R.string.card_shelter_desc,
-                R.drawable.ic_shelter,
-                R.string.badge_offline_ready,
-                true
+                2, R.string.card_shelter_title, R.string.card_shelter_desc,
+                R.drawable.ic_shelter, R.string.badge_offline_ready, true
         ));
 
         // 3. Emergency Contacts
         moduleList.add(new DashboardCardItem(
-                3,
-                R.string.card_emergency_title,
-                R.string.card_emergency_desc,
-                R.drawable.ic_call_emergency,
-                R.string.badge_offline_ready,
-                true
+                3, R.string.card_emergency_title, R.string.card_emergency_desc,
+                R.drawable.ic_call_emergency, R.string.badge_offline_ready, true
         ));
 
         // 4. Drinking Water Quality
         moduleList.add(new DashboardCardItem(
-                4,
-                R.string.card_water_title,
-                R.string.card_water_desc,
-                R.drawable.ic_water,
-                R.string.badge_offline_ready,
-                true
+                4, R.string.card_water_title, R.string.card_water_desc,
+                R.drawable.ic_water, R.string.badge_offline_ready, true
         ));
 
         // 5. Heat Safety
         moduleList.add(new DashboardCardItem(
-                5,
-                R.string.card_heat_title,
-                R.string.card_heat_desc,
-                R.drawable.ic_heat,
-                R.string.badge_offline_ready,
-                true
+                5, R.string.card_heat_title, R.string.card_heat_desc,
+                R.drawable.ic_heat, R.string.badge_offline_ready, true
         ));
 
         // 6. Evacuation Guidelines
         moduleList.add(new DashboardCardItem(
-                6,
-                R.string.card_evacuation_title,
-                R.string.card_evacuation_desc,
-                R.drawable.ic_evacuation,
-                R.string.badge_offline_ready,
-                true
+                6, R.string.card_evacuation_title, R.string.card_evacuation_desc,
+                R.drawable.ic_evacuation, R.string.badge_offline_ready, true
         ));
 
         // 7. Preparedness Checklist
         moduleList.add(new DashboardCardItem(
-                7,
-                R.string.card_checklist_title,
-                R.string.card_checklist_desc,
-                R.drawable.ic_checklist,
-                R.string.badge_offline_ready,
-                true
+                7, R.string.card_checklist_title, R.string.card_checklist_desc,
+                R.drawable.ic_checklist, R.string.badge_offline_ready, true
         ));
 
         // 8. Settings & Language
         moduleList.add(new DashboardCardItem(
-                8,
-                R.string.card_settings_title,
-                R.string.card_settings_desc,
-                R.drawable.ic_settings,
-                R.string.badge_offline_ready,
-                true
+                8, R.string.card_settings_title, R.string.card_settings_desc,
+                R.drawable.ic_settings, R.string.badge_offline_ready, true
         ));
 
-        recyclerModules.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerDashboardModules.setLayoutManager(new LinearLayoutManager(this));
         adapter = new DashboardAdapter(this, moduleList, this);
-        recyclerModules.setAdapter(adapter);
+        binding.recyclerDashboardModules.setAdapter(adapter);
     }
 
     private void setupListeners() {
-        btnEmergencyHotlines.setOnClickListener(v -> {
+        binding.btnEmergencyHotlines.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, EmergencyContactsActivity.class);
             startActivity(intent);
         });
 
-        if (btnMainSettings != null) {
-            btnMainSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+        if (binding.btnActionShelters != null) {
+            binding.btnActionShelters.setOnClickListener(v -> {
+                startActivity(new Intent(MainActivity.this, ShelterDirectoryActivity.class));
             });
         }
 
-        if (bannerOffline != null) {
-            bannerOffline.setOnClickListener(v -> {
-                boolean isConnected = NetworkUtils.isInternetAvailable(MainActivity.this);
-                if (!isConnected) {
-                    android.widget.Toast.makeText(MainActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_SHORT).show();
-                } else {
-                    android.widget.Toast.makeText(MainActivity.this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
-                    com.jibonshield.bd.sync.SyncManager.getInstance(MainActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
-                        @Override
-                        public void onSyncStarted(String entityName) {}
+        if (binding.btnActionWater != null) {
+            binding.btnActionWater.setOnClickListener(v -> {
+                startActivity(new Intent(MainActivity.this, WaterObservationFormActivity.class));
+            });
+        }
 
-                        @Override
-                        public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
-                            loadDashboardSummary();
-                            updateConnectivityState();
-                            if (result.isSuccess()) {
-                                android.widget.Toast.makeText(MainActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
-                            } else {
-                                android.widget.Toast.makeText(MainActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+        if (binding.bottomNavMain != null) {
+            binding.bottomNavMain.setSelectedItemId(R.id.nav_home);
+            binding.bottomNavMain.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.nav_home) {
+                    return true;
+                } else if (itemId == R.id.nav_shelters) {
+                    startActivity(new Intent(MainActivity.this, ShelterDirectoryActivity.class));
+                    return false;
+                } else if (itemId == R.id.nav_alerts) {
+                    startActivity(new Intent(MainActivity.this, FloodWarningListActivity.class));
+                    return false;
+                } else if (itemId == R.id.nav_help) {
+                    startActivity(new Intent(MainActivity.this, EmergencyContactsActivity.class));
+                    return false;
                 }
+                return false;
             });
         }
+
+        binding.btnMainAccount.setOnClickListener(v -> {
+            if (FirebaseAuthManager.getInstance(MainActivity.this).isUserLoggedIn()) {
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+            } else {
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            }
+        });
+
+        binding.btnMainSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btnToggleMonitoring.setOnClickListener(v -> toggleEmergencyMonitoring());
+
+        binding.bannerOfflineStatus.setOnClickListener(v -> {
+            boolean isConnected = NetworkUtils.isInternetAvailable(MainActivity.this);
+            if (!isConnected) {
+                Toast.makeText(MainActivity.this, R.string.sync_offline_toast, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, R.string.sync_in_progress, Toast.LENGTH_SHORT).show();
+                SyncManager.getInstance(MainActivity.this).syncAll(new SyncManager.SyncCallback() {
+                    @Override
+                    public void onSyncStarted(String entityName) {}
+
+                    @Override
+                    public void onSyncComplete(SyncResult result) {
+                        loadDashboardSummary();
+                        updateConnectivityState();
+                        if (result.isSuccess()) {
+                            Toast.makeText(MainActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, getString(R.string.sync_error_toast, result.getMessage()), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -358,5 +435,11 @@ public class MainActivity extends BaseActivity implements DashboardAdapter.OnMod
                 return;
         }
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

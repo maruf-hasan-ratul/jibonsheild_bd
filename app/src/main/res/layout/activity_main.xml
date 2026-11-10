@@ -5,21 +5,22 @@
     android:id="@+id/coordinator_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="?attr/android:colorBackground">
 
-    <!-- Top App Bar with Branding and Location Indicator -->
+    <!-- Top App Bar with M3 Elevated Surface & Branding -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary">
+        android:background="?attr/colorSurface"
+        app:elevation="2dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_main"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:contentInsetStart="@dimen/spacing_large"
-            app:contentInsetEnd="@dimen/spacing_large">
+            app:contentInsetEnd="@dimen/spacing_12"
+            app:contentInsetStart="@dimen/spacing_16">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,121 +37,238 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_medium"
+                    android:layout_marginStart="@dimen/spacing_12"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/app_font_family"
+                        android:lineSpacingExtra="2dp"
                         android:text="@string/app_name"
-                        android:textColor="@color/surface_white"
-                        android:textSize="@dimen/text_size_title"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/m3_type_title_large"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_dashboard_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/app_font_family"
+                        android:maxLines="1"
                         android:text="@string/dashboard_location_label"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="@dimen/text_size_caption" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/m3_type_label_medium" />
                 </LinearLayout>
 
-                <ImageView
+                <ImageButton
+                    android:id="@+id/btn_main_account"
+                    android:layout_width="@dimen/touch_target_min"
+                    android:layout_height="@dimen/touch_target_min"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/title_profile"
+                    android:focusable="true"
+                    android:padding="@dimen/spacing_8"
+                    android:src="@drawable/ic_person"
+                    app:tint="?attr/colorOnSurface" />
+
+                <ImageButton
                     android:id="@+id/btn_main_settings"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/touch_target_min"
+                    android:layout_height="@dimen/touch_target_min"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@string/card_settings_title"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="@dimen/spacing_8"
                     android:src="@drawable/ic_settings"
-                    app:tint="@color/surface_white" />
+                    app:tint="?attr/colorOnSurface" />
 
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content Scroll Area -->
+    <!-- Main Scrollable Content Area -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:fillViewport="true"
+        android:paddingBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/spacing_xlarge">
+            android:paddingHorizontal="@dimen/spacing_16"
+            android:paddingTop="@dimen/spacing_12">
 
-            <!-- Connectivity Status Banner -->
-            <LinearLayout
-                android:id="@+id/banner_offline_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginEnd="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_small"
-                android:background="@drawable/bg_status_banner"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/spacing_medium">
-
-                <ImageView
-                    android:id="@+id/iv_connectivity_icon"
-                    android:layout_width="@dimen/icon_size_medium"
-                    android:layout_height="@dimen/icon_size_medium"
-                    android:contentDescription="@string/cd_offline_icon"
-                    android:src="@drawable/ic_offline" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_medium"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_offline_header"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status_offline_mode"
-                        android:textColor="@color/badge_offline_text"
-                        android:textSize="@dimen/text_size_caption"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_offline_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status_offline_sub"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_size_caption" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- National Emergency Hotlines Quick Action Card -->
+            <!-- 1. STATUS HERO CARD (Material 3 Surface Container) -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_emergency_banner"
                 style="@style/Widget.JibonShieldBD.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginEnd="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_small"
-                app:strokeColor="@color/emergency_red">
+                android:layout_marginBottom="@dimen/spacing_12"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/spacing_large">
+                    android:padding="@dimen/spacing_16">
+
+                    <!-- Connectivity Status Row -->
+                    <LinearLayout
+                        android:id="@+id/banner_offline_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iv_connectivity_icon"
+                            android:layout_width="@dimen/icon_size_medium"
+                            android:layout_height="@dimen/icon_size_medium"
+                            android:contentDescription="@string/cd_offline_icon"
+                            android:src="@drawable/ic_offline"
+                            app:tint="?attr/colorPrimary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_12"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_offline_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/app_font_family"
+                                android:lineSpacingExtra="2dp"
+                                android:text="@string/status_offline_mode"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="@dimen/m3_type_label_large"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_offline_desc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/app_font_family"
+                                android:lineSpacingExtra="2dp"
+                                android:text="@string/status_offline_sub"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:textSize="@dimen/m3_type_body_small" />
+
+                            <TextView
+                                android:id="@+id/tv_broadcast_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="@font/app_font_family"
+                                android:textColor="@color/severity_warning"
+                                android:textSize="@dimen/m3_type_label_small"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                tools:text="Airplane Mode Active" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/spacing_12"
+                        android:layout_marginBottom="@dimen/spacing_12"
+                        android:background="?attr/colorOutlineVariant" />
+
+                    <!-- Emergency Monitoring Session Control -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_monitoring_session"
+                        style="@style/Widget.JibonShieldBD.Card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="?attr/colorSurface">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_12">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="@dimen/icon_size_medium"
+                                    android:layout_height="@dimen/icon_size_medium"
+                                    android:contentDescription="@string/channel_emergency_monitoring_name"
+                                    android:src="@drawable/ic_shield_logo" />
+
+                                <TextView
+                                    android:id="@+id/tv_monitoring_title"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/spacing_8"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/app_font_family"
+                                    android:lineSpacingExtra="2dp"
+                                    android:text="@string/channel_emergency_monitoring_name"
+                                    android:textColor="?attr/colorPrimary"
+                                    android:textSize="@dimen/m3_type_title_small"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tv_monitoring_desc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_4"
+                                android:fontFamily="@font/app_font_family"
+                                android:lineSpacingExtra="2dp"
+                                android:text="@string/channel_emergency_monitoring_desc"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:textSize="@dimen/m3_type_body_small" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_toggle_monitoring"
+                                style="@style/Widget.JibonShieldBD.Button.Outlined"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_8"
+                                android:text="@string/action_start_monitoring" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. 3 BIG ACTION BUTTONS (min 56dp height, M3 Pill Radii) -->
+            <!-- Action 1: National Emergency SOS -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_emergency_banner"
+                style="@style/Widget.JibonShieldBD.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_12"
+                app:strokeColor="@color/severity_critical"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_16">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -162,16 +280,19 @@
                             android:layout_width="@dimen/icon_size_medium"
                             android:layout_height="@dimen/icon_size_medium"
                             android:contentDescription="@string/cd_hotline_icon"
-                            android:src="@drawable/ic_call_emergency" />
+                            android:src="@drawable/ic_call_emergency"
+                            app:tint="@color/severity_critical" />
 
                         <TextView
                             android:id="@+id/tv_hotline_banner_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_medium"
+                            android:layout_marginStart="@dimen/spacing_8"
+                            android:fontFamily="@font/app_font_family"
+                            android:lineSpacingExtra="2dp"
                             android:text="@string/emergency_hotline_title"
-                            android:textColor="@color/emergency_red"
-                            android:textSize="@dimen/text_size_subhead"
+                            android:textColor="@color/severity_critical"
+                            android:textSize="@dimen/m3_type_title_medium"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -179,199 +300,293 @@
                         android:id="@+id/tv_hotline_banner_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xsmall"
+                        android:layout_marginTop="@dimen/spacing_4"
+                        android:fontFamily="@font/app_font_family"
+                        android:lineSpacingExtra="2dp"
                         android:text="@string/emergency_hotline_desc"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_size_body_small" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/m3_type_body_small" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_emergency_hotlines"
+                        style="@style/Widget.JibonShieldBD.Button.BigAction"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:backgroundTint="@color/emergency_red"
-                        android:minHeight="@dimen/min_touch_target"
+                        android:layout_height="@dimen/touch_target_button"
+                        android:layout_marginTop="@dimen/spacing_12"
+                        android:backgroundTint="@color/severity_critical"
                         android:text="@string/btn_quick_call"
-                        android:textColor="@color/surface_white"
-                        android:textSize="@dimen/text_size_body"
-                        app:cornerRadius="8dp"
+                        android:textColor="@color/on_severity_critical"
                         app:icon="@drawable/ic_call_emergency"
                         app:iconGravity="textStart"
-                        app:iconTint="@color/surface_white" />
+                        app:iconTint="@color/on_severity_critical" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Day 4: Live Database Summary — counts fetched from SQLite on every resume -->
+            <!-- Actions 2 & 3: Find Shelters + Log Water Quality (Side-by-Side Big Actions) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_12"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_action_shelters"
+                    style="@style/Widget.JibonShieldBD.Button.BigAction"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/touch_target_button"
+                    android:layout_marginEnd="@dimen/spacing_4"
+                    android:layout_weight="1"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:text="@string/card_shelter_title"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:icon="@drawable/ic_shelter"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_action_water"
+                    style="@style/Widget.JibonShieldBD.Button.BigAction"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/touch_target_button"
+                    android:layout_marginStart="@dimen/spacing_4"
+                    android:layout_weight="1"
+                    android:backgroundTint="?attr/colorSecondary"
+                    android:text="@string/card_water_title"
+                    android:textColor="?attr/colorOnSecondary"
+                    app:icon="@drawable/ic_water"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnSecondary" />
+            </LinearLayout>
+
+            <!-- 3. HAZARD TILE GRID (2 COLUMNS x 2 ROWS) & SUMMARY STATUS -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_dashboard_summary"
                 style="@style/Widget.JibonShieldBD.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginEnd="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_small">
+                android:layout_marginBottom="@dimen/spacing_12">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/spacing_medium">
+                    android:padding="@dimen/spacing_16">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/app_font_family"
                         android:text="@string/dashboard_warning_status_title"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/text_size_caption"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/m3_type_title_small"
                         android:textStyle="bold" />
 
-                    <!-- 4 stat tiles in a single row -->
+                    <!-- 2-column Hazard Grid -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="@dimen/spacing_12"
+                        android:orientation="vertical">
 
-                        <!-- Tile 1: Active flood warnings -->
+                        <!-- Row 1: Alerts & Shelters -->
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_xsmall">
+                            android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/tv_summary_warnings_count"
-                                android:layout_width="wrap_content"
+                            <!-- Tile 1: Active Warnings -->
+                            <com.google.android.material.card.MaterialCardView
+                                style="@style/Widget.JibonShieldBD.HazardTile"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="—"
-                                android:textColor="@color/emergency_red"
-                                android:textSize="@dimen/text_size_title"
-                                android:textStyle="bold" />
+                                android:layout_marginEnd="@dimen/spacing_4"
+                                android:layout_weight="1">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_12">
+
+                                    <TextView
+                                        android:id="@+id/tv_summary_warnings_count"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:text="—"
+                                        android:textColor="@color/severity_critical"
+                                        android:textSize="@dimen/m3_type_headline_medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_4"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:gravity="center"
+                                        android:lineSpacingExtra="2dp"
+                                        android:text="@string/dashboard_tile_active_alerts"
+                                        android:textColor="?attr/colorOnSurfaceVariant"
+                                        android:textSize="@dimen/m3_type_label_small" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Tile 2: Shelters -->
+                            <com.google.android.material.card.MaterialCardView
+                                style="@style/Widget.JibonShieldBD.HazardTile"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/dashboard_tile_active_alerts"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="@dimen/text_size_caption" />
+                                android:layout_marginStart="@dimen/spacing_4"
+                                android:layout_weight="1">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_12">
+
+                                    <TextView
+                                        android:id="@+id/tv_summary_shelters_count"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:text="—"
+                                        android:textColor="?attr/colorPrimary"
+                                        android:textSize="@dimen/m3_type_headline_medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_4"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:gravity="center"
+                                        android:lineSpacingExtra="2dp"
+                                        android:text="@string/dashboard_tile_shelters"
+                                        android:textColor="?attr/colorOnSurfaceVariant"
+                                        android:textSize="@dimen/m3_type_label_small" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
 
-                        <!-- Tile 2: Designated shelters -->
+                        <!-- Row 2: Hotlines & Emergency Kit -->
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_xsmall">
+                            android:layout_marginTop="@dimen/spacing_8"
+                            android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/tv_summary_shelters_count"
-                                android:layout_width="wrap_content"
+                            <!-- Tile 3: Emergency Contacts -->
+                            <com.google.android.material.card.MaterialCardView
+                                style="@style/Widget.JibonShieldBD.HazardTile"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="—"
-                                android:textColor="@color/primary"
-                                android:textSize="@dimen/text_size_title"
-                                android:textStyle="bold" />
+                                android:layout_marginEnd="@dimen/spacing_4"
+                                android:layout_weight="1">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_12">
+
+                                    <TextView
+                                        android:id="@+id/tv_summary_contacts_count"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:text="—"
+                                        android:textColor="?attr/colorSecondary"
+                                        android:textSize="@dimen/m3_type_headline_medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_4"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:gravity="center"
+                                        android:lineSpacingExtra="2dp"
+                                        android:text="@string/dashboard_tile_hotlines"
+                                        android:textColor="?attr/colorOnSurfaceVariant"
+                                        android:textSize="@dimen/m3_type_label_small" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Tile 4: Emergency Kit Progress -->
+                            <com.google.android.material.card.MaterialCardView
+                                style="@style/Widget.JibonShieldBD.HazardTile"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/dashboard_tile_shelters"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="@dimen/text_size_caption" />
-                        </LinearLayout>
+                                android:layout_marginStart="@dimen/spacing_4"
+                                android:layout_weight="1">
 
-                        <!-- Tile 3: Emergency hotlines -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_xsmall">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_12">
 
-                            <TextView
-                                android:id="@+id/tv_summary_contacts_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="—"
-                                android:textColor="@color/secondary"
-                                android:textSize="@dimen/text_size_title"
-                                android:textStyle="bold" />
+                                    <TextView
+                                        android:id="@+id/tv_summary_checklist_count"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:text="—"
+                                        android:textColor="@color/severity_safe"
+                                        android:textSize="@dimen/m3_type_headline_medium"
+                                        android:textStyle="bold" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/dashboard_tile_hotlines"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="@dimen/text_size_caption" />
-                        </LinearLayout>
-
-                        <!-- Tile 4: Preparedness checklist % -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_xsmall">
-
-                            <TextView
-                                android:id="@+id/tv_summary_checklist_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="—"
-                                android:textColor="@color/success_green"
-                                android:textSize="@dimen/text_size_title"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="@string/dashboard_tile_kit"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="@dimen/text_size_caption" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_4"
+                                        android:fontFamily="@font/app_font_family"
+                                        android:gravity="center"
+                                        android:lineSpacingExtra="2dp"
+                                        android:text="@string/dashboard_tile_kit"
+                                        android:textColor="?attr/colorOnSurfaceVariant"
+                                        android:textSize="@dimen/m3_type_label_small" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <!-- Safety caveat — shown after warning count is loaded -->
+                    <!-- Safety caveat message -->
                     <TextView
                         android:id="@+id/tv_summary_safety_caveat"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginTop="@dimen/spacing_12"
+                        android:fontFamily="@font/app_font_family"
+                        android:lineSpacingExtra="2dp"
                         android:text="@string/dashboard_no_warning_caveat"
-                        android:textColor="@color/text_tertiary"
-                        android:textSize="@dimen/text_size_caption"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/m3_type_body_small"
                         android:visibility="gone" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Dashboard Module Section Header -->
+            <!-- 4. DASHBOARD MODULES RECYCLERVIEW -->
             <TextView
                 android:id="@+id/tv_modules_heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:layout_marginEnd="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_xsmall"
+                android:layout_marginTop="@dimen/spacing_8"
+                android:layout_marginBottom="@dimen/spacing_8"
+                android:fontFamily="@font/app_font_family"
+                android:lineSpacingExtra="2dp"
                 android:text="@string/dashboard_greeting"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_size_subhead"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/m3_type_title_medium"
                 android:textStyle="bold" />
 
-            <!-- Dashboard Modules RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_dashboard_modules"
                 android:layout_width="match_parent"
@@ -381,19 +596,30 @@
                 tools:itemCount="8"
                 tools:listitem="@layout/item_dashboard_card" />
 
-            <!-- Baseline Data Stamp Footer -->
+            <!-- Baseline Data Timestamp -->
             <TextView
                 android:id="@+id/tv_data_baseline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_large"
+                android:layout_marginTop="@dimen/spacing_16"
+                android:layout_marginBottom="@dimen/spacing_16"
+                android:fontFamily="@font/app_font_family"
                 android:gravity="center"
+                android:lineSpacingExtra="2dp"
                 android:text="@string/status_last_updated"
-                android:textColor="@color/text_tertiary"
-                android:textSize="@dimen/text_size_caption" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/m3_type_label_small" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- 5. BOTTOM NAVIGATION BAR (Material 3: Home, Shelters, Alerts, Help) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav_main"
+        style="@style/Widget.JibonShieldBD.BottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:menu="@menu/menu_bottom_nav" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

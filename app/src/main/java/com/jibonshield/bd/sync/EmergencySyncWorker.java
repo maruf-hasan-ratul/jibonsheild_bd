@@ -102,6 +102,7 @@ public class EmergencySyncWorker extends Worker {
 
         // Step 3: Trigger core entity sync
         SyncManager.getInstance(context).syncAll(null);
+        FirestoreSyncManager.getInstance(context).syncAll(null);
 
         return hasError.get() ? Result.retry() : Result.success();
     }

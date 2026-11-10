@@ -1,5 +1,7 @@
 package com.jibonshield.bd.activities;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,48 +10,35 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.adapters.ShelterAdapter;
+import com.jibonshield.bd.databinding.ActivityShelterDirectoryBinding;
 import com.jibonshield.bd.models.Shelter;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.sync.SyncManager;
+import com.jibonshield.bd.sync.SyncResult;
+import com.jibonshield.bd.utils.DistrictData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Screen 4: Shelter Directory.
- * Provides search query and district filtering interface for designated emergency shelters.
+ * Provides search query and district/upazila filtering interface for designated emergency shelters.
+ * Demonstrates View Binding, implicit Intent ACTION_DIAL launching, and dynamic searching.
  */
 public class ShelterDirectoryActivity extends BaseActivity implements ShelterAdapter.OnShelterClickListener {
 
-    private EditText etSearch;
-    private Spinner spinnerDistrict;
-    private Spinner spinnerUpazila;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private View emptyStateLayout;
-    private TextView tvEmptyTitle;
-    private TextView tvEmptyDesc;
-    private MaterialButton btnEmptyAction;
-
+    private ActivityShelterDirectoryBinding binding;
     private ShelterAdapter adapter;
     private EmergencyRepository repository;
     private final List<Shelter> shelterList = new ArrayList<>();
-    private final String[] districts = new String[]{
-            "All Districts", "Cox's Bazar", "Sunamganj", "Sylhet", "Kurigram", "Patuakhali", "Chittagong"
-    };
+    private final String[] districts = DistrictData.getDistrictsWithAllDistricts();
     private final List<String> upazilaList = new ArrayList<>();
     private ArrayAdapter<String> upazilaAdapter;
 
@@ -60,49 +49,22 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shelter_directory);
+        binding = ActivityShelterDirectoryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        initViews();
+        repository = new EmergencyRepository(this);
+
         setupToolbar();
         setupSpinners();
         setupSearch();
         setupRecyclerView();
+        setupEmptyStateActions();
         loadUpazilas(currentDistrict);
         loadShelters();
     }
 
-    private void initViews() {
-        etSearch = findViewById(R.id.et_search_shelter);
-        spinnerDistrict = findViewById(R.id.spinner_shelter_district);
-        spinnerUpazila = findViewById(R.id.spinner_shelter_upazila);
-        recyclerView = findViewById(R.id.recycler_shelters);
-        progressBar = findViewById(R.id.progress_shelters);
-        emptyStateLayout = findViewById(R.id.empty_state_shelter);
-
-        if (emptyStateLayout != null) {
-            tvEmptyTitle = emptyStateLayout.findViewById(R.id.tv_empty_title);
-            tvEmptyDesc = emptyStateLayout.findViewById(R.id.tv_empty_message);
-            btnEmptyAction = emptyStateLayout.findViewById(R.id.btn_empty_action);
-            if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.shelter_empty_title);
-            if (tvEmptyDesc != null) tvEmptyDesc.setText(R.string.shelter_empty_desc);
-            if (btnEmptyAction != null) {
-                btnEmptyAction.setVisibility(View.VISIBLE);
-                btnEmptyAction.setText(R.string.action_clear_filters);
-                btnEmptyAction.setOnClickListener(v -> {
-                    etSearch.setText("");
-                    spinnerDistrict.setSelection(0);
-                    if (spinnerUpazila != null && upazilaList.size() > 0) {
-                        spinnerUpazila.setSelection(0);
-                    }
-                });
-            }
-        }
-
-        repository = new EmergencyRepository(this);
-    }
-
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_shelter_directory);
+        Toolbar toolbar = binding.toolbarShelterDirectory;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -111,11 +73,37 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+    private void setupEmptyStateActions() {
+        View emptyLayout = binding.emptyStateShelter.getRoot();
+        View btnAction = emptyLayout.findViewById(R.id.btn_empty_action);
+        if (btnAction != null) {
+            btnAction.setVisibility(View.VISIBLE);
+            btnAction.setOnClickListener(v -> {
+                binding.etSearchShelter.setText("");
+                binding.spinnerShelterDistrict.setSelection(0);
+                if (upazilaList.size() > 0) {
+                    binding.spinnerShelterUpazila.setSelection(0);
+                }
+            });
+        }
+    }
+
     private void setupSpinners() {
-        // 1. District Spinner
         ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts);
-        spinnerDistrict.setAdapter(districtAdapter);
-        spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.spinnerShelterDistrict.setAdapter(districtAdapter);
+
+        String hometownDistrict = com.jibonshield.bd.utils.PreferenceUtils.getHometownDistrict(this);
+        if (com.jibonshield.bd.utils.PreferenceUtils.isHometownConfigured(this) && !hometownDistrict.isEmpty()) {
+            for (int i = 0; i < districts.length; i++) {
+                if (districts[i].equalsIgnoreCase(hometownDistrict)) {
+                    currentDistrict = districts[i];
+                    binding.spinnerShelterDistrict.setSelection(i);
+                    break;
+                }
+            }
+        }
+
+        binding.spinnerShelterDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentDistrict = districts[position];
@@ -127,12 +115,11 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // 2. Upazila Spinner
         upazilaList.clear();
         upazilaList.add("All");
         upazilaAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, upazilaList);
-        spinnerUpazila.setAdapter(upazilaAdapter);
-        spinnerUpazila.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.spinnerShelterUpazila.setAdapter(upazilaAdapter);
+        binding.spinnerShelterUpazila.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < upazilaList.size()) {
@@ -150,14 +137,29 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
         repository.getUpazilasForDistrict(district, new EmergencyRepository.DataCallback<List<String>>() {
             @Override
             public void onDataLoaded(List<String> data) {
+                if (isFinishing() || isDestroyed() || binding == null) return;
                 upazilaList.clear();
                 upazilaList.add("All");
                 if (data != null) {
                     upazilaList.addAll(data);
                 }
                 upazilaAdapter.notifyDataSetChanged();
-                currentUpazila = "All";
-                spinnerUpazila.setSelection(0);
+
+                String hometownUpazila = com.jibonshield.bd.utils.PreferenceUtils.getHometownUpazila(ShelterDirectoryActivity.this);
+                int selectedPos = 0;
+                if (com.jibonshield.bd.utils.PreferenceUtils.isHometownConfigured(ShelterDirectoryActivity.this) && !hometownUpazila.isEmpty()) {
+                    for (int i = 0; i < upazilaList.size(); i++) {
+                        if (upazilaList.get(i).equalsIgnoreCase(hometownUpazila)) {
+                            selectedPos = i;
+                            currentUpazila = upazilaList.get(i);
+                            break;
+                        }
+                    }
+                }
+                if (selectedPos == 0) {
+                    currentUpazila = "All";
+                }
+                binding.spinnerShelterUpazila.setSelection(selectedPos);
             }
 
             @Override
@@ -166,7 +168,7 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
     }
 
     private void setupSearch() {
-        etSearch.addTextChangedListener(new TextWatcher() {
+        binding.etSearchShelter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -182,17 +184,18 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerShelters.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ShelterAdapter(this, shelterList, this);
-        recyclerView.setAdapter(adapter);
+        binding.recyclerShelters.setAdapter(adapter);
     }
 
     private void loadShelters() {
-        progressBar.setVisibility(View.VISIBLE);
+        binding.progressShelters.setVisibility(View.VISIBLE);
         repository.searchShelters(currentQuery, currentDistrict, currentUpazila, new EmergencyRepository.DataCallback<List<Shelter>>() {
             @Override
             public void onDataLoaded(List<Shelter> data) {
-                progressBar.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressShelters.setVisibility(View.GONE);
                 shelterList.clear();
                 if (data != null) {
                     shelterList.addAll(data);
@@ -200,19 +203,20 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
                 adapter.notifyDataSetChanged();
 
                 if (shelterList.isEmpty()) {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
+                    binding.emptyStateShelter.getRoot().setVisibility(View.VISIBLE);
+                    binding.recyclerShelters.setVisibility(View.GONE);
                 } else {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
+                    binding.emptyStateShelter.getRoot().setVisibility(View.GONE);
+                    binding.recyclerShelters.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onError(Exception error) {
-                progressBar.setVisibility(View.GONE);
-                if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressShelters.setVisibility(View.GONE);
+                binding.emptyStateShelter.getRoot().setVisibility(View.VISIBLE);
+                binding.recyclerShelters.setVisibility(View.GONE);
             }
         });
     }
@@ -250,9 +254,9 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
 
     private void copyPhoneToClipboard(String phone) {
         try {
-            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboard != null) {
-                android.content.ClipData clip = android.content.ClipData.newPlainText("Shelter Phone", phone);
+                ClipData clip = ClipData.newPlainText("Shelter Phone", phone);
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(this, getString(R.string.toast_phone_copied, phone), Toast.LENGTH_SHORT).show();
             }
@@ -277,24 +281,30 @@ public class ShelterDirectoryActivity extends BaseActivity implements ShelterAda
     }
 
     private void triggerSync() {
-        progressBar.setVisibility(View.VISIBLE);
-        android.widget.Toast.makeText(this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+        binding.progressShelters.setVisibility(View.VISIBLE);
+        Toast.makeText(this, R.string.sync_in_progress, Toast.LENGTH_SHORT).show();
 
-        com.jibonshield.bd.sync.SyncManager.getInstance(this).syncShelters(null, new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+        SyncManager.getInstance(this).syncShelters(null, new SyncManager.SyncCallback() {
             @Override
             public void onSyncStarted(String entityName) {}
 
             @Override
-            public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+            public void onSyncComplete(SyncResult result) {
                 loadShelters();
                 if (result.isOffline()) {
-                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
+                    Toast.makeText(ShelterDirectoryActivity.this, R.string.sync_offline_toast, Toast.LENGTH_LONG).show();
                 } else if (result.isSuccess()) {
-                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), Toast.LENGTH_SHORT).show();
                 } else {
-                    android.widget.Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                    Toast.makeText(ShelterDirectoryActivity.this, getString(R.string.sync_error_toast, result.getMessage()), Toast.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

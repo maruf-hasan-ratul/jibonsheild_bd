@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_stale_data_banner_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/severity_warning_container"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/spacing_16"
+    android:paddingTop="@dimen/spacing_8"
+    android:paddingEnd="@dimen/spacing_16"
+    android:paddingBottom="@dimen/spacing_8"
+    android:visibility="gone">
+
+    <ImageView
+        android:layout_width="@dimen/icon_size_small"
+        android:layout_height="@dimen/icon_size_small"
+        android:contentDescription="@string/banner_stale_data"
+        android:src="@drawable/ic_warning"
+        app:tint="@color/severity_warning" />
+
+    <TextView
+        android:id="@+id/tv_stale_banner_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_8"
+        android:layout_weight="1"
+        android:fontFamily="@font/app_font_family"
+        android:lineSpacingExtra="2dp"
+        android:text="@string/banner_stale_data"
+        android:textColor="@color/on_severity_warning_container"
+        android:textSize="@dimen/m3_type_label_small" />
+
+</LinearLayout>
+

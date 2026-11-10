@@ -18,6 +18,7 @@ import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.models.SyncMetadata;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.utils.DistrictData;
 import com.jibonshield.bd.utils.LocaleHelper;
 import com.jibonshield.bd.utils.PreferenceUtils;
 
@@ -36,6 +37,11 @@ public class SettingsActivity extends BaseActivity {
     private RadioGroup rgLanguage;
     private RadioButton rbBangla;
     private RadioButton rbEnglish;
+    private RadioGroup rgTheme;
+    private RadioButton rbThemeSystem;
+    private RadioButton rbThemeLight;
+    private RadioButton rbThemeDark;
+    private RadioButton rbThemeAmoled;
     private Spinner spinnerDistrict;
     private TextView tvStorageContacts;
     private TextView tvStorageShelters;
@@ -47,9 +53,7 @@ public class SettingsActivity extends BaseActivity {
 
     private EmergencyRepository repository;
 
-    private final String[] districts = new String[]{
-            "All", "Dhaka", "Sylhet", "Cox's Bazar", "Sunamganj", "Kurigram", "Patuakhali", "Chittagong"
-    };
+    private final String[] districts = DistrictData.getDistrictsWithAll();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,11 @@ public class SettingsActivity extends BaseActivity {
         rgLanguage = findViewById(R.id.rg_settings_language);
         rbBangla = findViewById(R.id.rb_lang_bangla);
         rbEnglish = findViewById(R.id.rb_lang_english);
+        rgTheme = findViewById(R.id.rg_settings_theme);
+        rbThemeSystem = findViewById(R.id.rb_theme_system);
+        rbThemeLight = findViewById(R.id.rb_theme_light);
+        rbThemeDark = findViewById(R.id.rb_theme_dark);
+        rbThemeAmoled = findViewById(R.id.rb_theme_amoled);
         spinnerDistrict = findViewById(R.id.spinner_settings_district);
         tvStorageContacts = findViewById(R.id.tv_storage_contacts);
         tvStorageShelters = findViewById(R.id.tv_storage_shelters);
@@ -98,6 +107,18 @@ public class SettingsActivity extends BaseActivity {
             rbBangla.setChecked(true);
         }
 
+        // Theme
+        String theme = PreferenceUtils.getThemeMode(this);
+        if (PreferenceUtils.THEME_AMOLED.equalsIgnoreCase(theme)) {
+            rbThemeAmoled.setChecked(true);
+        } else if (PreferenceUtils.THEME_DARK.equalsIgnoreCase(theme)) {
+            rbThemeDark.setChecked(true);
+        } else if (PreferenceUtils.THEME_LIGHT.equalsIgnoreCase(theme)) {
+            rbThemeLight.setChecked(true);
+        } else {
+            rbThemeSystem.setChecked(true);
+        }
+
         // District
         ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts);
         spinnerDistrict.setAdapter(districtAdapter);
@@ -127,10 +148,35 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
+        rgTheme.setOnCheckedChangeListener((group, checkedId) -> {
+            String selectedTheme;
+            if (checkedId == R.id.rb_theme_amoled) {
+                selectedTheme = PreferenceUtils.THEME_AMOLED;
+            } else if (checkedId == R.id.rb_theme_dark) {
+                selectedTheme = PreferenceUtils.THEME_DARK;
+            } else if (checkedId == R.id.rb_theme_light) {
+                selectedTheme = PreferenceUtils.THEME_LIGHT;
+            } else {
+                selectedTheme = PreferenceUtils.THEME_SYSTEM;
+            }
+
+            if (!selectedTheme.equalsIgnoreCase(PreferenceUtils.getThemeMode(this))) {
+                PreferenceUtils.setThemeMode(this, selectedTheme);
+                applyAppTheme();
+                android.widget.Toast.makeText(this, R.string.toast_theme_changed, android.widget.Toast.LENGTH_SHORT).show();
+                recreate();
+            }
+        });
+
         spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                PreferenceUtils.setSelectedDistrict(SettingsActivity.this, districts[position]);
+                String dist = districts[position];
+                PreferenceUtils.setSelectedDistrict(SettingsActivity.this, dist);
+                if (!"All".equalsIgnoreCase(dist)) {
+                    com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(SettingsActivity.this)
+                            .updateHometown("", dist, "", null);
+                }
             }
 
             @Override
@@ -148,23 +194,34 @@ public class SettingsActivity extends BaseActivity {
                 btnSync.setEnabled(false);
                 android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
 
-                com.jibonshield.bd.sync.SyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+                com.jibonshield.bd.sync.FirestoreSyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.FirestoreSyncManager.SyncCallback() {
                     @Override
-                    public void onSyncStarted(String entityName) {}
+                    public void onSyncStarted(String stage) {}
 
                     @Override
-                    public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
-                        if (progressSync != null) progressSync.setVisibility(View.GONE);
-                        btnSync.setEnabled(true);
-                        loadDatabaseStorageInfo();
+                    public void onSyncProgress(String stage, int count) {}
 
-                        if (result.isOffline()) {
-                            android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
-                        } else if (result.isSuccess()) {
-                            android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
-                        } else {
-                            android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
-                        }
+                    @Override
+                    public void onSyncComplete(boolean success, int totalSynced, String message) {
+                        com.jibonshield.bd.sync.SyncManager.getInstance(SettingsActivity.this).syncAll(new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+                            @Override
+                            public void onSyncStarted(String entityName) {}
+
+                            @Override
+                            public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+                                if (progressSync != null) progressSync.setVisibility(View.GONE);
+                                btnSync.setEnabled(true);
+                                loadDatabaseStorageInfo();
+
+                                if (result.isOffline()) {
+                                    android.widget.Toast.makeText(SettingsActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
+                                } else if (result.isSuccess() || success) {
+                                    android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_complete_toast, (totalSynced > 0 ? totalSynced + " records" : result.getMessage())), android.widget.Toast.LENGTH_SHORT).show();
+                                } else {
+                                    android.widget.Toast.makeText(SettingsActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
                     }
                 });
             });
@@ -186,7 +243,7 @@ public class SettingsActivity extends BaseActivity {
                             tvStorageWarnings.setText("Flood Warnings: " + meta.getRecordsCount() + " (" + meta.getSyncStatus() + " • " + timeStr + ")");
                         }
                     }
-                    tvStorageDatabase.setText("Local Database: SQLite v3 (Verified Offline Baseline)");
+                    tvStorageDatabase.setText("Local Database: Room v1 + Cloud Firestore (100% Offline Ready)");
                 }
             }
 

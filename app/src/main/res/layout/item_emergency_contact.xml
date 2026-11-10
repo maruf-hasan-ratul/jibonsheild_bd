@@ -6,18 +6,19 @@
     style="@style/Widget.JibonShieldBD.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/spacing_large"
-    android:layout_marginTop="@dimen/spacing_small"
-    android:layout_marginEnd="@dimen/spacing_large"
-    android:layout_marginBottom="@dimen/spacing_small"
-    android:minHeight="@dimen/min_touch_target">
+    android:layout_marginStart="@dimen/spacing_16"
+    android:layout_marginTop="@dimen/spacing_4"
+    android:layout_marginEnd="@dimen/spacing_16"
+    android:layout_marginBottom="@dimen/spacing_8"
+    android:minHeight="@dimen/touch_target_min">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_large">
+        android:padding="@dimen/spacing_16">
 
+        <!-- Header: Category & Toll-Free Badges -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,9 +29,10 @@
                 android:id="@+id/tv_contact_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge"
-                android:textColor="@color/primary"
-                android:textSize="@dimen/text_size_caption"
+                android:background="@drawable/bg_severity_sample"
+                android:fontFamily="@font/app_font_family"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="@dimen/m3_type_label_small"
                 android:textStyle="bold"
                 tools:text="NATIONAL" />
 
@@ -38,11 +40,15 @@
                 android:id="@+id/tv_contact_tollfree"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginStart="@dimen/spacing_8"
                 android:background="@drawable/bg_severity_safe"
+                android:drawableStart="@drawable/ic_check_circle"
+                android:drawablePadding="@dimen/spacing_4"
+                android:fontFamily="@font/app_font_family"
+                android:gravity="center_vertical"
                 android:text="@string/label_contact_toll_free"
-                android:textColor="@color/success_green"
-                android:textSize="@dimen/text_size_caption"
+                android:textColor="@color/severity_safe"
+                android:textSize="@dimen/m3_type_label_small"
                 android:textStyle="bold" />
 
             <View
@@ -54,43 +60,53 @@
                 android:id="@+id/tv_contact_hours"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_tertiary"
-                android:textSize="@dimen/text_size_caption"
+                android:fontFamily="@font/app_font_family"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/m3_type_label_small"
                 tools:text="24/7" />
         </LinearLayout>
 
+        <!-- Service / Agency Name -->
         <TextView
             android:id="@+id/tv_contact_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_subhead"
+            android:layout_marginTop="@dimen/spacing_8"
+            android:fontFamily="@font/app_font_family"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/m3_type_title_medium"
             android:textStyle="bold"
             tools:text="National Emergency Service (Police, Fire, Ambulance)" />
 
+        <!-- Description -->
         <TextView
             android:id="@+id/tv_contact_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xxsmall"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_body_small"
+            android:layout_marginTop="@dimen/spacing_4"
+            android:fontFamily="@font/app_font_family"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_body_small"
             tools:text="Instant police response, fire brigade dispatch, and ambulance coordination" />
 
+        <!-- Meta Source Info -->
         <TextView
             android:id="@+id/tv_contact_meta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xxsmall"
-            android:textColor="@color/text_tertiary"
-            android:textSize="@dimen/text_size_caption"
+            android:layout_marginTop="@dimen/spacing_4"
+            android:fontFamily="@font/app_font_family"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_label_small"
             tools:text="Source: Bangladesh Police HQ • Verified: 2026-01-01" />
 
+        <!-- Action Row: Hotline Number & Big Dial Action -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_12"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -99,24 +115,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/emergency_red"
-                android:textSize="@dimen/text_size_title"
+                android:fontFamily="@font/app_font_family"
+                android:textColor="@color/severity_critical"
+                android:textSize="@dimen/m3_type_headline_small"
                 android:textStyle="bold"
                 tools:text="999" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_contact_call"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:backgroundTint="@color/emergency_red"
-                android:minHeight="@dimen/min_touch_target"
+                android:layout_height="@dimen/touch_target_min"
+                android:backgroundTint="@color/severity_critical"
+                android:minHeight="@dimen/touch_target_min"
                 android:text="@string/action_call"
-                android:textColor="@color/surface_white"
-                android:textSize="@dimen/text_size_caption"
-                app:cornerRadius="6dp"
+                android:textColor="@color/on_severity_critical"
+                android:textSize="@dimen/m3_type_label_medium"
+                app:cornerRadius="@dimen/radius_12"
                 app:icon="@drawable/ic_call_emergency"
                 app:iconSize="@dimen/icon_size_small"
-                app:iconTint="@color/surface_white" />
+                app:iconTint="@color/on_severity_critical" />
         </LinearLayout>
 
     </LinearLayout>

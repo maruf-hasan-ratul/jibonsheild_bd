@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ===================================================================== -->
+    <!-- MATERIAL 3 COLOR ROLES (DARK THEME)                                   -->
+    <!-- ===================================================================== -->
+    <color name="m3_primary">#ADC6FF</color>
+    <color name="m3_on_primary">#002E69</color>
+    <color name="m3_primary_container">#004494</color>
+    <color name="m3_on_primary_container">#D9E6FF</color>
+
+    <color name="m3_secondary">#4CDADA</color>
+    <color name="m3_on_secondary">#003737</color>
+    <color name="m3_secondary_container">#004F4F</color>
+    <color name="m3_on_secondary_container">#6FF7F6</color>
+
+    <color name="m3_tertiary">#DABDE2</color>
+    <color name="m3_on_tertiary">#3E2846</color>
+    <color name="m3_tertiary_container">#553E5D</color>
+    <color name="m3_on_tertiary_container">#F7D8FD</color>
+
+    <color name="m3_error">#FFB4AB</color>
+    <color name="m3_on_error">#690005</color>
+    <color name="m3_error_container">#93000A</color>
+    <color name="m3_on_error_container">#FFDAD6</color>
+
+    <color name="m3_background">#111318</color>
+    <color name="m3_on_background">#E2E2E9</color>
+    <color name="m3_surface">#1A1C20</color>
+    <color name="m3_on_surface">#E2E2E9</color>
+    <color name="m3_surface_variant">#44474F</color>
+    <color name="m3_on_surface_variant">#C4C6D0</color>
+    <color name="m3_outline">#8E9099</color>
+    <color name="m3_outline_variant">#44474F</color>
+
+    <!-- Legacy Theme Color References (Mapped to M3 roles) -->
+    <color name="primary">@color/m3_primary</color>
+    <color name="primary_dark">#001C38</color>
+    <color name="primary_light">#004494</color>
+    <color name="on_primary">@color/m3_on_primary</color>
+
+    <color name="secondary">@color/m3_secondary</color>
+    <color name="secondary_dark">#002020</color>
+    <color name="secondary_light">#004F4F</color>
+    <color name="on_secondary">@color/m3_on_secondary</color>
+
+    <!-- ===================================================================== -->
+    <!-- HAZARD SPECIFIC PALETTE & CONTAINERS (DARK)                           -->
+    <!-- ===================================================================== -->
+    <color name="hazard_flood">#ADC6FF</color>
+    <color name="hazard_flood_container">#004494</color>
+    <color name="on_hazard_flood">#002E69</color>
+
+    <color name="hazard_heat">#FFB59D</color>
+    <color name="hazard_heat_container">#822700</color>
+    <color name="on_hazard_heat">#5A1800</color>
+
+    <color name="hazard_cyclone">#4CDADA</color>
+    <color name="hazard_cyclone_container">#004F4F</color>
+    <color name="on_hazard_cyclone">#003737</color>
+
+    <color name="hazard_water">#4DD8E6</color>
+    <color name="hazard_water_container">#004F54</color>
+    <color name="on_hazard_water">#00363A</color>
+
+    <!-- ===================================================================== -->
+    <!-- SEVERITY BADGES & CONTAINER ROLES (DARK)                              -->
+    <!-- ===================================================================== -->
+    <color name="severity_critical">#FFB4AB</color>
+    <color name="severity_critical_container">#93000A</color>
+    <color name="severity_critical_light">#93000A</color>
+    <color name="on_severity_critical">#690005</color>
+    <color name="on_severity_critical_container">#FFDAD6</color>
+
+    <color name="severity_warning">#FFB77B</color>
+    <color name="severity_warning_container">#713200</color>
+    <color name="severity_warning_light">#713200</color>
+    <color name="on_severity_warning">#4E1F00</color>
+    <color name="on_severity_warning_container">#FFDCC3</color>
+
+    <color name="severity_advisory">#FFDE83</color>
+    <color name="severity_advisory_container">#593D00</color>
+    <color name="severity_advisory_light">#593D00</color>
+    <color name="on_severity_advisory">#3D2800</color>
+    <color name="on_severity_advisory_container">#FFE086</color>
+
+    <color name="severity_safe">#8BD899</color>
+    <color name="severity_safe_container">#005322</color>
+    <color name="severity_safe_light">#005322</color>
+    <color name="on_severity_safe">#003914</color>
+    <color name="on_severity_safe_container">#A7F5B3</color>
+
+    <color name="severity_sample">#B2C9E9</color>
+    <color name="severity_sample_container">#324864</color>
+    <color name="severity_sample_light">#324864</color>
+    <color name="on_severity_sample">#1B324D</color>
+    <color name="on_severity_sample_container">#D4E4FC</color>
+
+    <!-- Status Alerts -->
+    <color name="warning_amber">@color/severity_warning</color>
+    <color name="warning_amber_light">@color/severity_warning_container</color>
+    <color name="emergency_red">@color/severity_critical</color>
+    <color name="emergency_red_light">@color/severity_critical_container</color>
+    <color name="success_green">@color/severity_safe</color>
+    <color name="success_green_light">@color/severity_safe_container</color>
+
+    <!-- Surfaces & Neutrals -->
+    <color name="background_light">#111318</color>
+    <color name="surface_white">#1A1C20</color>
+    <color name="divider_color">#2C3038</color>
+    <color name="card_stroke">#2C3038</color>
+
+    <!-- Text Typography -->
+    <color name="text_primary">#E2E2E9</color>
+    <color name="text_secondary">#C4C6D0</color>
+    <color name="text_tertiary">#8E9099</color>
+    <color name="text_muted">#686C75</color>
+
+    <!-- State Overlays -->
+    <color name="ripple_light">#26FFFFFF</color>
+    <color name="badge_offline_bg">#3E1800</color>
+    <color name="badge_offline_text">#FFB77B</color>
+    <color name="skeleton_shimmer">#242830</color>
+</resources>
+

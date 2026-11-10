@@ -5,20 +5,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.adapters.FloodWarningAdapter;
+import com.jibonshield.bd.databinding.ActivityFloodWarningListBinding;
 import com.jibonshield.bd.models.FloodWarning;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.sync.SyncManager;
+import com.jibonshield.bd.sync.SyncResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,23 +24,15 @@ import java.util.List;
 /**
  * Screen 2: Flood Warning List.
  * Displays active flood advisories and simulated offline warning drills with region
- * and active/expired status filtering. Expired warnings are strictly isolated.
+ * and active/expired status filtering. Demonstrates View Binding and dynamic filtering.
  */
 public class FloodWarningListActivity extends BaseActivity implements FloodWarningAdapter.OnWarningClickListener {
 
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private View emptyStateLayout;
-    private TextView tvEmptyTitle;
-    private TextView tvEmptyDesc;
-    private MaterialButton btnEmptyAction;
-    private Spinner spinnerRegion;
-    private Spinner spinnerStatus;
-
+    private ActivityFloodWarningListBinding binding;
     private FloodWarningAdapter adapter;
     private EmergencyRepository repository;
     private final List<FloodWarning> warningList = new ArrayList<>();
-    private final String[] regions = new String[]{"All", "Sylhet", "Sunamganj", "Kurigram", "Sirajganj", "Bogura"};
+    private final String[] regions = com.jibonshield.bd.utils.DistrictData.getDistrictsWithAll();
     private String[] statusOptions;
 
     private int currentStatusSelection = 0; // 0 = Active, 1 = Expired, 2 = All
@@ -51,7 +41,8 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flood_warning_list);
+        binding = ActivityFloodWarningListBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         statusOptions = new String[]{
                 getString(R.string.filter_active_warnings),
@@ -59,41 +50,17 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
                 getString(R.string.filter_all_warnings)
         };
 
-        initViews();
+        repository = new EmergencyRepository(this);
+
         setupToolbar();
         setupSpinners();
         setupRecyclerView();
+        setupEmptyStateActions();
         loadWarnings();
     }
 
-    private void initViews() {
-        recyclerView = findViewById(R.id.recycler_flood_warnings);
-        progressBar = findViewById(R.id.progress_flood_warnings);
-        emptyStateLayout = findViewById(R.id.empty_state_flood);
-        spinnerRegion = findViewById(R.id.spinner_flood_region);
-        spinnerStatus = findViewById(R.id.spinner_flood_status);
-
-        if (emptyStateLayout != null) {
-            tvEmptyTitle = emptyStateLayout.findViewById(R.id.tv_empty_title);
-            tvEmptyDesc = emptyStateLayout.findViewById(R.id.tv_empty_message);
-            btnEmptyAction = emptyStateLayout.findViewById(R.id.btn_empty_action);
-            if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.flood_empty_title);
-            if (tvEmptyDesc != null) tvEmptyDesc.setText(R.string.flood_empty_desc);
-            if (btnEmptyAction != null) {
-                btnEmptyAction.setVisibility(View.VISIBLE);
-                btnEmptyAction.setText(R.string.action_clear_filters);
-                btnEmptyAction.setOnClickListener(v -> {
-                    spinnerRegion.setSelection(0);
-                    spinnerStatus.setSelection(0);
-                });
-            }
-        }
-
-        repository = new EmergencyRepository(this);
-    }
-
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_flood_warnings);
+        Toolbar toolbar = binding.toolbarFloodWarnings;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -102,11 +69,34 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+    private void setupEmptyStateActions() {
+        View emptyLayout = binding.emptyStateFlood.getRoot();
+        View btnAction = emptyLayout.findViewById(R.id.btn_empty_action);
+        if (btnAction != null) {
+            btnAction.setVisibility(View.VISIBLE);
+            btnAction.setOnClickListener(v -> {
+                binding.spinnerFloodRegion.setSelection(0);
+                binding.spinnerFloodStatus.setSelection(0);
+            });
+        }
+    }
+
     private void setupSpinners() {
-        // Region spinner
         ArrayAdapter<String> regionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, regions);
-        spinnerRegion.setAdapter(regionAdapter);
-        spinnerRegion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.spinnerFloodRegion.setAdapter(regionAdapter);
+
+        String hometownDistrict = com.jibonshield.bd.utils.PreferenceUtils.getHometownDistrict(this);
+        if (com.jibonshield.bd.utils.PreferenceUtils.isHometownConfigured(this) && !hometownDistrict.isEmpty()) {
+            for (int i = 0; i < regions.length; i++) {
+                if (regions[i].equalsIgnoreCase(hometownDistrict)) {
+                    currentRegion = regions[i];
+                    binding.spinnerFloodRegion.setSelection(i);
+                    break;
+                }
+            }
+        }
+
+        binding.spinnerFloodRegion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentRegion = regions[position];
@@ -117,10 +107,9 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Status spinner (Active vs Expired vs All)
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, statusOptions);
-        spinnerStatus.setAdapter(statusAdapter);
-        spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.spinnerFloodStatus.setAdapter(statusAdapter);
+        binding.spinnerFloodStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentStatusSelection = position;
@@ -133,18 +122,19 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerFloodWarnings.setLayoutManager(new LinearLayoutManager(this));
         adapter = new FloodWarningAdapter(this, warningList, this);
-        recyclerView.setAdapter(adapter);
+        binding.recyclerFloodWarnings.setAdapter(adapter);
     }
 
     private void loadWarnings() {
-        progressBar.setVisibility(View.VISIBLE);
+        binding.progressFloodWarnings.setVisibility(View.VISIBLE);
 
         EmergencyRepository.DataCallback<List<FloodWarning>> callback = new EmergencyRepository.DataCallback<List<FloodWarning>>() {
             @Override
             public void onDataLoaded(List<FloodWarning> data) {
-                progressBar.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressFloodWarnings.setVisibility(View.GONE);
                 warningList.clear();
                 if (data != null) {
                     warningList.addAll(data);
@@ -152,48 +142,36 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
                 adapter.notifyDataSetChanged();
 
                 if (warningList.isEmpty()) {
-                    if (emptyStateLayout != null) {
-                        emptyStateLayout.setVisibility(View.VISIBLE);
-                        if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.flood_empty_title);
-                        if (tvEmptyDesc != null) {
-                            tvEmptyDesc.setText(getString(R.string.flood_empty_desc) + "\n\n" + getString(R.string.warning_safety_caveat_body));
-                        }
-                        if (btnEmptyAction != null) {
-                            btnEmptyAction.setVisibility(View.VISIBLE);
-                            btnEmptyAction.setText(R.string.action_view_guidelines);
-                            btnEmptyAction.setOnClickListener(v -> {
-                                startActivity(new Intent(FloodWarningListActivity.this, EvacuationGuidelinesActivity.class));
-                            });
-                        }
-                    }
-                    recyclerView.setVisibility(View.GONE);
+                    binding.emptyStateFlood.getRoot().setVisibility(View.VISIBLE);
+                    binding.recyclerFloodWarnings.setVisibility(View.GONE);
                 } else {
-                    if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
+                    binding.emptyStateFlood.getRoot().setVisibility(View.GONE);
+                    binding.recyclerFloodWarnings.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onError(Exception error) {
-                progressBar.setVisibility(View.GONE);
-                if (emptyStateLayout != null) {
-                    emptyStateLayout.setVisibility(View.VISIBLE);
-                    if (tvEmptyDesc != null) {
-                        tvEmptyDesc.setText(getString(R.string.flood_empty_desc) + "\n\n" + getString(R.string.warning_safety_caveat_body));
-                    }
-                }
-                recyclerView.setVisibility(View.GONE);
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                binding.progressFloodWarnings.setVisibility(View.GONE);
+                binding.emptyStateFlood.getRoot().setVisibility(View.VISIBLE);
+                binding.recyclerFloodWarnings.setVisibility(View.GONE);
             }
         };
 
+        if (currentRegion.equalsIgnoreCase("All") && com.jibonshield.bd.utils.PreferenceUtils.isHometownConfigured(this)) {
+            String div = com.jibonshield.bd.utils.PreferenceUtils.getHometownDivision(this);
+            String dist = com.jibonshield.bd.utils.PreferenceUtils.getHometownDistrict(this);
+            String upz = com.jibonshield.bd.utils.PreferenceUtils.getHometownUpazila(this);
+            repository.getDisasterUpdatesByHometown(div, dist, upz, callback);
+            return;
+        }
+
         if (currentStatusSelection == 0) {
-            // Active warnings only (default)
             repository.getActiveFloodWarnings(currentRegion, callback);
         } else if (currentStatusSelection == 1) {
-            // Expired warnings only
             repository.getExpiredFloodWarnings(currentRegion, callback);
         } else {
-            // All warnings
             repository.getFloodWarnings(currentRegion, callback);
         }
     }
@@ -221,24 +199,30 @@ public class FloodWarningListActivity extends BaseActivity implements FloodWarni
     }
 
     private void triggerSync() {
-        progressBar.setVisibility(View.VISIBLE);
-        android.widget.Toast.makeText(this, R.string.sync_in_progress, android.widget.Toast.LENGTH_SHORT).show();
+        binding.progressFloodWarnings.setVisibility(View.VISIBLE);
+        Toast.makeText(this, R.string.sync_in_progress, Toast.LENGTH_SHORT).show();
 
-        com.jibonshield.bd.sync.SyncManager.getInstance(this).syncFloodWarnings(null, new com.jibonshield.bd.sync.SyncManager.SyncCallback() {
+        SyncManager.getInstance(this).syncFloodWarnings(null, new SyncManager.SyncCallback() {
             @Override
             public void onSyncStarted(String entityName) {}
 
             @Override
-            public void onSyncComplete(com.jibonshield.bd.sync.SyncResult result) {
+            public void onSyncComplete(SyncResult result) {
                 loadWarnings();
                 if (result.isOffline()) {
-                    android.widget.Toast.makeText(FloodWarningListActivity.this, R.string.sync_offline_toast, android.widget.Toast.LENGTH_LONG).show();
+                    Toast.makeText(FloodWarningListActivity.this, R.string.sync_offline_toast, Toast.LENGTH_LONG).show();
                 } else if (result.isSuccess()) {
-                    android.widget.Toast.makeText(FloodWarningListActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), android.widget.Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FloodWarningListActivity.this, getString(R.string.sync_complete_toast, result.getMessage()), Toast.LENGTH_SHORT).show();
                 } else {
-                    android.widget.Toast.makeText(FloodWarningListActivity.this, getString(R.string.sync_error_toast, result.getMessage()), android.widget.Toast.LENGTH_LONG).show();
+                    Toast.makeText(FloodWarningListActivity.this, getString(R.string.sync_error_toast, result.getMessage()), Toast.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

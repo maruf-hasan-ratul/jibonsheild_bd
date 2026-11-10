@@ -1,6 +1,10 @@
 *.iml
 .gradle
 /local.properties
+*serviceAccountKey.json
+serviceAccountKey.json
+scripts/node_modules/
+
 /.idea/
 .DS_Store
 build/
@@ -11,3 +15,7 @@ captures/
 .externalNativeBuild
 .cxx
 local.properties
+*serviceAccountKey.json
+serviceAccountKey.json
+scripts/node_modules/
+

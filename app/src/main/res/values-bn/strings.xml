@@ -430,4 +430,68 @@
     <string name="status_unavailable">উৎস অনুপলব্ধ</string>
     <string name="sync_last_synced_format">সর্বশেষ সিঙ্ক: %s</string>
     <string name="sync_records_format">%d টি রেকর্ড</string>
+
+    <!-- Photo Evidence & Media -->
+    <string name="label_photo_evidence">মাঠপর্যায়ের ছবির প্রমাণ (ঐচ্ছিক)</string>
+    <string name="btn_add_photo">ছবি যোগ করুন</string>
+    <string name="btn_remove_photo">ছবি মুছুন</string>
+    <string name="photo_attached">ছবির প্রমাণ সংযুক্ত রয়েছে</string>
+    <string name="photo_pending_upload">ক্লাউড আপলোড বাকি</string>
+    <string name="photo_uploaded">ক্লাউডে আপলোড সম্পন্ন</string>
+
+    <!-- Foreground Emergency Monitoring Service -->
+    <string name="action_start_monitoring">জরুরি নজরদারি শুরু করুন</string>
+    <string name="action_stop_monitoring">নজরদারি বন্ধ করুন</string>
+    <string name="monitoring_active_title">সক্রিয় জরুরি নজরদারি</string>
+    <string name="monitoring_active_desc">জীবনশীল্ড সতর্ক রয়েছে। ড্যাশবোর্ড খুলতে ট্যাপ করুন।</string>
+    <string name="channel_emergency_monitoring_name">জরুরি নজরদারি সেবা</string>
+    <string name="channel_emergency_monitoring_desc">দুর্যোগ চলাকালীন সার্বক্ষণিক সক্রিয় বিজ্ঞপ্তি</string>
+
+    <!-- Broadcast Receivers Feedback -->
+    <string name="status_airplane_mode_active">এয়ারপ্লেন মোড চালু — ১০০% অফলাইনে কার্যকর</string>
+    <string name="status_battery_saver_active">ব্যাটারি সেভার চালু — ব্যাকগ্রাউন্ড সিঙ্ক স্থগিত</string>
+
+    <!-- Authentication & Profile -->
+    <string name="title_login">লগইন করুন</string>
+    <string name="title_register">অ্যাকাউন্ট তৈরি করুন</string>
+    <string name="title_profile">ব্যবহারকারী প্রোফাইল</string>
+    <string name="btn_login">সাইন ইন</string>
+    <string name="btn_register">অ্যাকাউন্ট তৈরি</string>
+    <string name="btn_logout">লগআউট</string>
+    <string name="btn_continue_as_guest">অতিথি হিসেবে চালিয়ে যান (অফলাইন মোড)</string>
+    <string name="hint_email">ইমেইল ঠিকানা</string>
+    <string name="hint_password">পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</string>
+    <string name="hint_display_name">পূর্ণ নাম</string>
+    <string name="hint_phone">মোবাইল নম্বর</string>
+    <string name="label_role">অ্যাকাউন্টের ধরন:</string>
+    <string name="role_citizen">সাধারণ নাগরিক</string>
+    <string name="role_volunteer">দুর্যোগকালীন জরুরি স্বেচ্ছাসেবক</string>
+    <string name="prompt_no_account">কোনো অ্যাকাউন্ট নেই? এখানে নিবন্ধন করুন</string>
+    <string name="prompt_have_account">ইতিমধ্যে অ্যাকাউন্ট আছে? সাইন ইন করুন</string>
+    <string name="auth_error_fields">অনুগ্রহ করে সব তথ্য সঠিকভাবে পূরণ করুন।</string>
+    <string name="auth_failed_title">অথেন্টিকেশন নোটিশ</string>
+    <string name="auth_success">অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে।</string>
+    <string name="login_success">সফলভাবে সাইন ইন হয়েছে।</string>
+    <string name="logout_success">সাইন আউট সম্পন্ন হয়েছে।</string>
+    <string name="profile_guest_mode">অতিথি মোড (স্থানীয় অফলাইন নিরাপত্তা)</string>
+    <string name="profile_cloud_mode">যাচাইকৃত ক্লাউড অ্যাকাউন্ট</string>
+
+    <!-- Material 3 Navigation & Theme Strings -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_shelters">আশ্রয়কেন্দ্র</string>
+    <string name="nav_alerts">সতর্কবার্তা</string>
+    <string name="nav_help">সাহায্য</string>
+
+    <string name="heading_theme">অ্যাপ থিম ও ডিসপ্লে</string>
+    <string name="theme_system">সিস্টেম ডিফল্ট</string>
+    <string name="theme_light">লাইট থিম</string>
+    <string name="theme_dark">ডার্ক থিম</string>
+    <string name="theme_amoled">কম বিদ্যুৎ সাশ্রয়ী অ্যামোলেড (কালো)</string>
+    <string name="toast_theme_changed">ডিসপ্লে থিম পরিবর্তন করা হয়েছে</string>
+
+    <string name="badge_critical">বিপদসংকেত</string>
+    <string name="badge_warning">সতর্কতা</string>
+    <string name="badge_advisory">পরামর্শ</string>
+    <string name="badge_safe">স্বাভাবিক</string>
+    <string name="banner_stale_data">তথ্য ২৪ ঘণ্টার বেশি পুরোনো। আপডেট পেতে ইন্টারনেট সংযুক্ত করুন।</string>
 </resources>

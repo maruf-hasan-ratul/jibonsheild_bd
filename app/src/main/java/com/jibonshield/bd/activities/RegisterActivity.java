@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.jibonshield.bd.R;
 import com.jibonshield.bd.databinding.ActivityRegisterBinding;
 import com.jibonshield.bd.firebase.FirebaseAuthManager;
+import com.jibonshield.bd.utils.DistrictData;
 import com.jibonshield.bd.models.UserProfile;
 
 /**
@@ -24,9 +25,7 @@ public class RegisterActivity extends BaseActivity {
     private ActivityRegisterBinding binding;
     private FirebaseAuthManager authManager;
 
-    private final String[] districts = new String[]{
-            "Dhaka", "Sylhet", "Chandpur", "Kurigram", "Cox's Bazar", "Chittagong", "Sunamganj", "Patuakhali", "Other"
-    };
+    private final String[] districts = DistrictData.getDistrictsForRegistration();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +95,11 @@ public class RegisterActivity extends BaseActivity {
                 if (isFinishing() || isDestroyed()) return;
                 binding.progressRegister.setVisibility(View.GONE);
                 binding.btnActionRegister.setEnabled(true);
-                Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                new androidx.appcompat.app.AlertDialog.Builder(RegisterActivity.this)
+                        .setTitle(R.string.auth_failed_title)
+                        .setMessage(errorMessage)
+                        .setPositiveButton(R.string.dialog_close, null)
+                        .show();
             }
         });
     }

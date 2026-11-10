@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_home" />
+    <item
+        android:id="@+id/nav_shelters"
+        android:icon="@drawable/ic_shelter"
+        android:title="@string/nav_shelters" />
+    <item
+        android:id="@+id/nav_alerts"
+        android:icon="@drawable/ic_warning"
+        android:title="@string/nav_alerts" />
+    <item
+        android:id="@+id/nav_help"
+        android:icon="@drawable/ic_call_emergency"
+        android:title="@string/nav_help" />
+</menu>
+

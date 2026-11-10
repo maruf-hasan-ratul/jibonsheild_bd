@@ -1,66 +1,216 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme -->
-    <style name="Theme.JibonShieldBD" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Primary brand colors -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorOnPrimary">@color/on_primary</item>
+    <!-- ===================================================================== -->
+    <!-- BASE APPLICATION THEME (MATERIAL 3 DAYNIGHT)                          -->
+    <!-- ===================================================================== -->
+    <style name="Theme.JibonShieldBD" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand Color Roles -->
+        <item name="colorPrimary">@color/m3_primary</item>
+        <item name="colorOnPrimary">@color/m3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_on_primary_container</item>
 
-        <!-- Secondary brand colors -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorSecondaryVariant">@color/secondary_dark</item>
-        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondary">@color/m3_secondary</item>
+        <item name="colorOnSecondary">@color/m3_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
 
-        <!-- Status bar and Navigation bar -->
-        <item name="android:statusBarColor">@color/primary_dark</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">@color/surface_white</item>
+        <item name="colorTertiary">@color/m3_tertiary</item>
+        <item name="colorOnTertiary">@color/m3_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/m3_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m3_on_tertiary_container</item>
+
+        <item name="colorError">@color/m3_error</item>
+        <item name="colorOnError">@color/m3_on_error</item>
+        <item name="colorErrorContainer">@color/m3_error_container</item>
+        <item name="colorOnErrorContainer">@color/m3_on_error_container</item>
+
+        <!-- Surface & Background -->
+        <item name="android:colorBackground">@color/m3_background</item>
+        <item name="android:windowBackground">@color/m3_background</item>
+        <item name="colorSurface">@color/m3_surface</item>
+        <item name="colorOnSurface">@color/m3_on_surface</item>
+        <item name="colorSurfaceVariant">@color/m3_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+        <item name="colorOutline">@color/m3_outline</item>
+        <item name="colorOutlineVariant">@color/m3_outline_variant</item>
+
+        <!-- Typography & Fonts -->
+        <item name="fontFamily">@font/app_font_family</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+
+        <!-- System Bars -->
+        <item name="android:statusBarColor">@color/m3_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/m3_surface</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
 
-        <!-- Background & Surface -->
-        <item name="android:windowBackground">@color/background_light</item>
-        <item name="colorSurface">@color/surface_white</item>
+    <!-- ===================================================================== -->
+    <!-- LOW-POWER AMOLED THEME (TRUE BLACK #000000)                           -->
+    <!-- ===================================================================== -->
+    <style name="Theme.JibonShieldBD.Amoled" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Pure AMOLED Canvas -->
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorSurface">#000000</item>
+        <item name="colorSurfaceVariant">#121212</item>
+        <item name="colorOnSurface">#E8E8ED</item>
+        <item name="colorOnSurfaceVariant">#A0A4AC</item>
+        <item name="colorOutline">#38393F</item>
+        <item name="colorOutlineVariant">#24252A</item>
+
+        <!-- High-Contrast Accents for AMOLED -->
+        <item name="colorPrimary">#ADC6FF</item>
+        <item name="colorOnPrimary">#002E69</item>
+        <item name="colorPrimaryContainer">#002552</item>
+        <item name="colorOnPrimaryContainer">#D9E6FF</item>
+
+        <item name="colorSecondary">#4CDADA</item>
+        <item name="colorOnSecondary">#003737</item>
+        <item name="colorSecondaryContainer">#003333</item>
+        <item name="colorOnSecondaryContainer">#6FF7F6</item>
+
+        <item name="colorError">#FFB4AB</item>
+        <item name="colorOnError">#690005</item>
+
+        <item name="fontFamily">@font/app_font_family</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
     </style>
 
     <!-- Splash Screen theme -->
     <style name="Theme.JibonShieldBD.Splash" parent="Theme.JibonShieldBD">
-        <item name="android:windowBackground">@color/primary</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:windowBackground">@color/m3_primary</item>
+        <item name="android:statusBarColor">@color/m3_primary</item>
     </style>
 
-    <!-- Card View Style -->
-    <style name="Widget.JibonShieldBD.Card" parent="Widget.MaterialComponents.CardView">
-        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+    <!-- ===================================================================== -->
+    <!-- M3 COMPONENT STYLES                                                   -->
+    <!-- ===================================================================== -->
+
+    <!-- Card View Style: 20dp radius, outline, no heavy shadow -->
+    <style name="Widget.JibonShieldBD.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/radius_20</item>
         <item name="cardElevation">@dimen/card_elevation</item>
-        <item name="strokeColor">@color/card_stroke</item>
+        <item name="strokeColor">@color/m3_outline_variant</item>
         <item name="strokeWidth">@dimen/card_stroke_width</item>
-        <item name="cardBackgroundColor">@color/surface_white</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <!-- Subscreen Standard Toolbar -->
-    <style name="Widget.JibonShieldBD.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
-        <item name="android:background">@color/primary</item>
-        <item name="titleTextColor">@color/surface_white</item>
-        <item name="subtitleTextColor">#CCFFFFFF</item>
-        <item name="navigationIcon">@drawable/ic_arrow_back</item>
+    <style name="Widget.JibonShieldBD.Card.Filled" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/radius_20</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
-    <!-- Primary Action Button -->
-    <style name="Widget.JibonShieldBD.Button.Primary" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/primary</item>
-        <item name="android:textColor">@color/surface_white</item>
+    <!-- Hazard Tile Style (2-column dashboard tiles) -->
+    <style name="Widget.JibonShieldBD.HazardTile" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/radius_20</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/m3_outline_variant</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <!-- Big Action Button (min 56dp height, 28dp pill radius) -->
+    <style name="Widget.JibonShieldBD.Button.BigAction" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/touch_target_button</item>
+        <item name="cornerRadius">@dimen/radius_28</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textSize">@dimen/m3_type_label_large</item>
+        <item name="android:paddingStart">@dimen/spacing_24</item>
+        <item name="android:paddingEnd">@dimen/spacing_24</item>
+    </style>
+
+    <!-- Primary Action Button (min 48dp) -->
+    <style name="Widget.JibonShieldBD.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:minHeight">@dimen/min_touch_target</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
     </style>
 
     <!-- Outlined Button -->
-    <style name="Widget.JibonShieldBD.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/primary</item>
-        <item name="strokeColor">@color/primary</item>
+    <style name="Widget.JibonShieldBD.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="strokeColor">?attr/colorOutline</item>
         <item name="android:minHeight">@dimen/min_touch_target</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+    </style>
+
+    <!-- Tonal Button -->
+    <style name="Widget.JibonShieldBD.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+    </style>
+
+    <!-- SOS FAB Style -->
+    <style name="Widget.JibonShieldBD.SosFab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">@color/severity_critical</item>
+        <item name="android:textColor">@color/on_severity_critical</item>
+        <item name="iconTint">@color/on_severity_critical</item>
+        <item name="cornerRadius">@dimen/radius_28</item>
+        <item name="android:minHeight">@dimen/touch_target_button</item>
+    </style>
+
+    <!-- Filter Chip Style -->
+    <style name="Widget.JibonShieldBD.FilterChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/radius_12</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+    </style>
+
+    <!-- Offline Banner Style -->
+    <style name="Widget.JibonShieldBD.OfflineBanner" parent="">
+        <item name="android:padding">@dimen/spacing_12</item>
+    </style>
+
+    <!-- Standard Subscreen Toolbar -->
+    <style name="Widget.JibonShieldBD.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+        <item name="subtitleTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="navigationIcon">@drawable/ic_arrow_back</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
+    <!-- Bottom Navigation View -->
+    <style name="Widget.JibonShieldBD.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="itemIconTint">@color/selector_nav_item_color</item>
+        <item name="itemTextColor">@color/selector_nav_item_color</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Material3.BottomNavigationView.ActiveIndicator</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <!-- Severity Badges -->
+    <style name="Widget.JibonShieldBD.SeverityBadge" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/spacing_8</item>
+        <item name="android:paddingEnd">@dimen/spacing_8</item>
+        <item name="android:paddingTop">@dimen/spacing_4</item>
+        <item name="android:paddingBottom">@dimen/spacing_4</item>
+        <item name="android:textSize">@dimen/m3_type_label_small</item>
+        <item name="android:fontFamily">@font/app_font_family</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 </resources>

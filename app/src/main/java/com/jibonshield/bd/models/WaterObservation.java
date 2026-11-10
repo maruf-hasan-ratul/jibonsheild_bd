@@ -13,6 +13,9 @@ public class WaterObservation implements Serializable {
     public static final double MAX_PH = 14.0;
     public static final int MAX_NOTES_LENGTH = 500;
     public static final double UNMEASURED_PH = -1.0;
+    public static final String SYNC_PENDING = "PENDING";
+    public static final String SYNC_SYNCED = "SYNCED";
+    public static final String SYNC_FAILED = "FAILED";
 
     private final long id;
     private final String locationName;
@@ -26,16 +29,20 @@ public class WaterObservation implements Serializable {
     private final String observationTime;
     private final String reportedBy;
     private final String remarks;
+    private final String imageUri;
+    private final String imageUrl;
+    private final String syncStatus;
     private final long createdAt;
     private final long updatedAt;
 
     /**
-     * Full constructor.
+     * Master constructor with image and sync parameters.
      */
     public WaterObservation(long id, String locationName, String district, String sourceType,
                             String appearance, String odor, double phLevel,
                             String turbidityStatus, String safetyStatus,
                             String observationTime, String reportedBy, String remarks,
+                            String imageUri, String imageUrl, String syncStatus,
                             long createdAt, long updatedAt) {
         this.id = id;
         this.locationName = locationName;
@@ -49,8 +56,24 @@ public class WaterObservation implements Serializable {
         this.observationTime = observationTime;
         this.reportedBy = reportedBy;
         this.remarks = remarks;
+        this.imageUri = imageUri;
+        this.imageUrl = imageUrl;
+        this.syncStatus = syncStatus != null ? syncStatus : SYNC_PENDING;
         this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
         this.updatedAt = updatedAt > 0 ? updatedAt : System.currentTimeMillis();
+    }
+
+    /**
+     * Constructor without image and sync metadata.
+     */
+    public WaterObservation(long id, String locationName, String district, String sourceType,
+                            String appearance, String odor, double phLevel,
+                            String turbidityStatus, String safetyStatus,
+                            String observationTime, String reportedBy, String remarks,
+                            long createdAt, long updatedAt) {
+        this(id, locationName, district, sourceType, appearance, odor, phLevel,
+                turbidityStatus, safetyStatus, observationTime, reportedBy, remarks,
+                null, null, SYNC_PENDING, createdAt, updatedAt);
     }
 
     /**
@@ -62,6 +85,7 @@ public class WaterObservation implements Serializable {
                             String observationTime, String reportedBy, String remarks) {
         this(id, locationName, district, sourceType, appearance, odor, phLevel,
                 turbidityStatus, safetyStatus, observationTime, reportedBy, remarks,
+                null, null, SYNC_PENDING,
                 System.currentTimeMillis(), System.currentTimeMillis());
     }
 
@@ -77,6 +101,10 @@ public class WaterObservation implements Serializable {
     public String getObservationTime() { return observationTime; }
     public String getReportedBy() { return reportedBy; }
     public String getRemarks() { return remarks; }
+    public String getImageUri() { return imageUri; }
+    public String getImageUrl() { return imageUrl; }
+    public String getSyncStatus() { return syncStatus; }
+    public boolean hasImage() { return (imageUri != null && !imageUri.trim().isEmpty()) || (imageUrl != null && !imageUrl.trim().isEmpty()); }
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
 

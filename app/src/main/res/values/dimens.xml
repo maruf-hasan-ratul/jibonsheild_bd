@@ -1,28 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Spacing & Margins -->
+    <!-- M3 Standard Spacing Tokens (4/8/12/16/24/32) -->
+    <dimen name="spacing_4">4dp</dimen>
+    <dimen name="spacing_8">8dp</dimen>
+    <dimen name="spacing_12">12dp</dimen>
+    <dimen name="spacing_16">16dp</dimen>
+    <dimen name="spacing_24">24dp</dimen>
+    <dimen name="spacing_32">32dp</dimen>
+
+    <!-- Legacy / Aliased Spacing -->
     <dimen name="spacing_xxsmall">2dp</dimen>
-    <dimen name="spacing_xsmall">4dp</dimen>
-    <dimen name="spacing_small">8dp</dimen>
-    <dimen name="spacing_medium">12dp</dimen>
-    <dimen name="spacing_large">16dp</dimen>
-    <dimen name="spacing_xlarge">24dp</dimen>
-    <dimen name="spacing_xxlarge">32dp</dimen>
+    <dimen name="spacing_xsmall">@dimen/spacing_4</dimen>
+    <dimen name="spacing_small">@dimen/spacing_8</dimen>
+    <dimen name="spacing_medium">@dimen/spacing_12</dimen>
+    <dimen name="spacing_large">@dimen/spacing_16</dimen>
+    <dimen name="spacing_xlarge">@dimen/spacing_24</dimen>
+    <dimen name="spacing_xxlarge">@dimen/spacing_32</dimen>
+
+    <!-- M3 Corner Radii Tokens (12/20/28) -->
+    <dimen name="radius_12">12dp</dimen>
+    <dimen name="radius_20">20dp</dimen>
+    <dimen name="radius_28">28dp</dimen>
 
     <!-- Card Attributes -->
-    <dimen name="card_corner_radius">12dp</dimen>
-    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_corner_radius">@dimen/radius_20</dimen>
+    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="card_elevation_subtle">1dp</dimen>
     <dimen name="card_stroke_width">1dp</dimen>
 
-    <!-- Touch Targets & Controls -->
-    <dimen name="min_touch_target">48dp</dimen>
-    <dimen name="button_height">52dp</dimen>
+    <!-- Touch Targets & Controls (48/56) -->
+    <dimen name="touch_target_min">48dp</dimen>
+    <dimen name="touch_target_button">56dp</dimen>
+    <dimen name="min_touch_target">@dimen/touch_target_min</dimen>
+    <dimen name="button_height">@dimen/touch_target_button</dimen>
+
+    <!-- Icon Sizes -->
     <dimen name="icon_size_small">18dp</dimen>
     <dimen name="icon_size_medium">24dp</dimen>
     <dimen name="icon_size_large">36dp</dimen>
     <dimen name="icon_size_xlarge">48dp</dimen>
+    <dimen name="badge_icon_size">14dp</dimen>
 
-    <!-- Typography Text Sizes -->
+    <!-- M3 Typography Type Scale (Display / Title / Body / Label) -->
+    <dimen name="m3_type_display_large">34sp</dimen>
+    <dimen name="m3_type_display_medium">28sp</dimen>
+    <dimen name="m3_type_display_small">24sp</dimen>
+    <dimen name="m3_type_headline_large">22sp</dimen>
+    <dimen name="m3_type_headline_medium">20sp</dimen>
+    <dimen name="m3_type_headline_small">18sp</dimen>
+    <dimen name="m3_type_title_large">20sp</dimen>
+    <dimen name="m3_type_title_medium">16sp</dimen>
+    <dimen name="m3_type_title_small">14sp</dimen>
+    <dimen name="m3_type_body_large">16sp</dimen>
+    <dimen name="m3_type_body_medium">14sp</dimen>
+    <dimen name="m3_type_body_small">12sp</dimen>
+    <dimen name="m3_type_label_large">14sp</dimen>
+    <dimen name="m3_type_label_medium">12sp</dimen>
+    <dimen name="m3_type_label_small">11sp</dimen>
+
+    <!-- Legacy Aliased Typography Sizes -->
     <dimen name="text_size_caption">12sp</dimen>
     <dimen name="text_size_body_small">13sp</dimen>
     <dimen name="text_size_body">14sp</dimen>

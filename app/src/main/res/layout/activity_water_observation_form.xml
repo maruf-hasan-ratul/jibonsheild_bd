@@ -342,6 +342,78 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card: Photo Evidence (Requirement 8 - Content Providers & Device Media) -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.JibonShieldBD.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_large">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_photo_evidence"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/text_size_subhead"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Attach a photo of the water source, sample vial, or turbidity for community observation."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_size_caption" />
+
+                    <!-- Image Preview Container -->
+                    <RelativeLayout
+                        android:id="@+id/layout_photo_preview_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:background="@drawable/bg_badge"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/iv_photo_preview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@string/photo_attached"
+                            android:scaleType="centerCrop" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_remove_photo"
+                            style="@style/Widget.JibonShieldBD.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_margin="8dp"
+                            android:text="@string/btn_remove_photo"
+                            android:textColor="@color/emergency_red"
+                            app:strokeColor="@color/emergency_red" />
+                    </RelativeLayout>
+
+                    <!-- Add Photo Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_add_photo"
+                        style="@style/Widget.JibonShieldBD.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:minHeight="@dimen/min_touch_target"
+                        android:text="@string/btn_add_photo"
+                        app:icon="@android:drawable/ic_menu_camera" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Card: Water Safety Integrity & Educational Guidance (Requirement 3) -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.JibonShieldBD.Card"

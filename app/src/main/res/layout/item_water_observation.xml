@@ -6,18 +6,19 @@
     style="@style/Widget.JibonShieldBD.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/spacing_large"
-    android:layout_marginTop="@dimen/spacing_small"
-    android:layout_marginEnd="@dimen/spacing_large"
-    android:layout_marginBottom="@dimen/spacing_small"
-    android:minHeight="@dimen/min_touch_target">
+    android:layout_marginStart="@dimen/spacing_16"
+    android:layout_marginTop="@dimen/spacing_4"
+    android:layout_marginEnd="@dimen/spacing_16"
+    android:layout_marginBottom="@dimen/spacing_8"
+    android:minHeight="@dimen/touch_target_min">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_large">
+        android:padding="@dimen/spacing_16">
 
+        <!-- Header: Source Type, Sync Badge & Safety Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,9 +29,10 @@
                 android:id="@+id/tv_obs_source_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge"
-                android:textColor="@color/primary"
-                android:textSize="@dimen/text_size_caption"
+                android:background="@drawable/bg_severity_sample"
+                android:fontFamily="@font/app_font_family"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="@dimen/m3_type_label_small"
                 android:textStyle="bold"
                 tools:text="Deep Tube-well" />
 
@@ -40,60 +42,116 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/tv_obs_sync_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_4"
+                android:background="@drawable/bg_severity_sample"
+                android:fontFamily="@font/app_font_family"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/m3_type_label_small"
+                tools:text="Cloud Synced" />
+
+            <!-- Safety Status: Icon + Word + Container -->
+            <TextView
                 android:id="@+id/tv_obs_safety_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_severity_safe"
-                android:textColor="@color/success_green"
-                android:textSize="@dimen/text_size_caption"
+                android:drawableStart="@drawable/ic_check_circle"
+                android:drawablePadding="@dimen/spacing_4"
+                android:fontFamily="@font/app_font_family"
+                android:gravity="center_vertical"
+                android:textColor="@color/severity_safe"
+                android:textSize="@dimen/m3_type_label_small"
                 android:textStyle="bold"
                 tools:text="Appears Safe" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_obs_location"
+        <!-- Body: Location Details + Evidence Thumbnail -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_subhead"
-            android:textStyle="bold"
-            tools:text="Ward 4 Community Tubewell, Meghna Ghat" />
+            android:layout_marginTop="@dimen/spacing_8"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_obs_district"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xxsmall"
-            android:textColor="@color/secondary"
-            android:textSize="@dimen/text_size_body_small"
-            tools:text="District: Chandpur" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/tv_obs_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/app_font_family"
+                    android:lineSpacingExtra="2dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/m3_type_title_medium"
+                    android:textStyle="bold"
+                    tools:text="Ward 4 Community Tubewell, Meghna Ghat" />
+
+                <TextView
+                    android:id="@+id/tv_obs_district"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_4"
+                    android:drawableStart="@drawable/ic_location"
+                    android:drawablePadding="@dimen/spacing_4"
+                    android:fontFamily="@font/app_font_family"
+                    android:gravity="center_vertical"
+                    android:textColor="?attr/colorSecondary"
+                    android:textSize="@dimen/m3_type_label_medium"
+                    android:textStyle="bold"
+                    tools:text="District: Chandpur" />
+            </LinearLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_obs_thumbnail"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="@dimen/spacing_8"
+                android:contentDescription="@string/photo_attached"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <!-- Measurements -->
         <TextView
             android:id="@+id/tv_obs_measurements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xsmall"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_caption"
+            android:layout_marginTop="@dimen/spacing_8"
+            android:fontFamily="@font/app_font_family"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_body_small"
             tools:text="pH: 7.2 • Turbidity: Low • Appearance: Clear • Odor: None" />
 
+        <!-- Remarks -->
         <TextView
             android:id="@+id/tv_obs_remarks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xsmall"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_body_small"
+            android:layout_marginTop="@dimen/spacing_4"
+            android:fontFamily="@font/app_font_family"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_body_small"
             tools:text="No visible sediment after recent monsoon rise." />
 
+        <!-- Footer Timestamp -->
         <TextView
             android:id="@+id/tv_obs_footer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:textColor="@color/text_tertiary"
-            android:textSize="@dimen/text_size_caption"
+            android:layout_marginTop="@dimen/spacing_12"
+            android:fontFamily="@font/app_font_family"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_label_small"
             tools:text="2026-10-13 10:30 BST • By: Community Volunteer" />
 
     </LinearLayout>

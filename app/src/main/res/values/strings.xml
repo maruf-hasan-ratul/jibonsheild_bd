@@ -434,4 +434,68 @@
     <string name="status_unavailable">Source Unavailable</string>
     <string name="sync_last_synced_format">Last Synced: %s</string>
     <string name="sync_records_format">%d records</string>
+
+    <!-- Photo Evidence & Media -->
+    <string name="label_photo_evidence">Field Photo Evidence (Optional)</string>
+    <string name="btn_add_photo">Add Photo</string>
+    <string name="btn_remove_photo">Remove Photo</string>
+    <string name="photo_attached">Photo evidence attached</string>
+    <string name="photo_pending_upload">Pending cloud upload</string>
+    <string name="photo_uploaded">Uploaded to cloud</string>
+
+    <!-- Foreground Emergency Monitoring Service -->
+    <string name="action_start_monitoring">Start Emergency Monitoring</string>
+    <string name="action_stop_monitoring">Stop Monitoring</string>
+    <string name="monitoring_active_title">Active Emergency Monitoring</string>
+    <string name="monitoring_active_desc">JibonShield vigilance active. Tap to open dashboard.</string>
+    <string name="channel_emergency_monitoring_name">Emergency Monitoring</string>
+    <string name="channel_emergency_monitoring_desc">Persistent notifications during active disaster vigilance</string>
+
+    <!-- Broadcast Receivers Feedback -->
+    <string name="status_airplane_mode_active">Airplane Mode Active — Operating 100% Offline</string>
+    <string name="status_battery_saver_active">Battery Saver Active — Background sync paused</string>
+
+    <!-- Authentication & Profile -->
+    <string name="title_login">Sign In</string>
+    <string name="title_register">Create Account</string>
+    <string name="title_profile">User Profile</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_register">Create Account</string>
+    <string name="btn_logout">Sign Out</string>
+    <string name="btn_continue_as_guest">Continue as Guest (Offline Mode)</string>
+    <string name="hint_email">Email address</string>
+    <string name="hint_password">Password (at least 6 characters)</string>
+    <string name="hint_display_name">Full name</string>
+    <string name="hint_phone">Contact phone number</string>
+    <string name="label_role">Account Role:</string>
+    <string name="role_citizen">Citizen</string>
+    <string name="role_volunteer">Emergency Response Volunteer</string>
+    <string name="prompt_no_account">Don\'t have an account? Register here</string>
+    <string name="prompt_have_account">Already have an account? Sign in</string>
+    <string name="auth_error_fields">Please fill in all required fields properly.</string>
+    <string name="auth_failed_title">Authentication Notice</string>
+    <string name="auth_success">Account registered successfully.</string>
+    <string name="login_success">Signed in successfully.</string>
+    <string name="logout_success">Signed out.</string>
+    <string name="profile_guest_mode">Guest Mode (Local Offline Resilience)</string>
+    <string name="profile_cloud_mode">Authenticated Cloud Account</string>
+
+    <!-- Material 3 Navigation & Theme Strings -->
+    <string name="nav_home">Home</string>
+    <string name="nav_shelters">Shelters</string>
+    <string name="nav_alerts">Alerts</string>
+    <string name="nav_help">Help</string>
+
+    <string name="heading_theme">App Theme &amp; Display</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="theme_amoled">Low-power AMOLED (Pure Black)</string>
+    <string name="toast_theme_changed">Display theme updated</string>
+
+    <string name="badge_critical">CRITICAL</string>
+    <string name="badge_warning">WARNING</string>
+    <string name="badge_advisory">ADVISORY</string>
+    <string name="badge_safe">NORMAL</string>
+    <string name="banner_stale_data">Data last updated over 24h ago. Connect to sync recent updates.</string>
 </resources>

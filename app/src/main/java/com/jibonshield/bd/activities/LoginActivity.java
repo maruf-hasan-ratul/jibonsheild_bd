@@ -88,7 +88,11 @@ public class LoginActivity extends BaseActivity {
                 if (isFinishing() || isDestroyed()) return;
                 binding.progressLogin.setVisibility(View.GONE);
                 binding.btnActionLogin.setEnabled(true);
-                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                new androidx.appcompat.app.AlertDialog.Builder(LoginActivity.this)
+                        .setTitle(R.string.auth_failed_title)
+                        .setMessage(errorMessage)
+                        .setPositiveButton(R.string.dialog_close, null)
+                        .show();
             }
         });
     }

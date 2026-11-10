@@ -6,16 +6,14 @@
     style="@style/Widget.JibonShieldBD.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/spacing_large"
-    android:layout_marginTop="@dimen/spacing_small"
-    android:layout_marginEnd="@dimen/spacing_large"
-    android:layout_marginBottom="@dimen/spacing_small"
-    android:minHeight="@dimen/min_touch_target">
+    android:layout_marginTop="@dimen/spacing_4"
+    android:layout_marginBottom="@dimen/spacing_8"
+    android:minHeight="@dimen/touch_target_min">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/spacing_large">
+        android:padding="@dimen/spacing_16">
 
         <!-- Module Category Icon Frame -->
         <ImageView
@@ -25,17 +23,21 @@
             android:contentDescription="@string/cd_module_icon"
             android:src="@drawable/ic_flood"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/colorPrimary" />
 
-        <!-- Status Badge (e.g. Offline Ready, Day 1 Preview) -->
+        <!-- Status Badge -->
         <TextView
             android:id="@+id/tv_card_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_badge"
+            android:background="@drawable/bg_severity_sample"
+            android:fontFamily="@font/app_font_family"
+            android:paddingHorizontal="@dimen/spacing_8"
+            android:paddingVertical="@dimen/spacing_4"
             android:text="@string/badge_offline_ready"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/text_size_caption"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="@dimen/m3_type_label_small"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -45,10 +47,12 @@
             android:id="@+id/tv_card_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:layout_marginEnd="@dimen/spacing_small"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_subhead"
+            android:layout_marginStart="@dimen/spacing_12"
+            android:layout_marginEnd="@dimen/spacing_8"
+            android:fontFamily="@font/app_font_family"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/m3_type_title_medium"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/tv_card_badge"
             app:layout_constraintStart_toEndOf="@+id/iv_card_icon"
@@ -60,9 +64,11 @@
             android:id="@+id/tv_card_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xsmall"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_size_body_small"
+            android:layout_marginTop="@dimen/spacing_4"
+            android:fontFamily="@font/app_font_family"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/m3_type_body_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_card_title"
             app:layout_constraintTop_toBottomOf="@+id/tv_card_title"

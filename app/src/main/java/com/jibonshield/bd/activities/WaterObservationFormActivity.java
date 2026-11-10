@@ -3,81 +3,88 @@ package com.jibonshield.bd.activities;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.button.MaterialButton;
 import com.jibonshield.bd.R;
+import com.jibonshield.bd.databinding.ActivityWaterObservationFormBinding;
 import com.jibonshield.bd.models.WaterObservation;
 import com.jibonshield.bd.repositories.EmergencyRepository;
+import com.jibonshield.bd.sync.EmergencySyncWorker;
+import com.jibonshield.bd.utils.DistrictData;
+import com.jibonshield.bd.utils.FileUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 /**
  * Screen 7: Water Observation Form Activity.
- * Allows field observers and citizens to record offline water quality observations.
- * Adheres strictly to water safety integrity: records are observational, NOT lab certifications.
+ * Demonstrates View Binding, Android Photo Picker integration, local content caching,
+ * field validation, and offline-first SQLite persistence with WorkManager cloud sync.
  */
 public class WaterObservationFormActivity extends BaseActivity {
 
     public static final String EXTRA_WATER_OBSERVATION = "extra_water_observation";
     private static final String STATE_SELECTED_TIME = "state_selected_time";
+    private static final String STATE_IMAGE_URI = "state_image_uri";
 
-    private TextView tvDate;
-    private MaterialButton btnChangeDateTime;
-    private TextView tvDateError;
-    private EditText etLocation;
-    private TextView tvLocationError;
-    private Spinner spinnerDistrict;
-    private Spinner spinnerSourceType;
-    private Spinner spinnerAppearance;
-    private Spinner spinnerOdor;
-    private EditText etPh;
-    private TextView tvPhError;
-    private Spinner spinnerTurbidity;
-    private Spinner spinnerSafety;
-    private EditText etReporter;
-    private EditText etNotes;
-    private TextView tvNotesError;
-    private MaterialButton btnSave;
-    private MaterialButton btnGotoHistory;
-
+    private ActivityWaterObservationFormBinding binding;
     private EmergencyRepository repository;
     private String currentDateFormatted;
     private WaterObservation existingObservation;
     private Calendar selectedCalendar;
     private boolean isSubmitting = false;
+    private String selectedImageUriString = null;
+    private String cloudImageUrl = null;
 
-    private final String[] districts = new String[]{
-            "Dhaka", "Sylhet", "Chandpur", "Kurigram", "Cox's Bazar", "Chittagong", "Sunamganj", "Patuakhali", "Other"
-    };
+    private final String[] districts = DistrictData.getDistrictsForRegistration();
+
+    // Modern Photo Picker Launcher
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                handleSelectedImageUri(uri);
+            });
+
+    // Fallback document/content picker launcher for older Android devices
+    private final ActivityResultLauncher<String> getContentLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                handleSelectedImageUri(uri);
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_water_observation_form);
+        binding = ActivityWaterObservationFormBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         selectedCalendar = Calendar.getInstance();
-        initViews();
+        repository = new EmergencyRepository(this);
+
         setupToolbar();
         setupSpinners();
+        updateDateDisplay();
         checkEditMode();
         setupListeners();
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_SELECTED_TIME)) {
-            currentDateFormatted = savedInstanceState.getString(STATE_SELECTED_TIME);
-            tvDate.setText(currentDateFormatted);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_SELECTED_TIME)) {
+                currentDateFormatted = savedInstanceState.getString(STATE_SELECTED_TIME);
+                binding.tvObsFormDate.setText(currentDateFormatted);
+            }
+            if (savedInstanceState.containsKey(STATE_IMAGE_URI)) {
+                selectedImageUriString = savedInstanceState.getString(STATE_IMAGE_URI);
+                displaySelectedImage(selectedImageUriString);
+            }
         }
     }
 
@@ -85,41 +92,11 @@ public class WaterObservationFormActivity extends BaseActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(STATE_SELECTED_TIME, currentDateFormatted);
-    }
-
-    private void initViews() {
-        tvDate = findViewById(R.id.tv_obs_form_date);
-        btnChangeDateTime = findViewById(R.id.btn_change_datetime);
-        tvDateError = findViewById(R.id.tv_obs_date_error);
-        etLocation = findViewById(R.id.et_obs_location);
-        tvLocationError = findViewById(R.id.tv_obs_location_error);
-        spinnerDistrict = findViewById(R.id.spinner_obs_district);
-        spinnerSourceType = findViewById(R.id.spinner_obs_source_type);
-        spinnerAppearance = findViewById(R.id.spinner_obs_appearance);
-        spinnerOdor = findViewById(R.id.spinner_obs_odor);
-        etPh = findViewById(R.id.et_obs_ph);
-        tvPhError = findViewById(R.id.tv_obs_ph_error);
-        spinnerTurbidity = findViewById(R.id.spinner_obs_turbidity);
-        spinnerSafety = findViewById(R.id.spinner_obs_safety);
-        etReporter = findViewById(R.id.et_obs_reporter);
-        etNotes = findViewById(R.id.et_obs_notes);
-        tvNotesError = findViewById(R.id.tv_obs_notes_error);
-        btnSave = findViewById(R.id.btn_save_observation);
-        btnGotoHistory = findViewById(R.id.btn_goto_history);
-
-        repository = new EmergencyRepository(this);
-
-        updateDateDisplay();
-    }
-
-    private void updateDateDisplay() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        currentDateFormatted = sdf.format(selectedCalendar.getTime()) + " BST";
-        tvDate.setText(currentDateFormatted);
+        outState.putString(STATE_IMAGE_URI, selectedImageUriString);
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_obs_form);
+        Toolbar toolbar = binding.toolbarObsForm;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -128,8 +105,14 @@ public class WaterObservationFormActivity extends BaseActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+    private void updateDateDisplay() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        currentDateFormatted = sdf.format(selectedCalendar.getTime()) + " BST";
+        binding.tvObsFormDate.setText(currentDateFormatted);
+    }
+
     private void setupSpinners() {
-        spinnerDistrict.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts));
+        binding.spinnerObsDistrict.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, districts));
 
         String[] sources = new String[]{
                 getString(R.string.source_tubewell),
@@ -139,7 +122,7 @@ public class WaterObservationFormActivity extends BaseActivity {
                 getString(R.string.source_tap),
                 getString(R.string.source_rainwater)
         };
-        spinnerSourceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sources));
+        binding.spinnerObsSourceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sources));
 
         String[] appearances = new String[]{
                 getString(R.string.appearance_clear),
@@ -147,7 +130,7 @@ public class WaterObservationFormActivity extends BaseActivity {
                 getString(R.string.appearance_reddish),
                 getString(R.string.appearance_greenish)
         };
-        spinnerAppearance.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, appearances));
+        binding.spinnerObsAppearance.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, appearances));
 
         String[] odors = new String[]{
                 getString(R.string.odor_none),
@@ -155,58 +138,119 @@ public class WaterObservationFormActivity extends BaseActivity {
                 getString(R.string.odor_earthy),
                 getString(R.string.odor_sulfur)
         };
-        spinnerOdor.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, odors));
+        binding.spinnerObsOdor.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, odors));
 
         String[] turbidities = new String[]{
                 getString(R.string.turbidity_low),
                 getString(R.string.turbidity_moderate),
                 getString(R.string.turbidity_high)
         };
-        spinnerTurbidity.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, turbidities));
+        binding.spinnerObsTurbidity.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, turbidities));
 
         String[] safeties = new String[]{
                 getString(R.string.safety_potable),
                 getString(R.string.safety_requires_boiling),
                 getString(R.string.safety_unsafe)
         };
-        spinnerSafety.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, safeties));
+        binding.spinnerObsSafety.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, safeties));
     }
 
     private void checkEditMode() {
         if (getIntent().hasExtra(EXTRA_WATER_OBSERVATION)) {
             existingObservation = (WaterObservation) getIntent().getSerializableExtra(EXTRA_WATER_OBSERVATION);
             if (existingObservation != null) {
-                btnSave.setText(R.string.btn_update_observation);
-                etLocation.setText(existingObservation.getLocationName());
+                binding.btnSaveObservation.setText(R.string.btn_update_observation);
+                binding.etObsLocation.setText(existingObservation.getLocationName());
                 if (existingObservation.isPhMeasured()) {
-                    etPh.setText(String.valueOf(existingObservation.getPhLevel()));
+                    binding.etObsPh.setText(String.valueOf(existingObservation.getPhLevel()));
                 } else {
-                    etPh.setText("");
+                    binding.etObsPh.setText("");
                 }
-                etReporter.setText(existingObservation.getReportedBy());
-                etNotes.setText(existingObservation.getRemarks());
+                binding.etObsReporter.setText(existingObservation.getReportedBy());
+                binding.etObsNotes.setText(existingObservation.getRemarks());
                 currentDateFormatted = existingObservation.getObservationTime();
-                tvDate.setText(currentDateFormatted);
+                binding.tvObsFormDate.setText(currentDateFormatted);
 
                 for (int i = 0; i < districts.length; i++) {
                     if (districts[i].equalsIgnoreCase(existingObservation.getDistrict())) {
-                        spinnerDistrict.setSelection(i);
+                        binding.spinnerObsDistrict.setSelection(i);
                         break;
                     }
                 }
+
+                if (existingObservation.getImageUri() != null) {
+                    selectedImageUriString = existingObservation.getImageUri();
+                    displaySelectedImage(selectedImageUriString);
+                }
+                cloudImageUrl = existingObservation.getImageUrl();
             }
         }
     }
 
     private void setupListeners() {
-        btnChangeDateTime.setOnClickListener(v -> showDateTimePicker());
-        tvDate.setOnClickListener(v -> showDateTimePicker());
+        binding.btnChangeDatetime.setOnClickListener(v -> showDateTimePicker());
+        binding.tvObsFormDate.setOnClickListener(v -> showDateTimePicker());
 
-        btnSave.setOnClickListener(v -> saveOrUpdateObservation());
-        btnGotoHistory.setOnClickListener(v -> {
+        binding.btnAddPhoto.setOnClickListener(v -> launchPhotoPicker());
+        binding.btnRemovePhoto.setOnClickListener(v -> removeSelectedPhoto());
+
+        binding.btnSaveObservation.setOnClickListener(v -> saveOrUpdateObservation());
+        binding.btnGotoHistory.setOnClickListener(v -> {
             Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void launchPhotoPicker() {
+        try {
+            if (ActivityResultContracts.PickVisualMedia.isPhotoPickerAvailable()) {
+                pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+            } else {
+                getContentLauncher.launch("image/*");
+            }
+        } catch (Exception e) {
+            // Fallback for custom ROMs / legacy Android versions
+            getContentLauncher.launch("image/*");
+        }
+    }
+
+    private void handleSelectedImageUri(Uri uri) {
+        if (uri != null) {
+            // Persist a managed local copy into app private storage to ensure safe offline access
+            String localUriString = FileUtils.saveImageToInternalStorage(this, uri);
+            if (localUriString != null) {
+                selectedImageUriString = localUriString;
+            } else {
+                selectedImageUriString = uri.toString();
+            }
+            displaySelectedImage(selectedImageUriString);
+        }
+    }
+
+    private void displaySelectedImage(String uriString) {
+        if (uriString != null && !uriString.trim().isEmpty()) {
+            try {
+                binding.ivPhotoPreview.setImageURI(Uri.parse(uriString));
+                binding.layoutPhotoPreviewContainer.setVisibility(View.VISIBLE);
+                binding.btnAddPhoto.setVisibility(View.GONE);
+            } catch (Exception e) {
+                binding.layoutPhotoPreviewContainer.setVisibility(View.GONE);
+                binding.btnAddPhoto.setVisibility(View.VISIBLE);
+            }
+        } else {
+            binding.layoutPhotoPreviewContainer.setVisibility(View.GONE);
+            binding.btnAddPhoto.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void removeSelectedPhoto() {
+        selectedImageUriString = null;
+        cloudImageUrl = null;
+        binding.ivPhotoPreview.setImageURI(null);
+        binding.layoutPhotoPreviewContainer.setVisibility(View.GONE);
+        binding.btnAddPhoto.setVisibility(View.VISIBLE);
     }
 
     private void showDateTimePicker() {
@@ -223,11 +267,11 @@ public class WaterObservationFormActivity extends BaseActivity {
                                 selectedCalendar.set(Calendar.MINUTE, minute);
 
                                 if (selectedCalendar.after(now)) {
-                                    tvDateError.setVisibility(View.VISIBLE);
-                                    tvDateError.setText(R.string.obs_error_future_date);
+                                    binding.tvObsDateError.setVisibility(View.VISIBLE);
+                                    binding.tvObsDateError.setText(R.string.obs_error_future_date);
                                     selectedCalendar = Calendar.getInstance();
                                 } else {
-                                    tvDateError.setVisibility(View.GONE);
+                                    binding.tvObsDateError.setVisibility(View.GONE);
                                 }
                                 updateDateDisplay();
                             },
@@ -244,75 +288,106 @@ public class WaterObservationFormActivity extends BaseActivity {
     }
 
     private void saveOrUpdateObservation() {
-        if (isSubmitting) {
-            return;
-        }
+        if (isSubmitting) return;
 
         // 1. Validate Location
-        String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
+        String location = binding.etObsLocation.getText() != null ? binding.etObsLocation.getText().toString().trim() : "";
         if (!WaterObservation.isValidLocation(location)) {
-            tvLocationError.setVisibility(View.VISIBLE);
-            tvLocationError.setText(R.string.obs_error_location_required);
-            etLocation.requestFocus();
+            binding.tvObsLocationError.setVisibility(View.VISIBLE);
+            binding.tvObsLocationError.setText(R.string.obs_error_location_required);
+            binding.etObsLocation.requestFocus();
             return;
         } else {
-            tvLocationError.setVisibility(View.GONE);
+            binding.tvObsLocationError.setVisibility(View.GONE);
         }
 
         // 2. Validate Optional pH
         double ph = WaterObservation.UNMEASURED_PH;
-        String phStr = etPh.getText() != null ? etPh.getText().toString().trim() : "";
+        String phStr = binding.etObsPh.getText() != null ? binding.etObsPh.getText().toString().trim() : "";
         if (!phStr.isEmpty()) {
             if (!WaterObservation.isValidPhString(phStr)) {
-                tvPhError.setVisibility(View.VISIBLE);
-                tvPhError.setText(R.string.obs_error_ph_range);
-                etPh.requestFocus();
+                binding.tvObsPhError.setVisibility(View.VISIBLE);
+                binding.tvObsPhError.setText(R.string.obs_error_ph_range);
+                binding.etObsPh.requestFocus();
                 return;
             } else {
                 try {
                     ph = Double.parseDouble(phStr);
                 } catch (NumberFormatException e) {
-                    tvPhError.setVisibility(View.VISIBLE);
-                    tvPhError.setText(R.string.obs_error_ph_range);
-                    etPh.requestFocus();
+                    binding.tvObsPhError.setVisibility(View.VISIBLE);
+                    binding.tvObsPhError.setText(R.string.obs_error_ph_range);
+                    binding.etObsPh.requestFocus();
                     return;
                 }
             }
         }
-        tvPhError.setVisibility(View.GONE);
+        binding.tvObsPhError.setVisibility(View.GONE);
 
         // 3. Validate Notes Length
-        String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
+        String notes = binding.etObsNotes.getText() != null ? binding.etObsNotes.getText().toString().trim() : "";
         if (!WaterObservation.isValidNotes(notes)) {
-            tvNotesError.setVisibility(View.VISIBLE);
-            tvNotesError.setText(R.string.obs_error_notes_too_long);
-            etNotes.requestFocus();
+            binding.tvObsNotesError.setVisibility(View.VISIBLE);
+            binding.tvObsNotesError.setText(R.string.obs_error_notes_too_long);
+            binding.etObsNotes.requestFocus();
             return;
         } else {
-            tvNotesError.setVisibility(View.GONE);
+            binding.tvObsNotesError.setVisibility(View.GONE);
         }
 
-        String district = districts[spinnerDistrict.getSelectedItemPosition()];
-        String source = spinnerSourceType.getSelectedItem().toString();
-        String appearance = spinnerAppearance.getSelectedItem().toString();
-        String odor = spinnerOdor.getSelectedItem().toString();
-        String turbidity = spinnerTurbidity.getSelectedItem().toString();
-        String safety = spinnerSafety.getSelectedItem().toString();
+        String district = districts[binding.spinnerObsDistrict.getSelectedItemPosition()];
+        String source = binding.spinnerObsSourceType.getSelectedItem().toString();
+        String appearance = binding.spinnerObsAppearance.getSelectedItem().toString();
+        String odor = binding.spinnerObsOdor.getSelectedItem().toString();
+        String turbidity = binding.spinnerObsTurbidity.getSelectedItem().toString();
+        String safety = binding.spinnerObsSafety.getSelectedItem().toString();
 
-        String reporter = etReporter.getText() != null && !etReporter.getText().toString().trim().isEmpty()
-                ? etReporter.getText().toString().trim()
+        String reporter = binding.etObsReporter.getText() != null && !binding.etObsReporter.getText().toString().trim().isEmpty()
+                ? binding.etObsReporter.getText().toString().trim()
                 : getString(R.string.hint_obs_reporter);
 
+        final double finalPh = ph;
         isSubmitting = true;
-        btnSave.setEnabled(false);
+        binding.btnSaveObservation.setEnabled(false);
 
+        if (selectedImageUriString != null && !selectedImageUriString.trim().isEmpty() && cloudImageUrl == null) {
+            try {
+                Uri imageUri = Uri.parse(selectedImageUriString);
+                com.jibonshield.bd.firebase.FirebaseStorageManager.getInstance(this)
+                        .uploadWaterObservationImage(imageUri, String.valueOf(System.currentTimeMillis()), new com.jibonshield.bd.firebase.FirebaseStorageManager.UploadCallback() {
+                            @Override
+                            public void onProgress(double progressPercent) {
+                            }
+
+                            @Override
+                            public void onSuccess(String downloadUrl) {
+                                cloudImageUrl = downloadUrl;
+                                executeSaveOrUpdate(location, district, source, appearance, odor, finalPh, turbidity, safety, reporter, notes);
+                            }
+
+                            @Override
+                            public void onFailure(String errorMessage) {
+                                executeSaveOrUpdate(location, district, source, appearance, odor, finalPh, turbidity, safety, reporter, notes);
+                            }
+                        });
+            } catch (Exception e) {
+                executeSaveOrUpdate(location, district, source, appearance, odor, finalPh, turbidity, safety, reporter, notes);
+            }
+        } else {
+            executeSaveOrUpdate(location, district, source, appearance, odor, finalPh, turbidity, safety, reporter, notes);
+        }
+    }
+
+    private void executeSaveOrUpdate(String location, String district, String source, String appearance,
+                                    String odor, double ph, String turbidity, String safety,
+                                    String reporter, String notes) {
         if (existingObservation != null) {
-            // Update existing observation
+            // Update existing observation in Firestore
             WaterObservation updatedObs = new WaterObservation(
                     existingObservation.getId(),
                     location, district, source, appearance, odor,
                     ph, turbidity, safety, currentDateFormatted,
-                    reporter, notes, existingObservation.getCreatedAt(), System.currentTimeMillis()
+                    reporter, notes, selectedImageUriString, cloudImageUrl, WaterObservation.SYNC_SYNCED,
+                    existingObservation.getCreatedAt(), System.currentTimeMillis()
             );
 
             repository.updateWaterObservation(updatedObs, new EmergencyRepository.ActionCallback() {
@@ -320,8 +395,9 @@ public class WaterObservationFormActivity extends BaseActivity {
                 public void onSuccess() {
                     if (isFinishing() || isDestroyed()) return;
                     isSubmitting = false;
-                    btnSave.setEnabled(true);
+                    binding.btnSaveObservation.setEnabled(true);
                     Toast.makeText(WaterObservationFormActivity.this, R.string.obs_updated_success, Toast.LENGTH_SHORT).show();
+                    EmergencySyncWorker.triggerImmediateSync(WaterObservationFormActivity.this);
                     finish();
                 }
 
@@ -329,23 +405,29 @@ public class WaterObservationFormActivity extends BaseActivity {
                 public void onError(Exception error) {
                     if (isFinishing() || isDestroyed()) return;
                     isSubmitting = false;
-                    btnSave.setEnabled(true);
+                    binding.btnSaveObservation.setEnabled(true);
                     String msg = error != null ? error.getMessage() : "Unknown";
                     Toast.makeText(WaterObservationFormActivity.this, getString(R.string.obs_error_update_failed, msg), Toast.LENGTH_LONG).show();
                 }
             });
         } else {
-            // Insert new observation
-            WaterObservation obs = new WaterObservation(0, location, district, source, appearance, odor,
-                    ph, turbidity, safety, currentDateFormatted, reporter, notes);
+            // Insert new observation directly into Firestore
+            WaterObservation obs = new WaterObservation(
+                    0, location, district, source, appearance, odor,
+                    ph, turbidity, safety, currentDateFormatted, reporter, notes,
+                    selectedImageUriString, cloudImageUrl, WaterObservation.SYNC_SYNCED,
+                    System.currentTimeMillis(), System.currentTimeMillis()
+            );
 
             repository.saveWaterObservation(obs, new EmergencyRepository.ActionCallback() {
                 @Override
                 public void onSuccess() {
                     if (isFinishing() || isDestroyed()) return;
                     isSubmitting = false;
-                    btnSave.setEnabled(true);
+                    binding.btnSaveObservation.setEnabled(true);
                     Toast.makeText(WaterObservationFormActivity.this, R.string.obs_saved_success, Toast.LENGTH_SHORT).show();
+                    EmergencySyncWorker.triggerImmediateSync(WaterObservationFormActivity.this);
+
                     Intent intent = new Intent(WaterObservationFormActivity.this, WaterObservationHistoryActivity.class);
                     startActivity(intent);
                     finish();
@@ -355,11 +437,17 @@ public class WaterObservationFormActivity extends BaseActivity {
                 public void onError(Exception error) {
                     if (isFinishing() || isDestroyed()) return;
                     isSubmitting = false;
-                    btnSave.setEnabled(true);
+                    binding.btnSaveObservation.setEnabled(true);
                     String msg = error != null ? error.getMessage() : "Unknown";
                     Toast.makeText(WaterObservationFormActivity.this, getString(R.string.obs_error_save_failed, msg), Toast.LENGTH_LONG).show();
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }
