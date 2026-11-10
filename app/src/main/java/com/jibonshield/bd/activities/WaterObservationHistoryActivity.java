@@ -162,7 +162,19 @@ public class WaterObservationHistoryActivity extends BaseActivity implements Wat
         });
     }
 
+    private boolean isObservationOwner(WaterObservation observation) {
+        if (observation == null) return false;
+        String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(this).getCurrentUserId();
+        String currentEmail = com.jibonshield.bd.utils.PreferenceUtils.getUserEmail(this);
+        String currentName = com.jibonshield.bd.utils.PreferenceUtils.getUserName(this);
+        return observation.isCreatedBy(currentUid, currentName, currentEmail);
+    }
+
     private void openFormActivity(WaterObservation obs) {
+        if (obs != null && !isObservationOwner(obs)) {
+            Toast.makeText(this, R.string.obs_error_unauthorized, Toast.LENGTH_LONG).show();
+            return;
+        }
         Intent intent = new Intent(this, WaterObservationFormActivity.class);
         if (obs != null) {
             intent.putExtra(WaterObservationFormActivity.EXTRA_WATER_OBSERVATION, obs);
@@ -172,20 +184,25 @@ public class WaterObservationHistoryActivity extends BaseActivity implements Wat
 
     @Override
     public void onObservationClick(WaterObservation observation) {
-        String[] options = new String[]{
-                getString(R.string.obs_action_view_details),
-                getString(R.string.action_edit),
-                getString(R.string.action_delete)
-        };
+        boolean isOwner = isObservationOwner(observation);
+        List<String> optionsList = new ArrayList<>();
+        optionsList.add(getString(R.string.obs_action_view_details));
+        if (isOwner) {
+            optionsList.add(getString(R.string.action_edit));
+            optionsList.add(getString(R.string.action_delete));
+        }
+
+        String[] options = optionsList.toArray(new String[0]);
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle(observation.getLocationName())
                 .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
+                    String selected = options[which];
+                    if (selected.equals(getString(R.string.obs_action_view_details))) {
                         showObservationDetailsDialog(observation);
-                    } else if (which == 1) {
+                    } else if (selected.equals(getString(R.string.action_edit))) {
                         openFormActivity(observation);
-                    } else if (which == 2) {
+                    } else if (selected.equals(getString(R.string.action_delete))) {
                         confirmDeleteObservation(observation);
                     }
                 })
@@ -226,21 +243,34 @@ public class WaterObservationHistoryActivity extends BaseActivity implements Wat
         details.append(getString(R.string.obs_safe_water_guidance_title)).append(":\n");
         details.append(getString(R.string.obs_safe_water_guidance_body));
 
-        new MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.obs_details_title))
-                .setMessage(details.toString())
-                .setPositiveButton(R.string.action_edit, (dialog, which) -> openFormActivity(observation))
-                .setNeutralButton(R.string.action_delete, (dialog, which) -> confirmDeleteObservation(observation))
-                .setNegativeButton(R.string.obs_dialog_close, (dialog, which) -> dialog.dismiss())
+                .setMessage(details.toString());
+
+        if (isObservationOwner(observation)) {
+            dialogBuilder.setPositiveButton(R.string.action_edit, (dialog, which) -> openFormActivity(observation));
+            dialogBuilder.setNeutralButton(R.string.action_delete, (dialog, which) -> confirmDeleteObservation(observation));
+        }
+
+        dialogBuilder.setNegativeButton(R.string.obs_dialog_close, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
     private void confirmDeleteObservation(WaterObservation observation) {
+        if (!isObservationOwner(observation)) {
+            Toast.makeText(this, R.string.obs_error_unauthorized, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(this).getCurrentUserId();
+        String currentEmail = com.jibonshield.bd.utils.PreferenceUtils.getUserEmail(this);
+        String currentName = com.jibonshield.bd.utils.PreferenceUtils.getUserName(this);
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.action_delete)
                 .setMessage(R.string.dialog_delete_confirm)
                 .setPositiveButton(R.string.action_delete, (dialog, which) -> {
-                    repository.deleteWaterObservation(observation.getId(), new EmergencyRepository.ActionCallback() {
+                    repository.deleteWaterObservation(observation.getId(), currentUid, currentName, currentEmail, new EmergencyRepository.ActionCallback() {
                         @Override
                         public void onSuccess() {
                             if (isFinishing() || isDestroyed()) return;

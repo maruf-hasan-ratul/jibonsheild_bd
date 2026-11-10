@@ -32,17 +32,19 @@ public class WaterObservation implements Serializable {
     private final String imageUri;
     private final String imageUrl;
     private final String syncStatus;
+    private final String userId;
     private final long createdAt;
     private final long updatedAt;
 
     /**
-     * Master constructor with image and sync parameters.
+     * Master constructor with image, sync, and user parameters.
      */
     public WaterObservation(long id, String locationName, String district, String sourceType,
                             String appearance, String odor, double phLevel,
                             String turbidityStatus, String safetyStatus,
                             String observationTime, String reportedBy, String remarks,
                             String imageUri, String imageUrl, String syncStatus,
+                            String userId,
                             long createdAt, long updatedAt) {
         this.id = id;
         this.locationName = locationName;
@@ -59,8 +61,23 @@ public class WaterObservation implements Serializable {
         this.imageUri = imageUri;
         this.imageUrl = imageUrl;
         this.syncStatus = syncStatus != null ? syncStatus : SYNC_PENDING;
+        this.userId = userId != null ? userId : "";
         this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
         this.updatedAt = updatedAt > 0 ? updatedAt : System.currentTimeMillis();
+    }
+
+    /**
+     * Constructor with image and sync parameters without user ID.
+     */
+    public WaterObservation(long id, String locationName, String district, String sourceType,
+                            String appearance, String odor, double phLevel,
+                            String turbidityStatus, String safetyStatus,
+                            String observationTime, String reportedBy, String remarks,
+                            String imageUri, String imageUrl, String syncStatus,
+                            long createdAt, long updatedAt) {
+        this(id, locationName, district, sourceType, appearance, odor, phLevel,
+                turbidityStatus, safetyStatus, observationTime, reportedBy, remarks,
+                imageUri, imageUrl, syncStatus, "", createdAt, updatedAt);
     }
 
     /**
@@ -107,6 +124,34 @@ public class WaterObservation implements Serializable {
     public boolean hasImage() { return (imageUri != null && !imageUri.trim().isEmpty()) || (imageUrl != null && !imageUrl.trim().isEmpty()); }
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
+    public String getUserId() { return userId != null ? userId : ""; }
+
+    /**
+     * Strict ownership check: Only the person who created this observation can edit or delete it.
+     */
+    public boolean isCreatedBy(String currentUserId, String currentUserName, String currentUserEmail) {
+        // 1. If observation has a specific userId attached, it MUST match currentUserId strictly!
+        if (userId != null && !userId.trim().isEmpty()) {
+            return currentUserId != null && !currentUserId.trim().isEmpty()
+                    && userId.trim().equalsIgnoreCase(currentUserId.trim());
+        }
+
+        // 2. If legacy observation has no userId, match strictly against creator's email or exact name
+        if (reportedBy != null && !reportedBy.trim().isEmpty() && !"Citizen".equalsIgnoreCase(reportedBy.trim())) {
+            if (currentUserEmail != null && !currentUserEmail.trim().isEmpty()
+                    && reportedBy.trim().equalsIgnoreCase(currentUserEmail.trim())) {
+                return true;
+            }
+            if (currentUserName != null && !currentUserName.trim().isEmpty()
+                    && !currentUserName.equalsIgnoreCase("User")
+                    && !currentUserName.equalsIgnoreCase("Citizen")
+                    && !currentUserName.equalsIgnoreCase("JibonShield User")
+                    && reportedBy.trim().equalsIgnoreCase(currentUserName.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean isPhMeasured() {
         return phLevel >= MIN_PH && phLevel <= MAX_PH;

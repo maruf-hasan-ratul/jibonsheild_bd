@@ -67,13 +67,13 @@
         <!-- 7. Water Observation Form -->
         <activity
             android:name=".activities.WaterObservationFormActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 8. Water Observation History -->
         <activity
             android:name=".activities.WaterObservationHistoryActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 9. Heat Safety -->
@@ -97,7 +97,7 @@
         <!-- 12. Settings -->
         <activity
             android:name=".activities.SettingsActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.JibonShieldBD" />
 
         <!-- 13. About & Data Sources -->

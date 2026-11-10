@@ -372,6 +372,7 @@
     <string name="obs_error_save_failed">Failed to save observation to Cloud Firestore: %1$s</string>
     <string name="obs_error_update_failed">Failed to update observation: %1$s</string>
     <string name="obs_error_delete_failed">Failed to delete observation: %1$s</string>
+    <string name="obs_error_unauthorized">Only the author who created this observation can edit or delete it.</string>
     <string name="obs_disclaimer_title">Water Safety &amp; Integrity Notice</string>
     <string name="obs_disclaimer_body">Field Record Notice: Visual clarity, lack of odor, or normal pH does NOT certify drinking water as safe. Microorganisms, bacteria, and invisible heavy metals (like Arsenic) can only be confirmed by certified laboratory testing. For suspected contamination, contact the Department of Public Health Engineering (DPHE) or local health authorities.</string>
     <string name="obs_safe_water_guidance_title">General Safe Water &amp; Purification Rules</string>

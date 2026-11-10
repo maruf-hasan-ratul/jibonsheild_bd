@@ -93,7 +93,10 @@ public class FirebaseAuthManager {
 
     public String getCurrentUserId() {
         FirebaseUser user = getCurrentUser();
-        return user != null ? user.getUid() : "guest_offline_user";
+        if (user != null && user.getUid() != null && !user.getUid().isEmpty()) {
+            return user.getUid();
+        }
+        return PreferenceUtils.getOrCreateUserUuid(context);
     }
 
     public void registerUser(String email, String password, String displayName,
@@ -168,9 +171,11 @@ public class FirebaseAuthManager {
                     FirebaseUser user = authResult.getUser();
                     if (user != null) {
                         PreferenceUtils.setUserEmail(context, user.getEmail() != null ? user.getEmail() : email);
-                        if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
-                            PreferenceUtils.setUserName(context, user.getDisplayName());
+                        String displayName = user.getDisplayName();
+                        if (displayName == null || displayName.trim().isEmpty()) {
+                            displayName = (email != null && email.contains("@")) ? email.substring(0, email.indexOf('@')) : "User";
                         }
+                        PreferenceUtils.setUserName(context, displayName);
                         syncUserProfileFromFirestore(user.getUid());
                     }
                     if (callback != null) {
@@ -324,6 +329,9 @@ public class FirebaseAuthManager {
         if (auth != null) {
             auth.signOut();
         }
+        PreferenceUtils.setUserName(context, "");
+        PreferenceUtils.setUserEmail(context, "");
+        PreferenceUtils.resetUserUuid(context);
     }
 
     public void getCurrentUserProfile(ProfileCallback callback) {

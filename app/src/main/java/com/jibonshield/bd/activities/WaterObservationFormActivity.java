@@ -159,6 +159,15 @@ public class WaterObservationFormActivity extends BaseActivity {
         if (getIntent().hasExtra(EXTRA_WATER_OBSERVATION)) {
             existingObservation = (WaterObservation) getIntent().getSerializableExtra(EXTRA_WATER_OBSERVATION);
             if (existingObservation != null) {
+                String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(this).getCurrentUserId();
+                String currentEmail = com.jibonshield.bd.utils.PreferenceUtils.getUserEmail(this);
+                String currentName = com.jibonshield.bd.utils.PreferenceUtils.getUserName(this);
+                if (!existingObservation.isCreatedBy(currentUid, currentName, currentEmail)) {
+                    Toast.makeText(this, R.string.obs_error_unauthorized, Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+
                 binding.btnSaveObservation.setText(R.string.btn_update_observation);
                 binding.etObsLocation.setText(existingObservation.getLocationName());
                 if (existingObservation.isPhMeasured()) {
@@ -382,11 +391,16 @@ public class WaterObservationFormActivity extends BaseActivity {
                                     String reporter, String notes) {
         if (existingObservation != null) {
             // Update existing observation in Firestore
+            String creatorUid = (existingObservation.getUserId() != null && !existingObservation.getUserId().trim().isEmpty())
+                    ? existingObservation.getUserId()
+                    : com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(this).getCurrentUserId();
+
             WaterObservation updatedObs = new WaterObservation(
                     existingObservation.getId(),
                     location, district, source, appearance, odor,
                     ph, turbidity, safety, currentDateFormatted,
                     reporter, notes, selectedImageUriString, cloudImageUrl, WaterObservation.SYNC_SYNCED,
+                    creatorUid,
                     existingObservation.getCreatedAt(), System.currentTimeMillis()
             );
 
@@ -412,10 +426,12 @@ public class WaterObservationFormActivity extends BaseActivity {
             });
         } else {
             // Insert new observation directly into Firestore
+            String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(this).getCurrentUserId();
             WaterObservation obs = new WaterObservation(
                     0, location, district, source, appearance, odor,
                     ph, turbidity, safety, currentDateFormatted, reporter, notes,
                     selectedImageUriString, cloudImageUrl, WaterObservation.SYNC_SYNCED,
+                    currentUid,
                     System.currentTimeMillis(), System.currentTimeMillis()
             );
 

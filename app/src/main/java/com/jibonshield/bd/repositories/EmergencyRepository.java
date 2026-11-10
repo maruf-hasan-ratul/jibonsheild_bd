@@ -998,12 +998,17 @@ public class EmergencyRepository {
         }
 
         long id = obs.getId() > 0 ? obs.getId() : System.currentTimeMillis();
+        String uid = (obs.getUserId() != null && !obs.getUserId().trim().isEmpty())
+                ? obs.getUserId()
+                : com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(context).getCurrentUserId();
+
         WaterObservation prepared = new WaterObservation(
                 id, obs.getLocationName(), obs.getDistrict(), obs.getSourceType(),
                 obs.getAppearance(), obs.getOdor(), obs.getPhLevel(), obs.getTurbidityStatus(),
                 obs.getSafetyStatus(), obs.getObservationTime(), obs.getReportedBy(),
                 obs.getRemarks(), obs.getImageUri(), obs.getImageUrl(),
                 WaterObservation.SYNC_SYNCED,
+                uid,
                 obs.getCreatedAt() > 0 ? obs.getCreatedAt() : System.currentTimeMillis(),
                 System.currentTimeMillis()
         );
@@ -1025,24 +1030,55 @@ public class EmergencyRepository {
     }
 
     public void updateWaterObservation(WaterObservation obs, ActionCallback callback) {
+        String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(context).getCurrentUserId();
+        String currentEmail = com.jibonshield.bd.utils.PreferenceUtils.getUserEmail(context);
+        String currentName = com.jibonshield.bd.utils.PreferenceUtils.getUserName(context);
+        if (obs != null && !obs.isCreatedBy(currentUid, currentName, currentEmail)) {
+            if (callback != null) {
+                mainHandler.post(() -> callback.onError(new SecurityException("Unauthorized: Only the creator of this observation can edit it.")));
+            }
+            return;
+        }
         saveWaterObservation(obs, callback);
     }
 
     public void deleteWaterObservation(long id, ActionCallback callback) {
+        String currentUid = com.jibonshield.bd.firebase.FirebaseAuthManager.getInstance(context).getCurrentUserId();
+        String currentEmail = com.jibonshield.bd.utils.PreferenceUtils.getUserEmail(context);
+        String currentName = com.jibonshield.bd.utils.PreferenceUtils.getUserName(context);
+        deleteWaterObservation(id, currentUid, currentName, currentEmail, callback);
+    }
+
+    public void deleteWaterObservation(long id, String requestorUid, String requestorName, String requestorEmail, ActionCallback callback) {
         if (!isFirestoreAvailable()) {
             if (callback != null) mainHandler.post(callback::onSuccess);
             return;
         }
 
-        db.collection(DatabaseContract.WaterObservationEntry.TABLE_NAME)
-                .document("obs_" + id)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    if (callback != null) mainHandler.post(callback::onSuccess);
-                })
-                .addOnFailureListener(e -> {
-                    if (callback != null) mainHandler.post(() -> callback.onError(e));
-                });
+        DocumentReference docRef = db.collection(DatabaseContract.WaterObservationEntry.TABLE_NAME)
+                .document("obs_" + id);
+
+        docRef.get().addOnSuccessListener(doc -> {
+            if (doc != null && doc.exists()) {
+                WaterObservation obs = mapToWaterObservation(doc);
+                if (obs != null && !obs.isCreatedBy(requestorUid, requestorName, requestorEmail)) {
+                    if (callback != null) {
+                        mainHandler.post(() -> callback.onError(new SecurityException("Unauthorized: Only the creator of this observation can delete it.")));
+                    }
+                    return;
+                }
+            }
+
+            docRef.delete()
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null) mainHandler.post(callback::onSuccess);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) mainHandler.post(() -> callback.onError(e));
+                    });
+        }).addOnFailureListener(e -> {
+            if (callback != null) mainHandler.post(() -> callback.onError(e));
+        });
     }
 
     public void getWaterObservationById(long id, DataCallback<WaterObservation> callback) {
@@ -1911,6 +1947,8 @@ public class EmergencyRepository {
         map.put("reportedBy", o.getReportedBy());
         map.put("imageUrl", o.getImageUrl());
         map.put("imageUri", o.getImageUri());
+        map.put("userId", o.getUserId());
+        map.put("user_id", o.getUserId());
         map.put("createdAt", o.getCreatedAt());
         map.put("updatedAt", o.getUpdatedAt());
         return map;
@@ -1955,6 +1993,10 @@ public class EmergencyRepository {
             if (imgUrl == null) imgUrl = doc.getString("imageUrl");
 
             String sync = doc.getString(DatabaseContract.WaterObservationEntry.COLUMN_SYNC_STATUS);
+
+            String uid = doc.getString("userId");
+            if (uid == null) uid = doc.getString("user_id");
+
             Long createdLong = doc.getLong(DatabaseContract.WaterObservationEntry.COLUMN_CREATED_AT);
             if (createdLong == null) createdLong = doc.getLong("createdAt");
             long created = createdLong != null ? createdLong : System.currentTimeMillis();
@@ -1969,7 +2011,9 @@ public class EmergencyRepository {
                     ph != null ? ph : -1.0, turb != null ? turb : "Low",
                     safe != null ? safe : "Potable", time != null ? time : "Recent",
                     rep != null ? rep : "Citizen", rem, imgUri, imgUrl,
-                    sync != null ? sync : WaterObservation.SYNC_SYNCED, created, updated);
+                    sync != null ? sync : WaterObservation.SYNC_SYNCED,
+                    uid != null ? uid : "",
+                    created, updated);
         } catch (Exception e) {
             return null;
         }

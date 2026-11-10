@@ -23,6 +23,7 @@ public final class PreferenceUtils {
     // User Profile Keys
     private static final String KEY_USER_NAME = "user_display_name";
     private static final String KEY_USER_EMAIL = "user_email_address";
+    private static final String KEY_USER_UUID = "user_device_uuid";
 
     public static final String DEFAULT_DISTRICT = "All";
     public static final String LANG_BN = "bn";
@@ -127,5 +128,18 @@ public final class PreferenceUtils {
 
     public static void setUserEmail(Context context, String email) {
         getPrefs(context).edit().putString(KEY_USER_EMAIL, email != null ? email.trim() : "").apply();
+    }
+
+    public static String getOrCreateUserUuid(Context context) {
+        String uuid = getPrefs(context).getString(KEY_USER_UUID, null);
+        if (uuid == null || uuid.isEmpty()) {
+            uuid = "user_" + java.util.UUID.randomUUID().toString();
+            getPrefs(context).edit().putString(KEY_USER_UUID, uuid).apply();
+        }
+        return uuid;
+    }
+
+    public static void resetUserUuid(Context context) {
+        getPrefs(context).edit().remove(KEY_USER_UUID).apply();
     }
 }
